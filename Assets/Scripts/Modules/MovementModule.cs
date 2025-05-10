@@ -15,9 +15,6 @@ namespace Assets.Scripts.Modules
 
         public float moveSpeed = 5f;
 
-        private Vector3 _lastSentPosition;
-        private float _reconcileThreshold = 0.1f;
-
         void Awake()
         {
             _movement.Value = new Vector2(0, 0);
@@ -27,7 +24,7 @@ namespace Assets.Scripts.Modules
 
         public override void OnStartNetwork()
         {
-            _lastSentPosition = gameObject.transform.position;
+            
         }
 
         [ServerRpc(RunLocally = true)]
@@ -62,7 +59,7 @@ namespace Assets.Scripts.Modules
 
             if(! IsServerInitialized) return;
 
-            ReconcilePosition(_lastSentPosition);
+            ReconcilePosition(gameObject.transform.position);
         }
     }
 }
