@@ -1,0 +1,24 @@
+# Unity & VS related
+.DS_Store
+.vs
+.vsconfig
+.vscode
+
+# Unity project-specific
+*.booproj
+*.pidb
+*.suo
+*.user
+*.userprefs
+
+# Compiled binaries
+*.dll
+*.exe
+
+[Bb]uild/
+[Ll]ibrary/
+[Ll]ogs/
+[Oo]bj/
+[Pp]rojectSettings/
+[Uu]serSettings/
+[Tt]emp/
