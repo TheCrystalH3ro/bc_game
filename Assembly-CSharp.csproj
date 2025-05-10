@@ -80,7 +80,6 @@
     <Compile Include="Assets\Scripts\Models\Party.cs" />
     <Compile Include="Assets\Scripts\Modules\Validation\Providers\AuthValidationProvider.cs" />
     <Compile Include="Assets\Scripts\Controllers\PlayerController.cs" />
-    <Compile Include="Assets\Scripts\Models\PlayerMovementInput.cs" />
     <Compile Include="Assets\Scripts\Modules\Validation\Rules\MaxLengthRule.cs" />
     <Compile Include="Assets\Scripts\UI\TextHover.cs" />
     <Compile Include="Assets\Scripts\Modules\CharacterModule.cs" />

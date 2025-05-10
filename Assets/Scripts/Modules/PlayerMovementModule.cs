@@ -8,9 +8,6 @@ namespace Assets.Scripts.Modules
 {
     public class PlayerMovementModule : MovementModule
     {
-        private int inputSequence = 0;
-        private List<PlayerInput> pendingInputs = new();
-
         void Update()
         {
             if(!base.IsOwner) return;
