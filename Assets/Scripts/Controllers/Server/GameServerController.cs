@@ -34,12 +34,6 @@ namespace Assets.Scripts.Controllers.Server
             }
         }
 
-        // Update is called once per frame
-        void Update()
-        {
-        
-        }
-
         [ServerRpc(RequireOwnership = false)]
         public void RequestToJoinServerRpc(string playerToken, uint characterId, NetworkConnection sender = null)
         {

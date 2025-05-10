@@ -13,11 +13,8 @@ namespace Assets.Scripts.Controllers
     {
         public static GameController Singleton { get; private set; }
 
-        private PauseMenu pauseMenu;
-        [SerializeField] private GameObject playerCardPrefab;
-
-        void OnEnable() {
-            // pauseMenu = GameObject.FindWithTag("PauseMenu").GetComponent<PauseMenu>();
+        void OnEnable()
+        {
             PlayerController.OnEscapePressed += TogglePauseMenu;
         }
 
@@ -40,20 +37,12 @@ namespace Assets.Scripts.Controllers
 
         private void TogglePauseMenu()
         {
-            pauseMenu.TogglePauseMenu();
+            HUDController.Singleton.PauseMenu.TogglePauseMenu();
         }
 
         public void InspectPlayer(int playerId, PlayerCharacter character, Sprite avatar)
         {
-            GameObject playerCard = GameObject.FindGameObjectWithTag("PlayerCard");
-
-            if(playerCard == null)
-            {
-                GameObject canvas = GameObject.FindGameObjectWithTag("MainCanvas");
-                playerCard = Instantiate(playerCardPrefab, canvas.transform);
-            }
-        
-            playerCard.GetComponent<PlayerCardController>().Init(playerId, character, avatar);
+            HUDController.Singleton.PlayerCard.Init(playerId, character, avatar);
         }
 
         public void UpdatePartyUI(List<PlayerCharacter> playerCharacters, uint leaderId)

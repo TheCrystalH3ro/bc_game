@@ -129,11 +129,9 @@ namespace Assets.Scripts.Controllers
             };
         }
 
-        public void OnMouseDown() {
-
-            if(IsOwner) {
-                return;
-            }
+        public void OnMouseDown()
+        {
+            if(IsOwner) return;
 
             int playerId = OwnerId;
             PlayerCharacter playerCharacter = GetPlayerCharacter();

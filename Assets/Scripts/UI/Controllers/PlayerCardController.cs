@@ -14,7 +14,8 @@ namespace Assets.Scripts.UI.Controllers
 
         private int playerId;
 
-        public void Init(int playerId, PlayerCharacter playerCharacter, Sprite avatar) {
+        public void Init(int playerId, PlayerCharacter playerCharacter, Sprite avatar)
+        {
             this.playerId = playerId;
 
             playerName.SetText(playerCharacter.GetName());
@@ -24,7 +25,8 @@ namespace Assets.Scripts.UI.Controllers
             GetComponent<CanvasGroup>().alpha = 1;
         }
 
-        public void CloseCard() {
+        public void CloseCard()
+        {
             GetComponent<CanvasGroup>().alpha = 0;
         }
     }

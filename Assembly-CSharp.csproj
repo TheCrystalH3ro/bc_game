@@ -74,6 +74,7 @@
     <Compile Include="Assets\Scripts\UI\Controllers\CharacterCreationController.cs" />
     <Compile Include="Assets\Scripts\Enums\ValidationRuleEnum.cs" />
     <Compile Include="Assets\Scripts\Controllers\CharacterSlotController.cs" />
+    <Compile Include="Assets\Scripts\UI\Controllers\HUDController.cs" />
     <Compile Include="Assets\Scripts\ServerManager.cs" />
     <Compile Include="Assets\Scripts\Controllers\Server\PartyServerController.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IValidationProvider.cs" />
@@ -103,6 +104,7 @@
     <Compile Include="Assets\Scripts\Modules\MovementModule.cs" />
     <Compile Include="Assets\Scripts\UI\Controllers\AuthController.cs" />
     <Compile Include="Assets\Scripts\Modules\Validation\Rules\EmailRule.cs" />
+    <Compile Include="Assets\Scripts\Modules\PartyModule.cs" />
     <Compile Include="Assets\LeanTween\Framework\LeanTweenExt.cs" />
     <Compile Include="Assets\LeanTween\Framework\LeanAudio.cs" />
     <Compile Include="Assets\LeanTween\Framework\LTDescrOptional.cs" />

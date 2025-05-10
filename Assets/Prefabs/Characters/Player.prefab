@@ -532,7 +532,7 @@ MonoBehaviour:
   _spectatorInterpolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  <PrefabId>k__BackingField: 11
+  <PrefabId>k__BackingField: 0
   <SpawnableCollectionId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 13877117756719012106
   <SceneId>k__BackingField: 0
@@ -557,6 +557,8 @@ MonoBehaviour:
   _addedNetworkObject: {fileID: 7502699605544101477}
   _networkObjectCache: {fileID: 7502699605544101477}
   moveSpeed: 5
+  reconcileThreshold: 0.5
+  lerpSpeed: 10
 --- !u!114 &8541999166470816635
 MonoBehaviour:
   m_ObjectHideFlags: 0
