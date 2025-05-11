@@ -65,14 +65,14 @@ namespace Assets.Scripts.Models
             return members;
         }
 
-        public int GetMemberCount() {
+        public int GetMemberCount()
+        {
             return members.Count;
         }
 
-        public NetworkConnection GetPlayerClient(uint characterId) {
-            if(!IsMember(characterId)) {
-                return null;
-            }
+        public NetworkConnection GetPlayerClient(uint characterId)
+        {
+            if(!IsMember(characterId)) return null;
 
             int clientId = playerSessions[characterId];
 

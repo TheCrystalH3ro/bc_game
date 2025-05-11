@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Assets.Scripts.Models;
 using Assets.Scripts.Modules;
 using Assets.Scripts.Responses;
@@ -7,6 +8,7 @@ using FishNet;
 using FishNet.Connection;
 using FishNet.Managing.Server;
 using FishNet.Object;
+using FishNet.Transporting;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -20,6 +22,8 @@ namespace Assets.Scripts.Controllers.Server
 
         [SerializeField] private GameObject playerPrefab;
 
+        public Dictionary<uint, int> PlayerList { get; private set; } = new();
+
         void OnEnable()
         {
             Singleton = FindFirstObjectByType<GameServerController>();
@@ -27,11 +31,26 @@ namespace Assets.Scripts.Controllers.Server
 
         public override void OnStartNetwork()
         {
-            if(PlayerPrefs.GetInt("isServer") == 1)
-            {
-                Debug.Log("Server started");
-                return;
-            }
+            if(! base.IsServerInitialized) return;
+
+            Debug.Log("Server initialized");
+
+            InstanceFinder.ServerManager.OnRemoteConnectionState += HandlePlayerConnection;
+        }
+
+        private void HandlePlayerConnection(NetworkConnection client, RemoteConnectionStateArgs args)
+        {
+            if(! args.ConnectionState.Equals(RemoteConnectionState.Stopped)) return;
+
+            PlayerCharacter character = client.FirstObject.GetComponent<PlayerCharacter>();
+
+            if(character == null) return;
+
+            uint playerId = character.GetId();
+
+            if(! PlayerList.ContainsKey(playerId)) return;
+
+            PlayerList.Remove(playerId);
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -70,6 +89,8 @@ namespace Assets.Scripts.Controllers.Server
             PlayerCharacter playerCharacter = new(characterResponse);
 
             playerController.SetPlayerCharacter(playerCharacter);
+
+            PlayerList[playerCharacter.GetId()] = client.ClientId;
         }
 
         public void UpdatePartyStatus(Party party)
@@ -90,5 +111,7 @@ namespace Assets.Scripts.Controllers.Server
         // private void UpdatePartyRpc(NetworkConnection client, PlayerCharacter[] playerCharacters, uint partyLeaderId, RpcParams rpcParams = default) {
         //     GameController.Singleton.UpdatePartyUI(playerCharacters.ToList(), partyLeaderId);
         }
+
+        
     }
 }
