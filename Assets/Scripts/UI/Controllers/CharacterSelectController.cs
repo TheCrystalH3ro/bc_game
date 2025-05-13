@@ -122,14 +122,13 @@ namespace Assets.Scripts.UI.Controllers
 
                 characterSlotController.SetCharaterSelectController(this);
 
-                if(index < playerCharacters.Count) {
+                if(index < playerCharacters.Count)
+                {
                     PlayerCharacter playerCharacter = playerCharacters[index];
-
                     characterSlotController.SetPlayerCharacter(playerCharacter, GetCharacterSprite(playerCharacter.GetPlayerClass()));
                 }
 
-                characterSlot.transform.parent = slot.transform;
-                characterSlot.transform.localPosition = Vector3.zero;
+                characterSlot.transform.SetParent(slot.transform, false);
 
                 index++;
             }

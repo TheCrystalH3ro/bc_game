@@ -2,6 +2,7 @@ using System.Collections;
 using Assets.Scripts.Models;
 using Assets.Scripts.UI.Controllers;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Assets.Scripts.Controllers
 {
@@ -10,30 +11,33 @@ namespace Assets.Scripts.Controllers
         private PlayerCharacter character;
         private CharacterSelectController characterSelectController;
 
-        public void SetPlayerCharacter(PlayerCharacter playerCharacter, Sprite sprite) {
+        [SerializeField] Image characterImage;
+
+        public void SetPlayerCharacter(PlayerCharacter playerCharacter, Sprite sprite)
+        {
             this.character = playerCharacter;
 
-            SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
-            spriteRenderer.sprite = sprite;
+            characterImage.sprite = sprite;
 
-            spriteRenderer.color = Color.white;
+            characterImage.color = Color.white;
         }
 
-        public PlayerCharacter GetPlayerCharacter() {
+        public PlayerCharacter GetPlayerCharacter()
+        {
             return this.character;
         }
 
-        public void SetCharaterSelectController(CharacterSelectController controller) {
+        public void SetCharaterSelectController(CharacterSelectController controller)
+        {
             this.characterSelectController = controller;
         }
 
-        public void OnMouseDown()
+        public void SelectCharacter()
         {
-            if(characterSelectController == null) {
-                return;
-            }
+            if(characterSelectController == null) return;
 
-            if(character == null) {
+            if(character == null)
+            {
                 characterSelectController.OpenCharacterCreation(this);
                 return;
             }
@@ -41,12 +45,12 @@ namespace Assets.Scripts.Controllers
             characterSelectController.OpenCharacterSelect(this);
         }
 
-        public void DeleteCharacter(Sprite defaultSprite) {
+        public void DeleteCharacter(Sprite defaultSprite)
+        {
             this.character = null;
 
-            SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
-            spriteRenderer.sprite = defaultSprite;
-            spriteRenderer.color = new Color(0f, 0f, 0f, 206f / 255f);
+            characterImage.sprite = defaultSprite;
+            characterImage.color = new Color(0f, 0f, 0f, 206f / 255f);
         }
     }
 }

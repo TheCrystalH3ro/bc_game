@@ -77,6 +77,7 @@
     <Compile Include="Assets\Scripts\Controllers\CharacterSlotController.cs" />
     <Compile Include="Assets\Scripts\UI\Controllers\HUDController.cs" />
     <Compile Include="Assets\Scripts\ServerManager.cs" />
+    <Compile Include="Assets\Scripts\Models\MovementReplicateData.cs" />
     <Compile Include="Assets\Scripts\Controllers\Server\PartyServerController.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IValidationProvider.cs" />
     <Compile Include="Assets\Scripts\Models\Party.cs" />
@@ -102,6 +103,7 @@
     <Compile Include="Assets\Scripts\Controllers\GameController.cs" />
     <Compile Include="Assets\Scripts\Modules\Validation\Rules\CompareRule.cs" />
     <Compile Include="Assets\Scripts\UI\MessageBox.cs" />
+    <Compile Include="Assets\Scripts\Models\MovemenReconcileData.cs" />
     <Compile Include="Assets\Scripts\Modules\MovementModule.cs" />
     <Compile Include="Assets\Scripts\Controllers\PartyController.cs" />
     <Compile Include="Assets\Scripts\UI\Controllers\AuthController.cs" />
