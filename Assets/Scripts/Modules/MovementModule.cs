@@ -1,6 +1,5 @@
-using System;
+using FishNet.Managing.Timing;
 using FishNet.Object;
-using FishNet.Object.Synchronizing;
 using UnityEngine;
 
 namespace Assets.Scripts.Modules
@@ -9,57 +8,31 @@ namespace Assets.Scripts.Modules
     {
         protected Rigidbody2D rb;
 
-        public Vector2 Movement => _movement.Value;
-
-        public readonly SyncVar<Vector2> _movement = new(new SyncTypeSettings(WritePermission.ClientUnsynchronized, ReadPermission.ExcludeOwner));
+        public Vector2 Movement { get; private set; }
 
         public float moveSpeed = 5f;
 
         void Awake()
         {
-            _movement.Value = new Vector2(0, 0);
+            Movement = new Vector2(0, 0);
 
             rb = gameObject.GetComponent<Rigidbody2D>();
         }
 
-        public override void OnStartNetwork()
-        {
-            
-        }
-
-        [ServerRpc(RunLocally = true)]
         public void SetDirection(float x, float y)
         {
-            _movement.Value = new(x, y);
+            Movement = new(x, y);
         }
-
 
         public void Move()
         {
-            if(_movement.Value.Equals(Vector2.zero) || moveSpeed == 0) return;
+            if(Movement.Equals(Vector2.zero) || moveSpeed == 0) return;
 
-            rb.MovePosition(rb.position + (moveSpeed * Time.fixedDeltaTime * _movement.Value));
-        }
+            float deltaTime = (float) TimeManager.TickDelta;
 
-        public void MoveTo(Vector3 position)
-        {
-            gameObject.transform.position = position;
-        }
+            Vector2 newPos = rb.position + (moveSpeed * deltaTime * Movement.normalized);
 
-        [ObserversRpc(ExcludeServer = true)]
-        public void ReconcilePosition(Vector3 position)
-        {
-            Debug.Log("Pozicia bola rekoncilovana");
-            MoveTo(position);
-        }
-
-        private void FixedUpdate()
-        {
-            Move();
-
-            if(! IsServerInitialized) return;
-
-            ReconcilePosition(gameObject.transform.position);
+            rb.MovePosition(newPos);
         }
     }
 }

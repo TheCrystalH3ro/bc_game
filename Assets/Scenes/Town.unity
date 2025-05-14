@@ -77966,10 +77966,10 @@ GameObject:
   m_Component:
   - component: {fileID: 1060152210}
   - component: {fileID: 1060152209}
-  - component: {fileID: 1060152208}
   - component: {fileID: 1060152207}
   - component: {fileID: 1060152212}
   - component: {fileID: 1060152211}
+  - component: {fileID: 1060152213}
   m_Layer: 0
   m_Name: Connection Manager
   m_TagString: Untagged
@@ -77993,25 +77993,6 @@ MonoBehaviour:
   _lightProbeUpdating: 0
   _moveClientObjects: 1
   _setActiveScene: 1
---- !u!114 &1060152208
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1060152206}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3fdaae44044276a49a52229c1597e33b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _updateOrder: 0
-  _timingType: 0
-  _allowTickDropping: 1
-  _maximumFrameTicks: 3
-  _tickRate: 30
-  _pingInterval: 1
-  _physicsMode: 1
 --- !u!114 &1060152209
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -78071,6 +78052,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf23cfbae568d2f4d93f064cea4f36c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1060152213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1060152206}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fdaae44044276a49a52229c1597e33b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _updateOrder: 0
+  _timingType: 0
+  _allowTickDropping: 1
+  _maximumFrameTicks: 3
+  _tickRate: 30
+  _pingInterval: 1
+  _physicsMode: 1
 --- !u!1001 &1062747275
 PrefabInstance:
   m_ObjectHideFlags: 0
