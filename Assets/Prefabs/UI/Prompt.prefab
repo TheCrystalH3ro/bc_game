@@ -225,19 +225,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2728617070420134903}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 5883088537710532433}
-        m_TargetAssemblyTypeName: Assets.Scripts.UI.MessageBox, Assembly-CSharp
-        m_MethodName: CloseWindow
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &4812323336929295128
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -964,3 +952,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   message: {fileID: 5629787403390969555}
   confirmButton: {fileID: 6800609125534393543}
+  declineButton: {fileID: 1179918865363128904}

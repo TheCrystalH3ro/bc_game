@@ -9,21 +9,30 @@ namespace Assets.Scripts.UI
     public class Prompt : MessageBox
     {
         [SerializeField] private Button confirmButton;
+        [SerializeField] private Button declineButton;
 
-        public void SetupPrompt(string message, Action onConfirm)
+        public void SetupPrompt(string message, Action<bool> onConfirm)
         {
             DisplayMessage(message);
             RegisterEvents(onConfirm);
         }
 
-        private void RegisterEvents(Action onConfirm)
+        private void RegisterEvents(Action<bool> onConfirm)
         {
             confirmButton.onClick.AddListener(() =>
             {
                 confirmButton.onClick.RemoveAllListeners();
                 CloseWindow();
 
-                onConfirm?.Invoke();
+                onConfirm?.Invoke(true);
+            });
+
+            declineButton.onClick.AddListener(() =>
+            {
+                declineButton.onClick.RemoveAllListeners();
+                CloseWindow();
+
+                onConfirm?.Invoke(false);
             });
         }
     }
