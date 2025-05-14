@@ -14,8 +14,8 @@ namespace Assets.Scripts.UI
             gameObject.SetActive(true);
         }
 
-        public void CloseWindow() {
-
+        public void CloseWindow()
+        {
             gameObject.SetActive(false);
         }
     }
