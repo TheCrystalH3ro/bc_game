@@ -1,4 +1,5 @@
 using Assets.Scripts.Models;
+using FishNet.Object;
 using FishNet.Object.Prediction;
 using FishNet.Transporting;
 using UnityEngine;
@@ -51,6 +52,16 @@ namespace Assets.Scripts.Modules
         private void UpdateMovement(MovementReplicateData data, ReplicateState state = ReplicateState.Invalid, Channel channel = Channel.Unreliable)
         {
             SetDirection(data.direction.x, data.direction.y);
+
+            if(IsServerInitialized) ShareMovement(data.direction);
+
+            Move();
+        }
+
+        [ObserversRpc(ExcludeOwner = true, ExcludeServer = true)]
+        public void ShareMovement(Vector2 direction)
+        {
+            SetDirection(direction.x, direction.y);
             Move();
         }
 
