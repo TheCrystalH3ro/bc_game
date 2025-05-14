@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Assets.Scripts.Modules;
 using UnityEngine;
 
 namespace Assets.Scripts.UI.Controllers
@@ -17,6 +18,15 @@ namespace Assets.Scripts.UI.Controllers
         void OnEnable()
         {
             Singleton = FindFirstObjectByType<HUDController>();
+
+            MessageBoxModule.OnNotificationReceived += OnMessageReceived;
+            MessageBoxModule.OnPromptReceived += OnPromptReceived;
+        }
+
+        private void OnDisable()
+        {
+            MessageBoxModule.OnNotificationReceived -= OnMessageReceived;
+            MessageBoxModule.OnPromptReceived -= OnPromptReceived;
         }
 
         public void ShowMessage(string message)
@@ -24,9 +34,22 @@ namespace Assets.Scripts.UI.Controllers
             messageBox.DisplayMessage(message);
         }
 
-        public void ShowPrompt(string message, Action onConfirm)
+        public void ShowPrompt(string message, Action<bool> onConfirm)
         {
             prompt.SetupPrompt(message, onConfirm);
+        }
+
+        public void OnMessageReceived(string message)
+        {
+            ShowMessage(message);
+        }
+
+        public void OnPromptReceived(string message)
+        {
+            ShowPrompt(message, (isConfirmed) =>
+            {
+                MessageBoxModule.Singleton.ConfirmPrompt(isConfirmed);
+            });
         }
     }
 }

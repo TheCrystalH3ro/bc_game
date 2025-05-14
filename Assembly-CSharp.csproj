@@ -72,6 +72,7 @@
     <Compile Include="Assets\Scripts\Modules\ValidationModule.cs" />
     <Compile Include="Assets\Scripts\Controllers\Server\ServerController.cs" />
     <Compile Include="Assets\Scripts\UI\Controllers\CharacterCreationController.cs" />
+    <Compile Include="Assets\Scripts\Modules\MessageBoxModule.cs" />
     <Compile Include="Assets\Scripts\Enums\ValidationRuleEnum.cs" />
     <Compile Include="Assets\Scripts\Controllers\CharacterSlotController.cs" />
     <Compile Include="Assets\Scripts\UI\Controllers\HUDController.cs" />
