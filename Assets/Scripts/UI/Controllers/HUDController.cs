@@ -1,5 +1,6 @@
 using System;
-using System.Collections;
+using Assets.Scripts.Interfaces;
+using Assets.Scripts.Models;
 using Assets.Scripts.Modules;
 using UnityEngine;
 
@@ -11,6 +12,8 @@ namespace Assets.Scripts.UI.Controllers
 
         public PauseMenu PauseMenu;
         public PlayerCardController PlayerCard;
+        public PartyStatus PartyStatus;
+        public GameObject partyLeaveButton;
 
         [SerializeField] private MessageBox messageBox;
         [SerializeField] private Prompt prompt;
@@ -50,6 +53,36 @@ namespace Assets.Scripts.UI.Controllers
             {
                 MessageBoxModule.Singleton.ConfirmPrompt(isConfirmed);
             });
+        }
+
+        public void UpdateParty(IParty party)
+        {
+            PartyStatus.Init(party.GetMembers());
+        }
+
+        public void ClearParty()
+        {
+            PartyStatus.ClearPlayers();
+        }
+
+        public void AddPlayerToParty(PlayerCharacter player)
+        {
+            PartyStatus.AddPlayer(player);
+        }
+
+        public void RemovePlayerFromParty(uint playerId)
+        {
+            PartyStatus.RemovePlayer(playerId);
+        }
+
+        public void ShowLeavePartyButton()
+        {
+            partyLeaveButton.SetActive(true);
+        }
+
+        public void HideLeavePartyButton()
+        {
+            partyLeaveButton.SetActive(false);
         }
     }
 }

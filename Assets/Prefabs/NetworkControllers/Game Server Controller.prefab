@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 2484368084055973870}
   - component: {fileID: 119902255643632316}
   - component: {fileID: 1346846644993569570}
+  - component: {fileID: 720866412339235335}
+  - component: {fileID: 6298472201917434888}
   m_Layer: 0
   m_Name: Game Server Controller
   m_TagString: Untagged
@@ -52,7 +54,9 @@ MonoBehaviour:
   <ComponentIndex>k__BackingField: 0
   <PredictedSpawn>k__BackingField: {fileID: 0}
   <PredictedOwner>k__BackingField: {fileID: 0}
-  NetworkBehaviours: []
+  NetworkBehaviours:
+  - {fileID: 119902255643632316}
+  - {fileID: 1346846644993569570}
   InitializedParentNetworkBehaviour: {fileID: 0}
   InitializedNestedNetworkObjects: []
   RuntimeParentNetworkBehaviour: {fileID: 0}
@@ -77,15 +81,15 @@ MonoBehaviour:
   _spectatorInterpolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  <PrefabId>k__BackingField: 65535
+  <PrefabId>k__BackingField: 0
   <SpawnableCollectionId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 4870191319996947391
   <SceneId>k__BackingField: 0
   SerializedTransformProperties:
     Position: {x: 0, y: 0, z: 0}
-    Rotation: {x: 0, y: 0, z: 0, w: 0}
-    Scale: {x: 0, y: 0, z: 0}
-    IsValid: 0
+    Rotation: {x: 0, y: 0, z: 0, w: 1}
+    Scale: {x: 1, y: 1, z: 1}
+    IsValid: 1
 --- !u!114 &119902255643632316
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -98,9 +102,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d580b95cdf1de64c89eb4d5f678f0a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 255
+  _componentIndexCache: 0
   _addedNetworkObject: {fileID: 2484368084055973870}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: 2484368084055973870}
   apiUrl: http://localhost:3000/api
   playerPrefab: {fileID: 7362200074529973233, guid: e0df6b9e6c9f26447936f15f81e56c43, type: 3}
 --- !u!114 &1346846644993569570
@@ -113,6 +117,36 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f716dd260e7cde949933f7cbba507244, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _componentIndexCache: 1
+  _addedNetworkObject: {fileID: 2484368084055973870}
+  _networkObjectCache: {fileID: 2484368084055973870}
+--- !u!114 &720866412339235335
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1084678397758692883}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b992b71dba6a4a43b804b0f9021cdac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 2484368084055973870}
+  _networkObjectCache: {fileID: 0}
+--- !u!114 &6298472201917434888
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1084678397758692883}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a36ca150e7d545640a9537ea5a1e84a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _componentIndexCache: 255

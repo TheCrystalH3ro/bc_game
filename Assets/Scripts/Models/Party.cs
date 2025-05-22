@@ -1,114 +1,122 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Assets.Scripts.Controllers;
 using Assets.Scripts.Controllers.Server;
+using Assets.Scripts.Interfaces;
 using FishNet;
 using FishNet.Connection;
+using UnityEngine;
 
 namespace Assets.Scripts.Models
 {
-    public class Party
+    public class Party : IParty
     {
-        private uint leaderId;
-        private Dictionary<uint, PlayerCharacter> members;
-        private Dictionary<uint, int> playerSessions;
+        private int leaderId;
 
-        public Party(PlayerCharacter leader, int clientId) {
-            leaderId = leader.GetId();
-            members = new Dictionary<uint, PlayerCharacter>
+        Dictionary<int, PlayerCharacter> Members { get; set; }
+
+        public Party(PlayerCharacter leader, int clientId)
+        {
+            leaderId = clientId;
+            Members = new Dictionary<int, PlayerCharacter>
             {
                 { leaderId, leader }
             };
-            playerSessions = new Dictionary<uint, int>
+        }
+
+        public Party(int leaderId, Dictionary<int, PlayerCharacter> members)
+        {
+            this.leaderId = leaderId;
+            Members = members;
+        }
+
+        public void AddMember(int clientId, PlayerCharacter member)
+        {
+            Members.Add(clientId, member);
+        }
+
+        public void RemoveMember(int clientId)
+        {
+            Members.Remove(clientId);
+        }
+
+        public void RemoveMember(PlayerCharacter character)
+        {
+            int connectionId = character.GetConnectionId();
+            
+            if (connectionId < 0 || ! Members.ContainsKey(connectionId)) return;
+
+            RemoveMember(connectionId);
+        }
+
+        public bool IsMember(int clientId)
+        {
+            return Members.ContainsKey(clientId);
+        }
+
+        public bool IsMember(PlayerCharacter character)
+        {
+            int connectionId = character.GetConnectionId();
+            
+            if (connectionId < 0) return false;
+
+            return IsMember(connectionId);
+        }
+
+        public bool IsLeader(int clientId)
+        {
+            return leaderId == clientId;
+        }
+
+        public bool IsLeader(PlayerCharacter character)
+        {
+            int connectionId = character.GetConnectionId();
+
+            return IsLeader(connectionId);
+        }
+
+        public void ChangeLeader(int newLeaderId)
+        {
+            if(!IsMember(newLeaderId))
             {
-                { leaderId, clientId }
-            };
-        }
-
-        private void UpdatePlayers() {
-            GameServerController.Singleton.UpdatePartyStatus(this);
-        }
-
-        public void AddMember(PlayerCharacter member, int clientId) {
-            members.Add(member.GetId(), member);
-            playerSessions.Add(member.GetId(), clientId);
-            UpdatePlayers();
-        }
-
-        public void RemoveMember(uint characterId) {
-            members.Remove(characterId);
-            playerSessions.Remove(characterId);
-            UpdatePlayers();
-        }
-
-        public bool IsMember(uint characterId) {
-            return members.ContainsKey(characterId);
-        }
-
-        public bool IsLeader(uint characterId) {
-            return leaderId == characterId;
-        }
-
-        public void ChangeLeader(uint newLeaderId) {
-            if(!IsMember(newLeaderId)) {
                 return;
             }
 
             leaderId = newLeaderId;
         }
 
-        public PlayerCharacter GetPartyLeader() {
-            return members[leaderId];
+        public PlayerCharacter GetPartyLeader()
+        {
+            return Members[leaderId];
         }
 
-        public Dictionary<uint, PlayerCharacter> GetMembers() {
-            return members;
+        public Dictionary<int, PlayerCharacter> GetPlayers()
+        {
+            return Members;
+        }
+
+        public List<PlayerCharacter> GetMembers()
+        {
+            return Members.Values.ToList();
+        }
+
+        public PlayerCharacter GetMemberById(uint id)
+        {
+            foreach (PlayerCharacter member in Members.Values)
+                if (member.GetId() == id) return member;
+
+            return null;
+        }
+
+        public List<NetworkConnection> GetConnections()
+        {
+            return Members.Keys.Select(clientId => InstanceFinder.ServerManager.Clients[clientId]).ToList();
         }
 
         public int GetMemberCount()
         {
-            return members.Count;
-        }
-
-        public NetworkConnection GetPlayerClient(uint characterId)
-        {
-            if(!IsMember(characterId)) return null;
-
-            int clientId = playerSessions[characterId];
-
-            if(clientId == 0) {
-                return null;
-            }
-
-            return InstanceFinder.ServerManager.Clients[clientId];
-        }
-
-        public ulong[] GetClientIds() {
-            List<ulong> clientIds = new();
-
-            foreach(ulong clientId in playerSessions.Values) {
-                if(clientId != 0) {
-                    clientIds.Add(clientId);
-                }
-            }
-
-            return clientIds.ToArray();
-        }
-
-        public void PlayerConnected(uint characterId, int clientId) {
-            if(!IsMember(characterId)) {
-                return;
-            }
-
-            playerSessions[characterId] = clientId;
-        }
-
-        public void PlayerDisconnected(uint characterId) {
-            if(!IsMember(characterId)) {
-                return;
-            }
-
-            playerSessions[characterId] = 0;
+            return Members.Count;
         }
     }
 }

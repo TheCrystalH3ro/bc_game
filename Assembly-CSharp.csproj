@@ -68,10 +68,12 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Serializers\PlayerCharacterSerializer.cs" />
     <Compile Include="Assets\Scripts\Modules\ConnectionModule.cs" />
+    <Compile Include="Assets\Scripts\UI\PartyStatus.cs" />
     <Compile Include="Assets\LeanTween\Framework\LeanTest.cs" />
     <Compile Include="Assets\Scripts\Modules\ValidationModule.cs" />
     <Compile Include="Assets\Scripts\Controllers\Server\ServerController.cs" />
     <Compile Include="Assets\Scripts\UI\Controllers\CharacterCreationController.cs" />
+    <Compile Include="Assets\Scripts\Interfaces\IParty.cs" />
     <Compile Include="Assets\Scripts\Modules\MessageBoxModule.cs" />
     <Compile Include="Assets\Scripts\Enums\ValidationRuleEnum.cs" />
     <Compile Include="Assets\Scripts\Controllers\CharacterSlotController.cs" />
@@ -114,7 +116,9 @@
     <Compile Include="Assets\LeanTween\Framework\LTDescrOptional.cs" />
     <Compile Include="Assets\Scripts\UI\Prompt.cs" />
     <Compile Include="Assets\Scripts\Responses\ValidationResult.cs" />
+    <Compile Include="Assets\Scripts\Util\ObjectUtil.cs" />
     <Compile Include="Assets\LeanTween\Framework\LTDescr.cs" />
+    <Compile Include="Assets\Scripts\Modules\SceneModule.cs" />
     <Compile Include="Assets\Scripts\UI\Indicator.cs" />
     <Compile Include="Assets\Scripts\Modules\PlayerMovementModule.cs" />
     <Compile Include="Assets\Scripts\UI\Controllers\CharacterSelectController.cs" />
