@@ -17,6 +17,8 @@ namespace Assets.Scripts.Controllers
     {
         public static PlayerController Singleton { get; private set; }
 
+        [SerializeField] private GameObject cameraPrefab;
+
         [SerializeField] private Rigidbody2D rb;
         [SerializeField] private Animator animator;
         [SerializeField] private NetworkAnimator networkAnimator;
@@ -54,7 +56,7 @@ namespace Assets.Scripts.Controllers
 
             initScale = transform.localScale;
 
-            if(!base.Owner.IsLocalClient)
+            if (!base.Owner.IsLocalClient)
             {
                 HoverPointerCursor hover = gameObject.AddComponent<HoverPointerCursor>();
                 hover.SetPointerCursor(hoverCursor);
@@ -63,9 +65,14 @@ namespace Assets.Scripts.Controllers
 
             Singleton = this;
 
-            CinemachineVirtualCamera virtualCamera = GameObject.FindGameObjectWithTag("VirtualCamera").GetComponent<CinemachineVirtualCamera>();
+            GameObject camera = Instantiate(cameraPrefab);
+
+            CinemachineVirtualCamera virtualCamera = camera.GetComponent<CinemachineVirtualCamera>();
             virtualCamera.Follow = transform;
             virtualCamera.LookAt = transform;
+
+            CinemachineConfiner2D cameraConfiner = camera.GetComponent<CinemachineConfiner2D>();
+            cameraConfiner.m_BoundingShape2D = GameObject.FindGameObjectWithTag("CameraBoundary").GetComponent<Collider2D>();
         }
 
         // Update is called once per frame
