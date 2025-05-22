@@ -11,6 +11,7 @@ using FishNet.Object;
 using FishNet.Transporting;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 
 namespace Assets.Scripts.Controllers.Server
 {
@@ -66,7 +67,10 @@ namespace Assets.Scripts.Controllers.Server
 
         private void OnVerificationFail(NetworkConnection client, UnityWebRequest request)
         {
-            if (request.responseCode == 403) {
+            ReturnToCharacterSelect(client);
+
+            if (request.responseCode == 403)
+            {
                 Debug.LogError("Invalid character");
                 client.Kick(KickReason.ExploitAttempt);
                 return;
@@ -93,25 +97,10 @@ namespace Assets.Scripts.Controllers.Server
             PlayerList[playerCharacter.GetId()] = client.ClientId;
         }
 
-        public void UpdatePartyStatus(Party party)
+        [TargetRpc]
+        private void ReturnToCharacterSelect(NetworkConnection client)
         {
-
-        //     if(!IsServer) {
-        //         return;
-        //     }
-
-        //     int partyMembersCount = party.GetMemberCount();
-        //     PlayerCharacter[] partyMembers = party.GetMembers().Values.ToArray();
-        //     ulong[] clientIds = party.GetClientIds();
-
-        //     UpdatePartyRpc(partyMembers, party.GetPartyLeader().GetId(), RpcTarget.Group(clientIds, RpcTargetUse.Temp));
-        // }
-
-        // [TargetRpc]
-        // private void UpdatePartyRpc(NetworkConnection client, PlayerCharacter[] playerCharacters, uint partyLeaderId, RpcParams rpcParams = default) {
-        //     GameController.Singleton.UpdatePartyUI(playerCharacters.ToList(), partyLeaderId);
-        }
-
-        
+            UnityEngine.SceneManagement.SceneManager.LoadScene("CharacterSelect", LoadSceneMode.Single);
+        } 
     }
 }

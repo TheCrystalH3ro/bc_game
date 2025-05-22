@@ -1,8 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
 using Assets.Scripts.Controllers.Server;
+using Assets.Scripts.Enums;
 using Assets.Scripts.Models;
-using Assets.Scripts.UI;
 using Assets.Scripts.UI.Controllers;
 using FishNet.Object;
 using UnityEngine;
@@ -12,6 +11,10 @@ namespace Assets.Scripts.Controllers
     public class GameController : NetworkBehaviour
     {
         public static GameController Singleton { get; private set; }
+
+        [SerializeField] private Sprite knightSprite;
+        [SerializeField] private Sprite wizardSprite;
+        [SerializeField] private Sprite rogueSprite;
 
         void OnEnable()
         {
@@ -33,6 +36,16 @@ namespace Assets.Scripts.Controllers
             uint characterId = (uint) PlayerPrefs.GetInt("CharacterId");
 
             GameServerController.Singleton.RequestToJoinServerRpc(jwtToken, characterId);
+        }
+
+        public Sprite GetCharacterSprite(PlayerClass playerClass)
+        {
+            return playerClass switch
+            {
+                PlayerClass.Wizard => wizardSprite,
+                PlayerClass.Rogue => rogueSprite,
+                _ => knightSprite,
+            };
         }
 
         private void TogglePauseMenu()

@@ -1,10 +1,12 @@
-using System.Collections;
 using Assets.Scripts.Enums;
+using Assets.Scripts.Interfaces;
 using Assets.Scripts.Models;
 using Assets.Scripts.Modules;
 using Assets.Scripts.UI.Controllers;
+using Assets.Scripts.Util;
 using Cinemachine;
 using FishNet.Component.Animating;
+using FishNet.Connection;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using UnityEngine;
@@ -13,6 +15,8 @@ namespace Assets.Scripts.Controllers
 {
     public class PlayerController : NetworkBehaviour
     {
+        public static PlayerController Singleton { get; private set; }
+
         [SerializeField] private Rigidbody2D rb;
         [SerializeField] private Animator animator;
         [SerializeField] private NetworkAnimator networkAnimator;
@@ -37,7 +41,7 @@ namespace Assets.Scripts.Controllers
 
         private MovementModule movementModule;
 
-        private Party party;
+        private IParty party;
 
         private void Awake()
         {
@@ -56,6 +60,8 @@ namespace Assets.Scripts.Controllers
                 hover.SetPointerCursor(hoverCursor);
                 return;
             }
+
+            Singleton = this;
 
             CinemachineVirtualCamera virtualCamera = GameObject.FindGameObjectWithTag("VirtualCamera").GetComponent<CinemachineVirtualCamera>();
             virtualCamera.Follow = transform;
@@ -81,6 +87,11 @@ namespace Assets.Scripts.Controllers
             }
         }
 
+        public static PlayerController FindByConnection(NetworkConnection connection)
+        {
+            return ObjectUtil.FindFirstByType<PlayerController>(connection.Objects);
+        }
+
         private void FlipCharacter(bool isFlipped)
         {
             GetComponent<SpriteRenderer>().flipX = isFlipped;
@@ -93,8 +104,8 @@ namespace Assets.Scripts.Controllers
 
         private void PlayerCharacterChanged(PlayerCharacter prev, PlayerCharacter next, bool asServer)
         {
-            animator.runtimeAnimatorController = GetCharacterAnimatorController(playerCharacter.Value.GetPlayerClass());
-            playerName.text = playerCharacter.Value.GetName();
+            animator.runtimeAnimatorController = GetCharacterAnimatorController(next.GetPlayerClass());
+            playerName.text = next.GetName();
 
             if(!IsOwner) return;
 
@@ -108,10 +119,10 @@ namespace Assets.Scripts.Controllers
                 playerStatusController = playerStatus.GetComponent<PlayerStatusController>();
             }
 
-            playerStatusController.Init(playerCharacter.Value, gameObject.GetComponent<SpriteRenderer>().sprite, 100, 100);
+            playerStatusController.Init(next, gameObject.GetComponent<SpriteRenderer>().sprite, 100, 100);
 
-            playerStatusController.UpdateHealth(90);
-            playerStatusController.UpdateExp(15);
+            playerStatusController.UpdateHealth(next.GetHealth());
+            playerStatusController.UpdateExp(next.GetExp());
         }
 
         public PlayerCharacter GetPlayerCharacter()
@@ -140,11 +151,13 @@ namespace Assets.Scripts.Controllers
             GameController.Singleton.InspectPlayer(playerId, playerCharacter, avatar);
         }
 
-        public Party GetParty() {
+        public IParty GetParty()
+        {
             return party;
         }
 
-        public void SetParty(Party party) {
+        public void SetParty(IParty party)
+        {
             this.party = party;
         }
     }

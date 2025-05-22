@@ -53,8 +53,6 @@ namespace Assets.Scripts.Modules
         {
             SetDirection(data.direction.x, data.direction.y);
 
-            if(IsServerInitialized) ShareMovement(data.direction);
-
             Move();
         }
 

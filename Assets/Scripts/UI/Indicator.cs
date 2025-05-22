@@ -1,4 +1,3 @@
-using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,19 +13,20 @@ namespace Assets.Scripts.UI
         private int value = 0;
         private int maxValue = 1;
 
-        public void SetValue(int value) {
+        public void SetValue(int value)
+        {
             this.value = value;
-
             UpdateBar();
         }
 
-        public void SetMaxValue(int maxValue) {
+        public void SetMaxValue(int maxValue)
+        {
             this.maxValue = maxValue;
-        
             UpdateBar();
         }
 
-        private void UpdateBar() {
+        private void UpdateBar()
+        {
             barText.SetText(value + " / " + maxValue);
             float barWidth = value * barRect.rect.width / maxValue;
             var padding = barMask.padding;

@@ -48,8 +48,9 @@ MonoBehaviour:
   _componentIndexCache: 255
   _addedNetworkObject: {fileID: 9155573882108618711}
   _networkObjectCache: {fileID: 0}
-  pauseMenu: {fileID: 0}
-  playerCardPrefab: {fileID: 7710014605672314133, guid: 6f3e9106da1741c41aff06e3c9d8c4c1, type: 3}
+  knightSprite: {fileID: -409689797, guid: 50b715e407a8d6541b2657c43fa1f613, type: 3}
+  wizardSprite: {fileID: -374882011, guid: 8fb5e530b0dea6842ab23719e59eb7b3, type: 3}
+  rogueSprite: {fileID: 1154612068, guid: b551e608353b52a41a7c04ae1a13aca1, type: 3}
 --- !u!114 &9155573882108618711
 MonoBehaviour:
   m_ObjectHideFlags: 0

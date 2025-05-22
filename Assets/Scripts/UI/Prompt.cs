@@ -18,7 +18,10 @@ namespace Assets.Scripts.UI
         }
 
         private void RegisterEvents(Action<bool> onConfirm)
-        {
+        {  
+            confirmButton.onClick.RemoveAllListeners();
+            declineButton.onClick.RemoveAllListeners();
+
             confirmButton.onClick.AddListener(() =>
             {
                 confirmButton.onClick.RemoveAllListeners();
