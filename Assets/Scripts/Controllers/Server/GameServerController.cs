@@ -32,30 +32,44 @@ namespace Assets.Scripts.Controllers.Server
 
         public override void OnStartNetwork()
         {
-            if(! base.IsServerInitialized) return;
+            if (!base.IsServerInitialized)
+            {
+                GameController.Singleton.Initialize();
+                return;
+            }
 
             Debug.Log("Server initialized");
+
+            SceneModule.Singleton.LoadStartScene();
 
             InstanceFinder.ServerManager.OnRemoteConnectionState += HandlePlayerConnection;
         }
 
         private void HandlePlayerConnection(NetworkConnection client, RemoteConnectionStateArgs args)
         {
-            if(! args.ConnectionState.Equals(RemoteConnectionState.Stopped)) return;
+            if (args.ConnectionState.Equals(RemoteConnectionState.Stopped))
+            {
+                HandlePlayerDisconnected(client);
+                return;
+            }
+        }
 
-            PlayerCharacter character = client.FirstObject.GetComponent<PlayerCharacter>();
+        private void HandlePlayerDisconnected(NetworkConnection client)
+        {
+            PlayerController playerController = PlayerController.FindByConnection(client);
+            PlayerCharacter character = playerController.GetPlayerCharacter();
 
-            if(character == null) return;
+            if (character == null) return;
 
             uint playerId = character.GetId();
 
-            if(! PlayerList.ContainsKey(playerId)) return;
+            if (!PlayerList.ContainsKey(playerId)) return;
 
             PlayerList.Remove(playerId);
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void RequestToJoinServerRpc(string playerToken, uint characterId, NetworkConnection sender = null)
+        public void RequestToJoinServer(string playerToken, uint characterId, NetworkConnection sender = null)
         {
             StartCoroutine(ConnectionModule.Singleton.VerifyPlayer(sender, playerToken, characterId, OnVerificationSuccess, OnVerificationFail));
         }
@@ -63,6 +77,7 @@ namespace Assets.Scripts.Controllers.Server
         private void OnVerificationSuccess(NetworkConnection client, CharacterResponse character)
         {
             SpawnPlayer(character, client);
+            SceneModule.Singleton.ChangeScene(client, "Town");
         }
 
         private void OnVerificationFail(NetworkConnection client, UnityWebRequest request)
@@ -79,7 +94,7 @@ namespace Assets.Scripts.Controllers.Server
             Debug.LogError("Error while trying to verify character: " + request.error);
             client.Kick(KickReason.UnexpectedProblem);
         }
-    
+
         private void SpawnPlayer(CharacterResponse characterResponse, NetworkConnection client)
         {
             var playerObject = Instantiate(playerPrefab);
@@ -95,6 +110,8 @@ namespace Assets.Scripts.Controllers.Server
             playerController.SetPlayerCharacter(playerCharacter);
 
             PlayerList[playerCharacter.GetId()] = client.ClientId;
+
+            client.SetFirstObject(playerController.NetworkObject);
         }
 
         [TargetRpc]

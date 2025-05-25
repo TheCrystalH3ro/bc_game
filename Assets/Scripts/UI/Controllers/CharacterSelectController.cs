@@ -172,7 +172,8 @@ namespace Assets.Scripts.UI.Controllers
 
         public void StartGame()
         {
-            if(selectedCharacter == null || selectedCharacter.GetPlayerCharacter() == null) return;
+            if(selectedCharacter == null || selectedCharacter.GetPlayerCharacter() == null)
+                return;
 
             PlayerCharacter playerCharacter = selectedCharacter.GetPlayerCharacter();
 
@@ -180,7 +181,8 @@ namespace Assets.Scripts.UI.Controllers
             PlayerPrefs.SetInt("isServer", 0);
 
             Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
-            SceneManager.LoadScene("Town", LoadSceneMode.Single);
+
+            SceneManager.LoadScene(SceneModule.MAIN_SCENE_NAME, LoadSceneMode.Single);
         }
 
         public void Logout()

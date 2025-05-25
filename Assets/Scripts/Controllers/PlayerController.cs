@@ -7,6 +7,7 @@ using Assets.Scripts.Util;
 using Cinemachine;
 using FishNet.Component.Animating;
 using FishNet.Connection;
+using FishNet.Managing.Scened;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using UnityEngine;
@@ -16,8 +17,6 @@ namespace Assets.Scripts.Controllers
     public class PlayerController : NetworkBehaviour
     {
         public static PlayerController Singleton { get; private set; }
-
-        [SerializeField] private GameObject cameraPrefab;
 
         [SerializeField] private Rigidbody2D rb;
         [SerializeField] private Animator animator;
@@ -35,8 +34,6 @@ namespace Assets.Scripts.Controllers
 
         private PlayerStatusController playerStatusController = null;
 
-        private Vector3 initScale;
-
         private readonly SyncVar<PlayerCharacter> playerCharacter = new(new SyncTypeSettings());
 
         public static event System.Action OnEscapePressed;
@@ -45,16 +42,12 @@ namespace Assets.Scripts.Controllers
 
         private IParty party;
 
-        private void Awake()
-        {
-            playerCharacter.OnChange += PlayerCharacterChanged;
-        }
+        public string ActiveScene { get; set; } = SceneModule.MAIN_SCENE_NAME;
 
         public override void OnStartNetwork()
         {
             movementModule = gameObject.GetComponent<MovementModule>();
-
-            initScale = transform.localScale;
+            playerCharacter.OnChange += PlayerCharacterChanged;
 
             if (!base.Owner.IsLocalClient)
             {
@@ -65,14 +58,17 @@ namespace Assets.Scripts.Controllers
 
             Singleton = this;
 
-            GameObject camera = Instantiate(cameraPrefab);
+            base.SceneManager.OnLoadEnd += SceneChanged;
+        }
 
-            CinemachineVirtualCamera virtualCamera = camera.GetComponent<CinemachineVirtualCamera>();
-            virtualCamera.Follow = transform;
-            virtualCamera.LookAt = transform;
+        void OnDisable()
+        {
+            playerCharacter.OnChange -= PlayerCharacterChanged;
 
-            CinemachineConfiner2D cameraConfiner = camera.GetComponent<CinemachineConfiner2D>();
-            cameraConfiner.m_BoundingShape2D = GameObject.FindGameObjectWithTag("CameraBoundary").GetComponent<Collider2D>();
+            if (!base.Owner.IsLocalClient)
+                return;
+
+            base.SceneManager.OnLoadEnd -= SceneChanged;
         }
 
         // Update is called once per frame
@@ -81,12 +77,12 @@ namespace Assets.Scripts.Controllers
             animator.SetFloat("Speed", movementModule.Movement.sqrMagnitude);
             bool isFlipped = GetComponent<SpriteRenderer>().flipX;
 
-            if((movementModule.Movement.x < 0 && !isFlipped) || (movementModule.Movement.x > 0 && isFlipped))
+            if ((movementModule.Movement.x < 0 && !isFlipped) || (movementModule.Movement.x > 0 && isFlipped))
             {
                 FlipCharacter(movementModule.Movement.x < 0);
             }
 
-            if(!base.IsOwner) return;
+            if (!base.IsOwner) return;
 
             if (Input.GetKeyDown(KeyCode.Escape))
             {
@@ -97,6 +93,20 @@ namespace Assets.Scripts.Controllers
         public static PlayerController FindByConnection(NetworkConnection connection)
         {
             return ObjectUtil.FindFirstByType<PlayerController>(connection.Objects);
+        }
+
+        private void SceneChanged(SceneLoadEndEventArgs args)
+        {
+            GameObject camera = GameObject.FindGameObjectWithTag("VirtualCamera");
+
+            if (camera == null) return;
+
+            CinemachineVirtualCamera virtualCamera = camera.GetComponent<CinemachineVirtualCamera>();
+            virtualCamera.Follow = transform;
+            virtualCamera.LookAt = transform;
+
+            CinemachineConfiner2D cameraConfiner = camera.GetComponent<CinemachineConfiner2D>();
+            cameraConfiner.m_BoundingShape2D = GameObject.FindGameObjectWithTag("CameraBoundary").GetComponent<Collider2D>();
         }
 
         private void FlipCharacter(bool isFlipped)
@@ -114,11 +124,11 @@ namespace Assets.Scripts.Controllers
             animator.runtimeAnimatorController = GetCharacterAnimatorController(next.GetPlayerClass());
             playerName.text = next.GetName();
 
-            if(!IsOwner) return;
+            if (!IsOwner) return;
 
             animator.Update(0);
 
-            if(playerStatusController == null)
+            if (playerStatusController == null)
             {
                 GameObject playerHud = GameObject.FindGameObjectWithTag("PlayerStatus");
                 GameObject playerStatus = Instantiate(playerStatusPrefab, playerHud.transform);
@@ -149,12 +159,12 @@ namespace Assets.Scripts.Controllers
 
         public void OnMouseDown()
         {
-            if(IsOwner) return;
+            if (IsOwner) return;
 
             int playerId = OwnerId;
             PlayerCharacter playerCharacter = GetPlayerCharacter();
             Sprite avatar = gameObject.GetComponent<SpriteRenderer>().sprite;
-        
+
             GameController.Singleton.InspectPlayer(playerId, playerCharacter, avatar);
         }
 

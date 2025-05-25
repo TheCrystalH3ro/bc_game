@@ -1,14 +1,20 @@
-using System.Collections.Generic;
+using System.Linq;
 using Assets.Scripts.Controllers.Server;
 using Assets.Scripts.Enums;
 using Assets.Scripts.Models;
 using Assets.Scripts.UI.Controllers;
+using Assets.Scripts.Util;
+using FishNet;
+using FishNet.Connection;
+using FishNet.Managing.Scened;
 using FishNet.Object;
+using GameKit.Dependencies.Utilities.Types;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Assets.Scripts.Controllers
 {
-    public class GameController : NetworkBehaviour
+    public class GameController : MonoBehaviour
     {
         public static GameController Singleton { get; private set; }
 
@@ -16,26 +22,55 @@ namespace Assets.Scripts.Controllers
         [SerializeField] private Sprite wizardSprite;
         [SerializeField] private Sprite rogueSprite;
 
-        void OnEnable()
+        private void RegisterEvents()
         {
+            InstanceFinder.SceneManager.OnQueueStart += LoadQueueStarted;
+            InstanceFinder.SceneManager.OnQueueEnd += LoadQueueEnded;
             PlayerController.OnEscapePressed += TogglePauseMenu;
         }
 
         void OnDisable()
         {
+            if (InstanceFinder.NetworkManager == null || InstanceFinder.NetworkManager.IsServerStarted)
+                return;
+
+            InstanceFinder.SceneManager.OnQueueStart -= LoadQueueStarted;
+            InstanceFinder.SceneManager.OnQueueEnd -= LoadQueueEnded;
             PlayerController.OnEscapePressed -= TogglePauseMenu;
         }
 
-        public override void OnStartClient()
+        void Awake()
         {
-            if (!base.IsOwner) return;
-
             Singleton = this;
+        }
+
+        public void Initialize()
+        {
+            RegisterEvents();
+
+            KeepObjects();
 
             string jwtToken = PlayerPrefs.GetString("authToken");
             uint characterId = (uint) PlayerPrefs.GetInt("CharacterId");
 
-            GameServerController.Singleton.RequestToJoinServerRpc(jwtToken, characterId);
+            GameServerController.Singleton.RequestToJoinServer(jwtToken, characterId);
+        }
+
+        private void KeepObjects()
+        {
+            GameObject[] playerObjects = GameObject.FindGameObjectsWithTag("Controller");
+
+            foreach (GameObject playerObject in playerObjects)
+                DontDestroyOnLoad(playerObject);
+
+            GameObject canvas = GameObject.FindGameObjectWithTag("MainCanvas");
+            DontDestroyOnLoad(canvas);
+
+            GameObject mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
+            DontDestroyOnLoad(mainCamera);
+
+            GameObject eventSystem = FindFirstObjectByType<EventSystem>().gameObject;
+            DontDestroyOnLoad(eventSystem);
         }
 
         public Sprite GetCharacterSprite(PlayerClass playerClass)
@@ -48,6 +83,16 @@ namespace Assets.Scripts.Controllers
             };
         }
 
+        private void LoadQueueStarted()
+        {
+            HUDController.Singleton.ShowLoadingScreen();
+        }
+
+        private void LoadQueueEnded()
+        {
+            HUDController.Singleton.HideLoadingScreen();
+        }
+
         private void TogglePauseMenu()
         {
             HUDController.Singleton.PauseMenu.TogglePauseMenu();
@@ -55,12 +100,8 @@ namespace Assets.Scripts.Controllers
 
         public void InspectPlayer(int playerId, PlayerCharacter character, Sprite avatar)
         {
+            Debug.Log(HUDController.Singleton);
             HUDController.Singleton.PlayerCard.Init(playerId, character, avatar);
-        }
-
-        public void UpdatePartyUI(List<PlayerCharacter> playerCharacters, uint leaderId)
-        {
-        
         }
     }
 }

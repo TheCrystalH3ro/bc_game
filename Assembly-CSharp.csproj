@@ -72,9 +72,11 @@
     <Compile Include="Assets\LeanTween\Framework\LeanTest.cs" />
     <Compile Include="Assets\Scripts\Modules\ValidationModule.cs" />
     <Compile Include="Assets\Scripts\Controllers\Server\ServerController.cs" />
+    <Compile Include="Assets\Scripts\Models\SceneChangeData.cs" />
     <Compile Include="Assets\Scripts\UI\Controllers\CharacterCreationController.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IParty.cs" />
     <Compile Include="Assets\Scripts\Modules\MessageBoxModule.cs" />
+    <Compile Include="Assets\Scripts\Triggers\ZoneChange.cs" />
     <Compile Include="Assets\Scripts\Enums\ValidationRuleEnum.cs" />
     <Compile Include="Assets\Scripts\Controllers\CharacterSlotController.cs" />
     <Compile Include="Assets\Scripts\UI\Controllers\HUDController.cs" />
@@ -84,6 +86,7 @@
     <Compile Include="Assets\Scripts\Interfaces\IValidationProvider.cs" />
     <Compile Include="Assets\Scripts\Models\Party.cs" />
     <Compile Include="Assets\Scripts\Modules\Validation\Providers\AuthValidationProvider.cs" />
+    <Compile Include="Assets\Scripts\PhysicsSceneSync.cs" />
     <Compile Include="Assets\Scripts\Controllers\PlayerController.cs" />
     <Compile Include="Assets\Scripts\Modules\Validation\Rules\MaxLengthRule.cs" />
     <Compile Include="Assets\Scripts\UI\TextHover.cs" />
@@ -99,10 +102,12 @@
     <Compile Include="Assets\LeanTween\Framework\LeanSmooth.cs" />
     <Compile Include="Assets\Scripts\Models\PlayerData.cs" />
     <Compile Include="Assets\Scripts\Modules\ConfigModule.cs" />
+    <Compile Include="Assets\Scripts\Responses\PlayerDataResponse.cs" />
     <Compile Include="Assets\Scripts\Models\Health.cs" />
     <Compile Include="Assets\Scripts\Responses\ApiErrors.cs" />
     <Compile Include="Assets\Scripts\Modules\Validation\Rules\RequiredRule.cs" />
     <Compile Include="Assets\Scripts\Controllers\GameController.cs" />
+    <Compile Include="Assets\Scripts\Modules\GameDataModule.cs" />
     <Compile Include="Assets\Scripts\Modules\Validation\Rules\CompareRule.cs" />
     <Compile Include="Assets\Scripts\UI\MessageBox.cs" />
     <Compile Include="Assets\Scripts\Models\MovemenReconcileData.cs" />
@@ -110,6 +115,7 @@
     <Compile Include="Assets\Scripts\Controllers\PartyController.cs" />
     <Compile Include="Assets\Scripts\UI\Controllers\AuthController.cs" />
     <Compile Include="Assets\Scripts\Modules\Validation\Rules\EmailRule.cs" />
+    <Compile Include="Assets\Scripts\Interfaces\IPlayerData.cs" />
     <Compile Include="Assets\Scripts\Modules\PartyModule.cs" />
     <Compile Include="Assets\LeanTween\Framework\LeanTweenExt.cs" />
     <Compile Include="Assets\LeanTween\Framework\LeanAudio.cs" />

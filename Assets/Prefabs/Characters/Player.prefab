@@ -227,7 +227,6 @@ GameObject:
   - component: {fileID: 8643215451577989272}
   - component: {fileID: 4591508915366481650}
   - component: {fileID: 8541999166470816635}
-  - component: {fileID: 1213852969807872555}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -528,6 +527,7 @@ MonoBehaviour:
   - {fileID: 5702771929175616037}
   - {fileID: 8643215451577989272}
   - {fileID: 8541999166470816635}
+  - {fileID: 0}
   InitializedParentNetworkBehaviour: {fileID: 0}
   InitializedNestedNetworkObjects: []
   RuntimeParentNetworkBehaviour: {fileID: 0}
@@ -552,7 +552,7 @@ MonoBehaviour:
   _spectatorInterpolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  <PrefabId>k__BackingField: 11
+  <PrefabId>k__BackingField: 10
   <SpawnableCollectionId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 13877117756719012106
   <SceneId>k__BackingField: 0
@@ -643,24 +643,3 @@ MonoBehaviour:
   _interpolation: 2
   _clientAuthoritative: 0
   _sendToOwner: 0
---- !u!114 &1213852969807872555
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7362200074529973233}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be3cb2952c351714c963b0766f53cef3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _componentIndexCache: 255
-  _addedNetworkObject: {fileID: 7502699605544101477}
-  _networkObjectCache: {fileID: 0}
-  _maximumSimultaneousHits: 16
-  _historyDuration: 0.5
-  _additionalSize: 0.1
-  _layers:
-    serializedVersion: 2
-    m_Bits: 0
