@@ -17,6 +17,7 @@ namespace Assets.Scripts.UI.Controllers
 
         [SerializeField] private MessageBox messageBox;
         [SerializeField] private Prompt prompt;
+        [SerializeField] private GameObject loadingScreen;
 
         void OnEnable()
         {
@@ -83,6 +84,16 @@ namespace Assets.Scripts.UI.Controllers
         public void HideLeavePartyButton()
         {
             partyLeaveButton.SetActive(false);
+        }
+
+        public void ShowLoadingScreen()
+        {
+            loadingScreen.SetActive(true);
+        }
+
+        public void HideLoadingScreen()
+        {
+            loadingScreen.SetActive(false);
         }
     }
 }
