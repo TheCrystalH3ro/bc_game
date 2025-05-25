@@ -22,10 +22,8 @@ namespace Assets.Scripts.UI
             gameObject.SetActive(false);
         }
 
-        public void ReturnToCharacterSelect() {
-            GameObject playerData = GameObject.FindGameObjectWithTag("PlayerData");
-            Destroy(playerData);
-
+        public void ReturnToCharacterSelect()
+        {
             Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
             SceneManager.LoadScene("CharacterSelect", LoadSceneMode.Single);
         }

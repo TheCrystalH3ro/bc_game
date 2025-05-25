@@ -2,6 +2,7 @@ using Assets.Scripts.Controllers;
 using Assets.Scripts.Controllers.Server;
 using Assets.Scripts.Enums;
 using Assets.Scripts.Responses;
+using Assets.Scripts.Util;
 using FishNet;
 using FishNet.Connection;
 using UnityEngine;

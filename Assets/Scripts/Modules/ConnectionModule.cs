@@ -17,10 +17,7 @@ namespace Assets.Scripts.Modules
         {
             get
             {
-                if (_instance == null)
-                {
-                    _instance = new(ConfigModule.Get("API_URL"));
-                }
+                _instance ??= new(ConfigModule.Get("API_URL"));
 
                 return _instance;
             }
