@@ -39,6 +39,14 @@ namespace Assets.Scripts.Controllers
             PlayerController.OnEscapePressed -= TogglePauseMenu;
         }
 
+        void OnDestroy()
+        {
+            if (InstanceFinder.IsServerStarted)
+                return;
+
+            DestroyObjects();
+        }
+
         void Awake()
         {
             Singleton = this;
@@ -71,6 +79,23 @@ namespace Assets.Scripts.Controllers
 
             GameObject eventSystem = FindFirstObjectByType<EventSystem>().gameObject;
             DontDestroyOnLoad(eventSystem);
+        }
+
+        private void DestroyObjects()
+        {
+            GameObject eventSystem = FindFirstObjectByType<EventSystem>().gameObject;
+            Destroy(eventSystem);
+
+            GameObject mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
+            Destroy(mainCamera);
+
+            GameObject canvas = GameObject.FindGameObjectWithTag("MainCanvas");
+            Destroy(canvas);
+
+            GameObject[] playerObjects = GameObject.FindGameObjectsWithTag("Controller");
+
+            foreach (GameObject playerObject in playerObjects)
+                Destroy(playerObject);
         }
 
         public Sprite GetCharacterSprite(PlayerClass playerClass)

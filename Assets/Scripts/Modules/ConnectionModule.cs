@@ -45,6 +45,12 @@ namespace Assets.Scripts.Modules
             InstanceFinder.ClientManager.StartConnection(serverHost, (ushort)serverPort);
         }
 
+        public void Disconnect()
+        {
+            InstanceFinder.ClientManager.StopConnection();
+            UnityEngine.Object.Destroy(InstanceFinder.ClientManager.gameObject);
+        }
+
         public IEnumerator VerifyPlayer(NetworkConnection client, string playerToken, uint characterId, Action<NetworkConnection, CharacterResponse> onVerificationSuccess, Action<NetworkConnection, UnityWebRequest> onVerificationFail)
         {
             string verifyUrl = apiUrl + "/character/" + characterId;
