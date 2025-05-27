@@ -41,9 +41,6 @@ namespace Assets.Scripts.Controllers
 
         void OnDestroy()
         {
-            if (InstanceFinder.IsServerStarted)
-                return;
-
             DestroyObjects();
         }
 
@@ -83,10 +80,15 @@ namespace Assets.Scripts.Controllers
 
         private void DestroyObjects()
         {
-            GameObject eventSystem = FindFirstObjectByType<EventSystem>().gameObject;
-            Destroy(eventSystem);
+            EventSystem eventSystem = FindFirstObjectByType<EventSystem>();
+
+            if (eventSystem != null)
+            {
+                Destroy(eventSystem.gameObject);
+            }
 
             GameObject mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
+
             Destroy(mainCamera);
 
             GameObject canvas = GameObject.FindGameObjectWithTag("MainCanvas");
