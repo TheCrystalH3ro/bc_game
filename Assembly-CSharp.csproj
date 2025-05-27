@@ -95,6 +95,7 @@
     <Compile Include="Assets\Scripts\Responses\CharacterResponse.cs" />
     <Compile Include="Assets\Scripts\Enums\PlayerClass.cs" />
     <Compile Include="Assets\Scripts\UI\Controllers\PlayerStatusController.cs" />
+    <Compile Include="Assets\Scripts\Controllers\Server\EnemySpawnerController.cs" />
     <Compile Include="Assets\LeanTween\Framework\LeanTween.cs" />
     <Compile Include="Assets\Scripts\Modules\Validation\Providers\ConfigurableValidationProvider.cs" />
     <Compile Include="Assets\Scripts\UI\PauseMenu.cs" />
@@ -111,6 +112,7 @@
     <Compile Include="Assets\Scripts\Modules\Validation\Rules\CompareRule.cs" />
     <Compile Include="Assets\Scripts\UI\MessageBox.cs" />
     <Compile Include="Assets\Scripts\Models\MovemenReconcileData.cs" />
+    <Compile Include="Assets\Scripts\Modules\RoamMovementModule.cs" />
     <Compile Include="Assets\Scripts\Modules\MovementModule.cs" />
     <Compile Include="Assets\Scripts\Controllers\PartyController.cs" />
     <Compile Include="Assets\Scripts\UI\Controllers\AuthController.cs" />
@@ -131,6 +133,7 @@
     <Compile Include="Assets\Scripts\HoverPointerCursor.cs" />
     <Compile Include="Assets\Scripts\UI\CharacterInfo.cs" />
     <Compile Include="Assets\Scripts\Modules\AuthModule.cs" />
+    <Compile Include="Assets\Scripts\Modules\SpawnerModule.cs" />
     <Compile Include="Assets\Scripts\Controllers\Server\GameServerController.cs" />
     <Compile Include="Assets\Scripts\ClientManager.cs" />
     <Compile Include="Assets\LeanTween\Framework\LTSeq.cs" />
