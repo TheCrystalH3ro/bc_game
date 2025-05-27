@@ -30,6 +30,11 @@ namespace Assets.Scripts.Controllers.Server
             Singleton = FindFirstObjectByType<GameServerController>();
         }
 
+        void OnDisable()
+        {
+            SceneModule.SceneChanged -= OnSceneChanged;
+        }
+
         public override void OnStartNetwork()
         {
             if (!base.IsServerInitialized)
@@ -42,6 +47,7 @@ namespace Assets.Scripts.Controllers.Server
 
             SceneModule.Singleton.LoadStartScene();
 
+            SceneModule.SceneChanged += OnSceneChanged;
             InstanceFinder.ServerManager.OnRemoteConnectionState += HandlePlayerConnection;
         }
 
@@ -61,6 +67,11 @@ namespace Assets.Scripts.Controllers.Server
 
             if (character == null) return;
 
+            if (playerController.ActiveScene != SceneModule.MAIN_SCENE_NAME)
+            { 
+                playerController.Save();
+            }
+
             uint playerId = character.GetId();
 
             if (!PlayerList.ContainsKey(playerId)) return;
@@ -74,10 +85,11 @@ namespace Assets.Scripts.Controllers.Server
             StartCoroutine(ConnectionModule.Singleton.VerifyPlayer(sender, playerToken, characterId, OnVerificationSuccess, OnVerificationFail));
         }
 
-        private void OnVerificationSuccess(NetworkConnection client, CharacterResponse character)
+        private void OnVerificationSuccess(NetworkConnection client, CharacterResponse characterResponse)
         {
-            SpawnPlayer(character, client);
-            SceneModule.Singleton.ChangeScene(client, "Town");
+            PlayerCharacter playerCharacter = new(characterResponse);
+            GameObject playerObject = SpawnPlayer(playerCharacter, client);
+            SetupPlayer(playerObject, playerCharacter, client);
         }
 
         private void OnVerificationFail(NetworkConnection client, UnityWebRequest request)
@@ -95,7 +107,25 @@ namespace Assets.Scripts.Controllers.Server
             client.Kick(KickReason.UnexpectedProblem);
         }
 
-        private void SpawnPlayer(CharacterResponse characterResponse, NetworkConnection client)
+        private void SetupPlayer(GameObject playerObject, PlayerCharacter playerCharacter, NetworkConnection client)
+        {
+            PlayerController playerController = playerObject.GetComponent<PlayerController>();
+
+            playerController.SetPlayerCharacter(playerCharacter);
+            
+            playerController.Load(character =>
+            {
+                string currentScene = playerController.ActiveScene;
+                playerController.ActiveScene = SceneModule.MAIN_SCENE_NAME;
+
+                SceneModule.Singleton.ChangeScene(client, currentScene, playerObject.transform.position);
+            }, error =>
+            {
+                client.Kick(KickReason.UnexpectedProblem);
+            });
+        }
+
+        private GameObject SpawnPlayer(PlayerCharacter playerCharacter, NetworkConnection client)
         {
             var playerObject = Instantiate(playerPrefab);
 
@@ -103,15 +133,20 @@ namespace Assets.Scripts.Controllers.Server
 
             InstanceFinder.ServerManager.Spawn(playerNetworkObject, client);
 
-            PlayerController playerController = playerObject.GetComponent<PlayerController>();
-
-            PlayerCharacter playerCharacter = new(characterResponse);
-
-            playerController.SetPlayerCharacter(playerCharacter);
+            client.SetFirstObject(playerNetworkObject);
 
             PlayerList[playerCharacter.GetId()] = client.ClientId;
 
-            client.SetFirstObject(playerController.NetworkObject);
+            return playerObject;
+        }
+
+        private void OnSceneChanged(NetworkConnection client, string sceneName, string previousScene)
+        {
+            if (previousScene == SceneModule.MAIN_SCENE_NAME)
+                return;
+
+            PlayerController playerController = PlayerController.FindByConnection(client);
+            playerController.Save();
         }
 
         [TargetRpc]

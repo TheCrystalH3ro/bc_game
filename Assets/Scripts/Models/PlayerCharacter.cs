@@ -2,7 +2,6 @@ using Assets.Scripts.Controllers;
 using Assets.Scripts.Controllers.Server;
 using Assets.Scripts.Enums;
 using Assets.Scripts.Responses;
-using Assets.Scripts.Util;
 using FishNet;
 using FishNet.Connection;
 using UnityEngine;
@@ -14,6 +13,7 @@ namespace Assets.Scripts.Models
         private uint id;
         private string name;
         private ushort level;
+        private float experience;
         private PlayerClass playerClass;
 
         public PlayerCharacter(uint id, string name, ushort level, PlayerClass playerClass)
@@ -21,6 +21,7 @@ namespace Assets.Scripts.Models
             this.id = id;
             this.name = name;
             this.level = level;
+            this.experience = 0;
             this.playerClass = playerClass;
         }
 
@@ -100,9 +101,15 @@ namespace Assets.Scripts.Models
             return 90;
         }
 
-        public int GetExp()
+        public float GetExp()
         {
-            return 15;
+            return this.experience;
+        }
+
+        public void LoadData(PlayerDataResponse playerDataResponse)
+        {
+            this.level = playerDataResponse.level;
+            this.experience = playerDataResponse.experience;
         }
     }
 }

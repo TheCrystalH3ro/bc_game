@@ -1,7 +1,9 @@
+using System;
 using Assets.Scripts.Enums;
 using Assets.Scripts.Interfaces;
 using Assets.Scripts.Models;
 using Assets.Scripts.Modules;
+using Assets.Scripts.Responses;
 using Assets.Scripts.UI.Controllers;
 using Assets.Scripts.Util;
 using Cinemachine;
@@ -176,6 +178,48 @@ namespace Assets.Scripts.Controllers
         public void SetParty(IParty party)
         {
             this.party = party;
+        }
+
+        [Server]
+        public void Load(Action<PlayerCharacter> onLoadSuccess = null, Action<string> onLoadFail = null)
+        {
+            StartCoroutine(GameDataModule.Singleton.LoadPlayerData(playerCharacter.Value.GetId(), playerData =>
+            {
+                if (playerCharacter.Value.GetId() != playerData.id)
+                    return;
+
+                playerData.worldData ??= new(SceneModule.DEFAULT_SCENE_NAME, new(Vector3.zero));
+                playerData.worldData.scene ??= SceneModule.DEFAULT_SCENE_NAME;
+                playerData.worldData.position ??= new(Vector3.zero);
+
+                playerCharacter.Value.LoadData(playerData);
+                ActiveScene = playerData.worldData.scene;
+
+                PositionData pos = playerData.worldData.position;
+                transform.position = new Vector3(pos.x, pos.y, pos.z);
+
+                onLoadSuccess?.Invoke(playerCharacter.Value);
+            },
+            error =>
+            {
+                Debug.Log("Error while trying to save the character: " + error);
+                onLoadFail?.Invoke(error);
+            }));
+        }
+
+        [Server]
+        public void Save(Action onSave = null)
+        {
+            IPlayerData saveData = new PlayerData(playerCharacter.Value, transform.position, ActiveScene);
+
+            StartCoroutine(GameDataModule.Singleton.SavePlayerData(playerCharacter.Value.GetId(), saveData, () =>
+            {
+                onSave?.Invoke();
+            },
+            error =>
+            {
+                Debug.Log("Error while trying to save the character: " + error);
+            }));
         }
     }
 }

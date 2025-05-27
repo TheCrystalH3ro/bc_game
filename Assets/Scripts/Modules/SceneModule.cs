@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Assets.Scripts.Controllers;
 using Assets.Scripts.Models;
@@ -5,7 +6,6 @@ using FishNet;
 using FishNet.Connection;
 using FishNet.Managing.Scened;
 using FishNet.Object;
-using FishNet.Object.Synchronizing.Internal;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -32,6 +32,8 @@ namespace Assets.Scripts.Modules
 
         private readonly HashSet<NetworkConnection> _processingPlayers = new();
         private readonly Dictionary<NetworkConnection, SceneChangeData> _playerSceneData = new();
+
+        public static event Action<NetworkConnection, string, string> SceneChanged;
 
         public SceneModule()
         {
@@ -63,7 +65,7 @@ namespace Assets.Scripts.Modules
             PlayerController playerController = playerObject.GetComponent<PlayerController>();
             string activeScene = playerController.ActiveScene;
 
-            _playerSceneData.Add(player, new(playerObject, startPosition));
+            _playerSceneData.Add(player, new(playerObject, startPosition, sceneName, activeScene));
 
             LoadScene(player, sceneName, objectsToMove);
             UnloadScene(player, activeScene);
@@ -146,6 +148,8 @@ namespace Assets.Scripts.Modules
                     sceneData.player.transform.position = sceneData.position;
 
                     _playerSceneData.Remove(connection);
+
+                    SceneChanged?.Invoke(connection, sceneData.scene, sceneData.previousScene);
                 }
             }
         }
