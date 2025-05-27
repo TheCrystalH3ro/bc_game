@@ -15,24 +15,28 @@ namespace Assets.Scripts.UI.Controllers
         [SerializeField] private Indicator expIndicator;
         [SerializeField] private TMP_Text levelText;
 
-        public void Init(PlayerCharacter character, Sprite playerAvatar, int maxHealth, int maxExp) {
+        public void Init(PlayerCharacter character, Sprite playerAvatar, int maxHealth, float maxExp)
+        {
             avatar.overrideSprite = playerAvatar;
             playerName.SetText(character.GetName());
             healthIndicator.SetMaxValue(maxHealth);
-            expIndicator.SetMaxValue(maxExp);
+            expIndicator.SetMaxValue((int) maxExp);
             levelText.SetText(character.GetLevel().ToString());
             gameObject.GetComponent<CanvasGroup>().alpha = 1;
         }
 
-        public void UpdateHealth(int health) {
+        public void UpdateHealth(int health)
+        {
             healthIndicator.SetValue(health);
         }
 
-        public void UpdateExp(int exp) {
-            expIndicator.SetValue(exp);
+        public void UpdateExp(float exp)
+        {
+            expIndicator.SetValue((int) exp);
         }
 
-        public void UpdateLvl(int lvl) {
+        public void UpdateLvl(int lvl)
+        {
             levelText.SetText(lvl.ToString());
         }
     }
