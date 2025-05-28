@@ -3,15 +3,13 @@ using UnityEngine;
 
 namespace Assets.Scripts.Modules
 {
-    public class RoamMovementModule : MovementModule
+    public class RoamMovementModule : CharacterMovementModule
     {
         [SerializeField] private Collider2D roamArea;
         [SerializeField] private float minMoveDistance = 0.5f;
         [SerializeField] private float maxMoveDistance = 5f;
         [SerializeField] private float minIdleTime = 3f;
         [SerializeField] private float maxIdleTime = 10f;
-        private Animator animator;
-
         private static readonly Vector2[] roamDirections = new Vector2[]
         {
             Vector2.up,
@@ -28,20 +26,12 @@ namespace Assets.Scripts.Modules
         {
             base.OnStartNetwork();
 
-            animator = GetComponent<Animator>();
-
-            TimeManager.OnTick += OnTick;
             HandleMovement();
         }
 
-        public override void OnStopNetwork()
+        public override void OnTick()
         {
-            base.TimeManager.OnTick -= OnTick;
-        }
-
-        private void OnTick()
-        {
-            UpdateAnimation();
+            base.OnTick();
 
             if (!base.IsServerInitialized)
                 return;
@@ -54,25 +44,9 @@ namespace Assets.Scripts.Modules
             Move();
         }
 
-        private void UpdateAnimation()
-        {
-            animator.SetFloat("Speed", Movement.sqrMagnitude);
-            bool isFlipped = GetComponent<SpriteRenderer>().flipX;
-
-            if ((Movement.x < 0 && !isFlipped) || (Movement.x > 0 && isFlipped))
-            {
-                FlipCharacter(Movement.x < 0);
-            }
-        }
-
         public void SetRoamArea(Collider2D area)
         {
             roamArea = area;
-        }
-
-        private void FlipCharacter(bool isFlipped)
-        {
-            GetComponent<SpriteRenderer>().flipX = isFlipped;
         }
 
         private bool CanMove()

@@ -76,14 +76,6 @@ namespace Assets.Scripts.Controllers
         // Update is called once per frame
         void Update()
         {
-            animator.SetFloat("Speed", movementModule.Movement.sqrMagnitude);
-            bool isFlipped = GetComponent<SpriteRenderer>().flipX;
-
-            if ((movementModule.Movement.x < 0 && !isFlipped) || (movementModule.Movement.x > 0 && isFlipped))
-            {
-                FlipCharacter(movementModule.Movement.x < 0);
-            }
-
             if (!base.IsOwner) return;
 
             if (Input.GetKeyDown(KeyCode.Escape))

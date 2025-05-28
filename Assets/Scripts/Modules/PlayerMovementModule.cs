@@ -6,25 +6,27 @@ using UnityEngine;
 
 namespace Assets.Scripts.Modules
 {
-    public class PlayerMovementModule : MovementModule
+    public class PlayerMovementModule : CharacterMovementModule
     {
 
         public override void OnStartNetwork()
         {
             base.OnStartNetwork();
 
-            TimeManager.OnTick += OnTick;
             TimeManager.OnPostTick += OnPostTick;
         }
 
         public override void OnStopNetwork()
         {
-            base.TimeManager.OnTick -= OnTick;
+            base.OnStopNetwork();
+
             base.TimeManager.OnPostTick -= OnPostTick;
         }
 
-        private void OnTick()
+        public override void OnTick()
         {
+            base.OnTick();
+
             MovementReplicateData input = HandleMovementInput();
             UpdateMovement(input);
         }

@@ -103,6 +103,7 @@
     <Compile Include="Assets\LeanTween\Framework\LeanSmooth.cs" />
     <Compile Include="Assets\Scripts\Models\PlayerData.cs" />
     <Compile Include="Assets\Scripts\Modules\ConfigModule.cs" />
+    <Compile Include="Assets\Scripts\Modules\CharacterMovementModule.cs" />
     <Compile Include="Assets\Scripts\Responses\PlayerDataResponse.cs" />
     <Compile Include="Assets\Scripts\Models\Health.cs" />
     <Compile Include="Assets\Scripts\Responses\ApiErrors.cs" />
