@@ -113,10 +113,10 @@ TextureImporter:
       name: GUI_4x_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 96
-        width: 128
-        height: 128
+        x: 1
+        y: 100
+        width: 127
+        height: 124
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 32, y: 32, z: 32, w: 32}
