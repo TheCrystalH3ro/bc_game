@@ -63,41 +63,16 @@ namespace Assets.Scripts.Controllers
 
         private void KeepObjects()
         {
-            GameObject[] playerObjects = GameObject.FindGameObjectsWithTag("Controller");
-
-            foreach (GameObject playerObject in playerObjects)
-                DontDestroyOnLoad(playerObject);
-
-            GameObject canvas = GameObject.FindGameObjectWithTag("MainCanvas");
-            DontDestroyOnLoad(canvas);
-
-            GameObject mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
-            DontDestroyOnLoad(mainCamera);
-
-            GameObject eventSystem = FindFirstObjectByType<EventSystem>().gameObject;
-            DontDestroyOnLoad(eventSystem);
+            DontDestroyOnLoad(gameObject);
+            DontDestroyOnLoad(GameServerController.Singleton.gameObject);
         }
 
         private void DestroyObjects()
         {
-            EventSystem eventSystem = FindFirstObjectByType<EventSystem>();
+            Destroy(gameObject);
 
-            if (eventSystem != null)
-            {
-                Destroy(eventSystem.gameObject);
-            }
-
-            GameObject mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
-
-            Destroy(mainCamera);
-
-            GameObject canvas = GameObject.FindGameObjectWithTag("MainCanvas");
-            Destroy(canvas);
-
-            GameObject[] playerObjects = GameObject.FindGameObjectsWithTag("Controller");
-
-            foreach (GameObject playerObject in playerObjects)
-                Destroy(playerObject);
+            if (GameServerController.Singleton != null && GameServerController.Singleton.gameObject != null)
+                Destroy(GameServerController.Singleton.gameObject);
         }
 
         public Sprite GetCharacterSprite(PlayerClass playerClass)
