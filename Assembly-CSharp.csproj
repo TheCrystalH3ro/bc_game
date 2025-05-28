@@ -93,6 +93,7 @@
     <Compile Include="Assets\Scripts\Modules\CharacterModule.cs" />
     <Compile Include="Assets\Scripts\UI\Controllers\MainMenuController.cs" />
     <Compile Include="Assets\Scripts\Responses\CharacterResponse.cs" />
+    <Compile Include="Assets\Scripts\Interfaces\IEnemy.cs" />
     <Compile Include="Assets\Scripts\Enums\PlayerClass.cs" />
     <Compile Include="Assets\Scripts\UI\Controllers\PlayerStatusController.cs" />
     <Compile Include="Assets\Scripts\Controllers\Server\EnemySpawnerController.cs" />
@@ -108,6 +109,7 @@
     <Compile Include="Assets\Scripts\Models\Health.cs" />
     <Compile Include="Assets\Scripts\Responses\ApiErrors.cs" />
     <Compile Include="Assets\Scripts\Modules\Validation\Rules\RequiredRule.cs" />
+    <Compile Include="Assets\Scripts\Modules\CombatModule.cs" />
     <Compile Include="Assets\Scripts\Controllers\GameController.cs" />
     <Compile Include="Assets\Scripts\Modules\GameDataModule.cs" />
     <Compile Include="Assets\Scripts\Modules\Validation\Rules\CompareRule.cs" />
@@ -123,12 +125,14 @@
     <Compile Include="Assets\LeanTween\Framework\LeanTweenExt.cs" />
     <Compile Include="Assets\LeanTween\Framework\LeanAudio.cs" />
     <Compile Include="Assets\LeanTween\Framework\LTDescrOptional.cs" />
+    <Compile Include="Assets\Scripts\Controllers\Server\EnemyController.cs" />
     <Compile Include="Assets\Scripts\UI\Prompt.cs" />
     <Compile Include="Assets\Scripts\Responses\ValidationResult.cs" />
     <Compile Include="Assets\Scripts\Util\ObjectUtil.cs" />
     <Compile Include="Assets\LeanTween\Framework\LTDescr.cs" />
     <Compile Include="Assets\Scripts\Modules\SceneModule.cs" />
     <Compile Include="Assets\Scripts\UI\Indicator.cs" />
+    <Compile Include="Assets\Scripts\Models\Enemy.cs" />
     <Compile Include="Assets\Scripts\Modules\PlayerMovementModule.cs" />
     <Compile Include="Assets\Scripts\UI\Controllers\CharacterSelectController.cs" />
     <Compile Include="Assets\Scripts\HoverPointerCursor.cs" />
@@ -140,6 +144,7 @@
     <Compile Include="Assets\LeanTween\Framework\LTSeq.cs" />
     <Compile Include="Assets\Scripts\Util\JsonObject.cs" />
     <Compile Include="Assets\Scripts\Models\PlayerCharacter.cs" />
+    <Compile Include="Assets\Scripts\Triggers\EnemyTrigger.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IValidationRule.cs" />
     <Compile Include="Assets\Scripts\AutoTilemapGenerator.cs" />
   </ItemGroup>

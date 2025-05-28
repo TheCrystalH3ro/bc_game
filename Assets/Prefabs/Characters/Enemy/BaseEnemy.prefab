@@ -1,5 +1,74 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &195173935185775346
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6794480674082006024}
+  - component: {fileID: 5932661136160719539}
+  m_Layer: 7
+  m_Name: Hitbox
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6794480674082006024
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 195173935185775346}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5600976807012599844}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!70 &5932661136160719539
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 195173935185775346}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0.021900758, y: 0.9293545}
+  m_Size: {x: 0.9643309, y: 1.8790824}
+  m_Direction: 0
 --- !u!1 &6212828088899718436
 GameObject:
   m_ObjectHideFlags: 0
@@ -42,17 +111,18 @@ GameObject:
   - component: {fileID: 5600976807012599844}
   - component: {fileID: 2984786549872234618}
   - component: {fileID: 8012232266985887796}
-  - component: {fileID: 8396995906440296110}
   - component: {fileID: 2868635370810318413}
   - component: {fileID: 3263957809805876574}
   - component: {fileID: 1382840129650664718}
+  - component: {fileID: 2882246007194373903}
+  - component: {fileID: 6101508134944757083}
   - component: {fileID: 3611044871304353390}
   - component: {fileID: 7502699605544101477}
   - component: {fileID: 8643215451577989272}
   - component: {fileID: 8541999166470816635}
   m_Layer: 6
   m_Name: BaseEnemy
-  m_TagString: Player
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -71,6 +141,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2922920531336222426}
+  - {fileID: 6794480674082006024}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &2984786549872234618
@@ -154,43 +225,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!70 &8396995906440296110
-CapsuleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7362200074529973233}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0.021900758, y: 0.9293545}
-  m_Size: {x: 0.9643309, y: 1.8790824}
-  m_Direction: 0
 --- !u!60 &2868635370810318413
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -276,15 +310,43 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 920880b0e2c9c7b4cbcb52144eaa537f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 255
+  _componentIndexCache: 0
   _addedNetworkObject: {fileID: 7502699605544101477}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: 7502699605544101477}
   moveSpeed: 1.5
   roamArea: {fileID: 0}
   minMoveDistance: 0.5
   maxMoveDistance: 5
   minIdleTime: 1
   maxIdleTime: 5
+--- !u!114 &2882246007194373903
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7362200074529973233}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbdd8e58f0b8ccc44bc7ae1443fb0ba0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _componentIndexCache: 1
+  _addedNetworkObject: {fileID: 7502699605544101477}
+  _networkObjectCache: {fileID: 7502699605544101477}
+  enemyName: Base Enemy
+--- !u!114 &6101508134944757083
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7362200074529973233}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f9699c914b8cc943a53471a728256a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &3611044871304353390
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -326,11 +388,10 @@ MonoBehaviour:
   <PredictedSpawn>k__BackingField: {fileID: 0}
   <PredictedOwner>k__BackingField: {fileID: 0}
   NetworkBehaviours:
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 1382840129650664718}
+  - {fileID: 2882246007194373903}
   - {fileID: 8643215451577989272}
   - {fileID: 8541999166470816635}
-  - {fileID: 0}
   InitializedParentNetworkBehaviour: {fileID: 0}
   InitializedNestedNetworkObjects: []
   RuntimeParentNetworkBehaviour: {fileID: 0}
@@ -360,9 +421,9 @@ MonoBehaviour:
   <AssetPathHash>k__BackingField: 13746129039655443993
   <SceneId>k__BackingField: 0
   SerializedTransformProperties:
-    Position: {x: -2.49, y: -0.03, z: 0}
+    Position: {x: 0, y: 0, z: 0}
     Rotation: {x: 0, y: 0, z: 0, w: 1}
-    Scale: {x: 0.8, y: 0.8, z: 0.8}
+    Scale: {x: 1, y: 1, z: 1}
     IsValid: 1
 --- !u!114 &8643215451577989272
 MonoBehaviour:
