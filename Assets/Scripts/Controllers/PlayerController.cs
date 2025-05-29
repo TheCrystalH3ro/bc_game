@@ -8,6 +8,7 @@ using Assets.Scripts.UI.Controllers;
 using Assets.Scripts.Util;
 using Cinemachine;
 using FishNet.Component.Animating;
+using FishNet.Component.Transforming;
 using FishNet.Connection;
 using FishNet.Managing.Scened;
 using FishNet.Object;
@@ -146,6 +147,14 @@ namespace Assets.Scripts.Controllers
             };
         }
 
+        public void FlipDirection(bool isFlipped)
+        {
+            if (gameObject.TryGetComponent<PlayerMovementModule>(out var movementModule))
+            {
+                movementModule.FlipCharacter(isFlipped);
+            }
+        }
+
         public void OnMouseDown()
         {
             if (IsOwner) return;
@@ -229,6 +238,11 @@ namespace Assets.Scripts.Controllers
             {
                 movementModule.SetActive(false);
             }
+
+            if (gameObject.TryGetComponent<NetworkTransform>(out var netTransform))
+            {
+                netTransform.SetSynchronizePosition(false);
+            }
         }
 
         public void LeaveCombat()
@@ -236,6 +250,11 @@ namespace Assets.Scripts.Controllers
             if (gameObject.TryGetComponent<PlayerMovementModule>(out var movementModule))
             {
                 movementModule.SetActive(true);
+            }
+
+            if (gameObject.TryGetComponent<NetworkTransform>(out var netTransform))
+            {
+                netTransform.SetSynchronizePosition(true);
             }
         }
     }

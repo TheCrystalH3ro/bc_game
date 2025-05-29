@@ -27,18 +27,24 @@ namespace Assets.Scripts.Modules
         {
             base.OnTick();
 
+            if (!IsActive())
+                return;
+
             MovementReplicateData input = HandleMovementInput();
             UpdateMovement(input);
         }
 
         private void OnPostTick()
         {
+            if (!IsActive())
+                return;
+                
             CreateReconcile();
         }
 
         private MovementReplicateData HandleMovementInput()
         {
-            if (!base.IsOwner || !IsActive())
+            if (!base.IsOwner)
                 return default;
 
             float x = Input.GetAxisRaw("Horizontal");

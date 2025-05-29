@@ -47,12 +47,12 @@ namespace Assets.Scripts.Modules
         }
 
         [ObserversRpc(ExcludeOwner = true)]
-        private void FlipCharacterRpc(bool isFlipped)
+        public void FlipCharacterRpc(bool isFlipped)
         {
             FlipCharacter(isFlipped);
         }
 
-        private void FlipCharacter(bool isFlipped)
+        public void FlipCharacter(bool isFlipped)
         {
             GetComponent<SpriteRenderer>().flipX = isFlipped;
         }
