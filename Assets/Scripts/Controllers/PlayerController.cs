@@ -103,11 +103,6 @@ namespace Assets.Scripts.Controllers
             cameraConfiner.m_BoundingShape2D = GameObject.FindGameObjectWithTag("CameraBoundary").GetComponent<Collider2D>();
         }
 
-        private void FlipCharacter(bool isFlipped)
-        {
-            GetComponent<SpriteRenderer>().flipX = isFlipped;
-        }
-
         public void SetPlayerCharacter(PlayerCharacter playerCharacter)
         {
             this.playerCharacter.Value = playerCharacter;
@@ -212,6 +207,36 @@ namespace Assets.Scripts.Controllers
             {
                 Debug.Log("Error while trying to save the character: " + error);
             }));
+        }
+
+        public void EnterCombatRpc()
+        {
+            if (IsServerInitialized && !IsOwner)
+                EnterCombatRpc(Owner);
+
+            EnterCombat();
+        }
+
+        [TargetRpc]
+        public void EnterCombatRpc(NetworkConnection networkConnection)
+        {
+            EnterCombat();
+        }
+
+        private void EnterCombat()
+        {
+            if (gameObject.TryGetComponent<PlayerMovementModule>(out var movementModule))
+            {
+                movementModule.SetActive(false);
+            }
+        }
+
+        public void LeaveCombat()
+        {
+            if (gameObject.TryGetComponent<PlayerMovementModule>(out var movementModule))
+            {
+                movementModule.SetActive(true);
+            }
         }
     }
 }
