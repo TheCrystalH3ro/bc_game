@@ -11,6 +11,7 @@ namespace Assets.Scripts.Modules
         public Vector2 Movement { get; private set; }
 
         public float moveSpeed = 5f;
+        private bool active = true;
 
         void Awake()
         {
@@ -26,13 +27,23 @@ namespace Assets.Scripts.Modules
 
         public void Move()
         {
-            if(Movement.Equals(Vector2.zero) || moveSpeed == 0) return;
+            if (!active || Movement.Equals(Vector2.zero) || moveSpeed == 0) return;
 
-            float deltaTime = (float) TimeManager.TickDelta;
+            float deltaTime = (float)TimeManager.TickDelta;
 
             Vector2 newPos = rb.position + (moveSpeed * deltaTime * Movement.normalized);
 
             rb.MovePosition(newPos);
+        }
+
+        public void SetActive(bool isActive)
+        {
+            active = isActive;
+        }
+
+        public bool IsActive()
+        {
+            return active;
         }
     }
 }

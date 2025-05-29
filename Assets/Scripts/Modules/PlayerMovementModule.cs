@@ -38,7 +38,7 @@ namespace Assets.Scripts.Modules
 
         private MovementReplicateData HandleMovementInput()
         {
-            if (!base.IsOwner)
+            if (!base.IsOwner || !IsActive())
                 return default;
 
             float x = Input.GetAxisRaw("Horizontal");
