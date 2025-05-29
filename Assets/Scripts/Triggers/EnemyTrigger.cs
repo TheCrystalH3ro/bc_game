@@ -1,10 +1,6 @@
 using Assets.Scripts.Controllers;
 using Assets.Scripts.Controllers.Server;
-using Assets.Scripts.Modules;
-using Assets.Scripts.UI.Controllers;
 using FishNet;
-using FishNet.Connection;
-using FishNet.Object;
 using UnityEngine;
 
 namespace Assets.Scripts.Triggers
@@ -22,7 +18,7 @@ namespace Assets.Scripts.Triggers
             if (!gameObject.TryGetComponent<EnemyController>(out var enemy))
                 return;
 
-            CombatModule.Singleton.StartCombat(playerObject, enemy.Character);
+            CombatController.Singleton.StartCombat(playerObject, enemy);
         }
     }
 }
