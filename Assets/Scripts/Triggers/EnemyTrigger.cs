@@ -18,7 +18,7 @@ namespace Assets.Scripts.Triggers
             if (!gameObject.TryGetComponent<EnemyController>(out var enemy))
                 return;
 
-            CombatController.Singleton.StartCombat(playerObject, enemy);
+            CombatServerController.Singleton.MoveToCombat(playerObject, enemy);
         }
     }
 }
