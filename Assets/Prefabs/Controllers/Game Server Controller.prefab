@@ -109,6 +109,7 @@ MonoBehaviour:
   _networkObjectCache: {fileID: 2484368084055973870}
   apiUrl: http://localhost:3000/api
   playerPrefab: {fileID: 7362200074529973233, guid: e0df6b9e6c9f26447936f15f81e56c43, type: 3}
+  combatControllerPrefab: {fileID: 1501815191581604016, guid: 47d8819e9a9f11a45a4390ea3e6ced9e, type: 3}
 --- !u!114 &1346846644993569570
 MonoBehaviour:
   m_ObjectHideFlags: 0

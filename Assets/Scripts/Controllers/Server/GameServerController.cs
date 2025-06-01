@@ -22,6 +22,7 @@ namespace Assets.Scripts.Controllers.Server
         [SerializeField] private string apiUrl;
 
         [SerializeField] private GameObject playerPrefab;
+        [SerializeField] private GameObject combatControllerPrefab;
 
         public Dictionary<uint, int> PlayerList { get; private set; } = new();
 
@@ -46,6 +47,9 @@ namespace Assets.Scripts.Controllers.Server
             Debug.Log("Server initialized");
 
             SceneModule.Singleton.LoadStartScene();
+
+            GameObject combatController = Instantiate(combatControllerPrefab);
+            InstanceFinder.ServerManager.Spawn(combatController);
 
             SceneModule.SceneChanged += OnSceneChanged;
             InstanceFinder.ServerManager.OnRemoteConnectionState += HandlePlayerConnection;
