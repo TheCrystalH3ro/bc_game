@@ -17,13 +17,13 @@ using UnityEngine;
 
 namespace Assets.Scripts.Controllers
 {
-    public class PlayerController : NetworkBehaviour
+    public class PlayerController : BaseCharacterController
     {
         public static PlayerController Singleton { get; private set; }
 
-        [SerializeField] private Rigidbody2D rb;
-        [SerializeField] private Animator animator;
-        [SerializeField] private NetworkAnimator networkAnimator;
+        private Rigidbody2D rb;
+        private Animator animator;
+        private NetworkAnimator networkAnimator;
 
         [SerializeField] private RuntimeAnimatorController knightAnimator;
         [SerializeField] private RuntimeAnimatorController wizardAnimator;
@@ -46,6 +46,13 @@ namespace Assets.Scripts.Controllers
         private IParty party;
 
         public string ActiveScene { get; set; } = SceneModule.MAIN_SCENE_NAME;
+
+        void Awake()
+        {
+            rb = gameObject.GetComponent<Rigidbody2D>();
+            animator = gameObject.GetComponent<Animator>();
+            networkAnimator = gameObject.GetComponent<NetworkAnimator>();
+        }
 
         public override void OnStartNetwork()
         {
@@ -112,13 +119,17 @@ namespace Assets.Scripts.Controllers
         private void PlayerCharacterChanged(PlayerCharacter prev, PlayerCharacter next, bool asServer)
         {
             animator.runtimeAnimatorController = GetCharacterAnimatorController(next.GetPlayerClass());
-            playerName.text = next.GetName();
+
+            if (playerName != null)
+            {
+                playerName.text = next.GetName();
+            }
 
             if (!IsOwner) return;
 
             animator.Update(0);
 
-            if (playerStatusController == null)
+            if (playerStatusController == null && playerStatusPrefab != null)
             {
                 GameObject playerHud = GameObject.FindGameObjectWithTag("PlayerStatus");
                 GameObject playerStatus = Instantiate(playerStatusPrefab, playerHud.transform);
@@ -145,14 +156,6 @@ namespace Assets.Scripts.Controllers
                 PlayerClass.Rogue => rogueAnimator,
                 _ => knightAnimator,
             };
-        }
-
-        public void FlipDirection(bool isFlipped)
-        {
-            if (gameObject.TryGetComponent<PlayerMovementModule>(out var movementModule))
-            {
-                movementModule.FlipCharacter(isFlipped);
-            }
         }
 
         public void OnMouseDown()
@@ -230,32 +233,6 @@ namespace Assets.Scripts.Controllers
         public void EnterCombatRpc(NetworkConnection networkConnection)
         {
             EnterCombat();
-        }
-
-        private void EnterCombat()
-        {
-            if (gameObject.TryGetComponent<PlayerMovementModule>(out var movementModule))
-            {
-                movementModule.SetActive(false);
-            }
-
-            if (gameObject.TryGetComponent<NetworkTransform>(out var netTransform))
-            {
-                netTransform.SetSynchronizePosition(false);
-            }
-        }
-
-        public void LeaveCombat()
-        {
-            if (gameObject.TryGetComponent<PlayerMovementModule>(out var movementModule))
-            {
-                movementModule.SetActive(true);
-            }
-
-            if (gameObject.TryGetComponent<NetworkTransform>(out var netTransform))
-            {
-                netTransform.SetSynchronizePosition(true);
-            }
         }
     }
 }

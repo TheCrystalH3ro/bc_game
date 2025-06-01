@@ -15,6 +15,7 @@ TagManager:
   - Controller
   - Enemy
   - PlayerSlot
+  - EnemySlot
   layers:
   - Default
   - TransparentFX

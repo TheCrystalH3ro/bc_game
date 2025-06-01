@@ -6,7 +6,7 @@ namespace Assets.Scripts.Modules
 {
     public class SpawnerModule : MonoBehaviour
     {
-        [SerializeField] private NetworkObject objectToSpawn;
+        public NetworkObject objectToSpawn;
         [SerializeField] private float xOffset = 0;
         [SerializeField] private float yOffset = 0;
         [SerializeField] private float zOffset = 0;
