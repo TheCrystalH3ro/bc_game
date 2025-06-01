@@ -39,6 +39,9 @@ namespace Assets.Scripts.Modules
         public void SetActive(bool isActive)
         {
             active = isActive;
+
+            if (!isActive)
+                SetDirection(0, 0);
         }
 
         public bool IsActive()

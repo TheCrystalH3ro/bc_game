@@ -23,6 +23,9 @@ namespace Assets.Scripts.Modules
 
         public virtual void OnTick()
         {
+            if (!IsActive())
+                return;
+
             UpdateAnimation();
         }
 

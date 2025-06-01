@@ -33,7 +33,7 @@ namespace Assets.Scripts.Modules
         {
             base.OnTick();
 
-            if (!base.IsServerInitialized)
+            if (!base.IsServerInitialized || !IsActive())
                 return;
 
             if (!CanMove())
@@ -91,6 +91,9 @@ namespace Assets.Scripts.Modules
 
         private void HandleMovement()
         {
+            if (!IsActive())
+                return;
+
             float minMoveTime = minMoveDistance / moveSpeed;
             float maxMoveTime = maxMoveDistance / moveSpeed;
 
