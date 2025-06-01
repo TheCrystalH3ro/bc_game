@@ -1,10 +1,9 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace Assets.Scripts.Models
 {
-    public class Health : MonoBehaviour
+    public class HealthModule : MonoBehaviour
     {
         [SerializeField] private int maxHp;
         private int currentHp;
@@ -13,44 +12,50 @@ namespace Assets.Scripts.Models
         public UnityEvent<int> OnHurt;
         public UnityEvent OnDeath;
 
-        void OnAwake() {
+        void OnAwake()
+        {
             currentHp = maxHp;
         }
 
-        public int GetMaxHp() {
+        public int GetMaxHP()
+        {
             return maxHp;
         }
 
-        public void SetMaxHp(int maxHp) {
+        public void SetMaxHP(int maxHp)
+        {
             this.maxHp = maxHp;
         }
 
-        public int GetHp() {
+        public int GetHP()
+        {
             return currentHp;
         }
 
-        public void SetHp(int hp) {
+        public void SetHP(int hp)
+        {
             currentHp = Mathf.Clamp(hp, 0, maxHp);
 
-            if(hp < 0) {
+            if(hp < 0)
+            {
                 OnHurt?.Invoke(hp);
 
-                if(currentHp <= 0) {
+                if(currentHp <= 0)
                     OnDeath?.Invoke();
-                }
             }
 
-            if(hp > 0) {
+            if(hp > 0)
                 OnHeal?.Invoke(hp);
-            }
         }
 
-        public void AddHp(int amount) {
-            SetHp(currentHp + amount);
+        public void AddHP(int amount)
+        {
+            SetHP(currentHp + amount);
         }
 
-        public void TakeHp(int amount) {
-            SetHp(currentHp - amount);
+        public void TakeHP(int amount)
+        {
+            SetHP(currentHp - amount);
         }
     }
 }

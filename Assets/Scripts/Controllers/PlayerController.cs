@@ -234,5 +234,14 @@ namespace Assets.Scripts.Controllers
         {
             EnterCombat();
         }
+
+        public override CharacterData ToCharacterData()
+        {
+            uint id = playerCharacter.Value.GetId();
+            string name = playerCharacter.Value.GetName();
+            int level = playerCharacter.Value.GetLevel();
+
+            return base.ToCharacterData(id, name, level);
+        }
     }
 }

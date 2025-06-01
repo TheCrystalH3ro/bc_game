@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Controllers.Server;
+using Assets.Scripts.UI.Controllers;
 using FishNet;
 using UnityEngine;
 
@@ -8,6 +9,8 @@ namespace Assets.Scripts.Controllers
 {
     public class CombatController : MonoBehaviour
     {
+        public static CombatController Singleton { get; private set; }
+
         private List<PlayerController> players;
         private List<EnemyController> enemies;
 
@@ -19,6 +22,11 @@ namespace Assets.Scripts.Controllers
         void OnDisable()
         {
             EnemyController.EnemySpawned -= OnEnemySpawned;
+        }
+
+        void Awake()
+        {
+            Singleton = this;
         }
 
         void Start()
@@ -50,6 +58,8 @@ namespace Assets.Scripts.Controllers
 
                 player.FlipDirection(false);
 
+                CombatUIController.Singleton.LoadCharacter(player);
+
                 index++;
             }
         }
@@ -57,6 +67,7 @@ namespace Assets.Scripts.Controllers
         private void OnEnemySpawned(EnemyController enemy)
         {
             enemy.FlipDirection(true);
+            CombatUIController.Singleton.LoadCharacter(enemy);
         }
     }
 }

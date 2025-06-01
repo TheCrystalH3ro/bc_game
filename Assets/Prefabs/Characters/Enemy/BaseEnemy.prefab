@@ -335,6 +335,8 @@ MonoBehaviour:
   _addedNetworkObject: {fileID: 7502699605544101477}
   _networkObjectCache: {fileID: 7502699605544101477}
   enemyName: Base Enemy
+  enemyLevel: 1
+  Prefab: {fileID: 0}
 --- !u!114 &6101508134944757083
 MonoBehaviour:
   m_ObjectHideFlags: 0

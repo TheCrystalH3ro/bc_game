@@ -1109,6 +1109,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6627490519188674524}
   - component: {fileID: 8734311760258396844}
+  - component: {fileID: 2932582145423736818}
   m_Layer: 5
   m_Name: CharacterStatus
   m_TagString: Untagged
@@ -1145,3 +1146,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9109788885249547339}
   m_CullTransparentMesh: 1
+--- !u!114 &2932582145423736818
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9109788885249547339}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 746db94ae88d85747a282de4cdbf4b99, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  avatar: {fileID: 5000460726031579645}
+  characterName: {fileID: 7112483104816315718}
+  levelText: {fileID: 6481840572756871941}
+  healthIndicator: {fileID: 4740696734372511064}
