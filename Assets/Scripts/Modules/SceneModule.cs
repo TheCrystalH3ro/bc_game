@@ -32,6 +32,9 @@ namespace Assets.Scripts.Modules
 
         private readonly HashSet<NetworkConnection> _processingPlayers = new();
         private readonly Dictionary<NetworkConnection, SceneChangeData> _playerSceneData = new();
+        private readonly Dictionary<int, Action<int>> _instanceLoadEvents = new();
+
+        private int lastInstanceId = -1;
 
         public static event Action<NetworkConnection, string, string> SceneChanged;
 
@@ -65,21 +68,22 @@ namespace Assets.Scripts.Modules
             PlayerController playerController = playerObject.GetComponent<PlayerController>();
             string activeScene = playerController.ActiveScene;
 
-            _playerSceneData.Add(player, new(playerObject, startPosition, sceneName, activeScene));
+            _playerSceneData.Add(player, new(playerObject, startPosition, sceneName, activeScene, -1));
 
-            LoadScene(player, sceneName, objectsToMove);
+            LoadScene(player, sceneName, objectsToMove, false);
             UnloadScene(player, activeScene);
 
             playerController.ActiveScene = sceneName;
         }
 
-        private void LoadScene(NetworkConnection player, string sceneName, NetworkObject[] objectsToMove = null)
+        private void LoadScene(NetworkConnection player, string sceneName, NetworkObject[] objectsToMove = null, bool allowStacking = false)
         {
             SceneLoadData sld = new(sceneName);
 
             sld.ReplaceScenes = ReplaceOption.All;
             sld.MovedNetworkObjects = objectsToMove;
             sld.Options.LocalPhysics = physicsMode;
+            sld.Options.AllowStacking = allowStacking;
             sld.Options.AutomaticallyUnload = false;
 
             InstanceFinder.SceneManager.LoadConnectionScenes(player, sld);
@@ -92,16 +96,28 @@ namespace Assets.Scripts.Modules
             InstanceFinder.SceneManager.UnloadConnectionScenes(player, sld);
         }
 
-        public void LoadInstance(NetworkConnection player, string sceneName)
+        public void LoadInstance(NetworkConnection player, string sceneName,  Vector3 startPosition = new(), Action<int> instanceLoadEvent = null)
         {
-            SceneLoadData sld = new(sceneName);
+            if (_processingPlayers.Contains(player))
+                return;
 
-            sld.ReplaceScenes = ReplaceOption.All;
+            NetworkObject playerObject = player.FirstObject;
+            NetworkObject[] objectsToMove = new NetworkObject[] { playerObject };
 
-            sld.Options.AllowStacking = true;
-            sld.Options.LocalPhysics = physicsMode;
+            PlayerController playerController = playerObject.GetComponent<PlayerController>();
+            string activeScene = playerController.ActiveScene;
 
-            InstanceFinder.SceneManager.LoadConnectionScenes(player, sld);
+            int instanceId = ++lastInstanceId;
+
+            _playerSceneData.Add(player, new(playerObject, startPosition, sceneName, activeScene, instanceId));
+
+            if (instanceLoadEvent != null)
+            {
+                _instanceLoadEvents.Add(instanceId, instanceLoadEvent);
+            }
+
+            LoadScene(player, sceneName, objectsToMove, true);
+            UnloadScene(player, activeScene);
         }
 
         private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -150,6 +166,13 @@ namespace Assets.Scripts.Modules
                     _playerSceneData.Remove(connection);
 
                     SceneChanged?.Invoke(connection, sceneData.scene, sceneData.previousScene);
+
+                    if (sceneData.instanceId >= 0 && _instanceLoadEvents.ContainsKey(sceneData.instanceId))
+                    {
+                        Action<int> instanceLoadEvent = _instanceLoadEvents[sceneData.instanceId];
+                        instanceLoadEvent?.Invoke(sceneData.player.gameObject.scene.handle);
+                        _instanceLoadEvents.Remove(sceneData.instanceId);
+                    }
                 }
             }
         }
