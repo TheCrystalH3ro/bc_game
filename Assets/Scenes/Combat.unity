@@ -716,7 +716,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5706108937505328975, guid: ae03139bd0ed4604698ca3509f180455, type: 3}
       propertyPath: m_Name
-      value: Button (1)
+      value: Inventory Button (1)
       objectReference: {fileID: 0}
     - target: {fileID: 6680992069957980511, guid: ae03139bd0ed4604698ca3509f180455, type: 3}
       propertyPath: m_AnchorMax.y
@@ -1266,7 +1266,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5706108937505328975, guid: ae03139bd0ed4604698ca3509f180455, type: 3}
       propertyPath: m_Name
-      value: Button (2)
+      value: Escape Button (2)
       objectReference: {fileID: 0}
     - target: {fileID: 6680992069957980511, guid: ae03139bd0ed4604698ca3509f180455, type: 3}
       propertyPath: m_AnchorMax.y
@@ -1895,7 +1895,19 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5706108937505328975, guid: ae03139bd0ed4604698ca3509f180455, type: 3}
       propertyPath: m_Name
-      value: Button
+      value: Attack Button
+      objectReference: {fileID: 0}
+    - target: {fileID: 6159963766607973892, guid: ae03139bd0ed4604698ca3509f180455, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1703744233}
+    - target: {fileID: 6159963766607973892, guid: ae03139bd0ed4604698ca3509f180455, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: Attack
+      objectReference: {fileID: 0}
+    - target: {fileID: 6159963766607973892, guid: ae03139bd0ed4604698ca3509f180455, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Assets.Scripts.Controllers.CombatController, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 6680992069957980511, guid: ae03139bd0ed4604698ca3509f180455, type: 3}
       propertyPath: m_AnchorMax.y
@@ -3219,7 +3231,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5706108937505328975, guid: ae03139bd0ed4604698ca3509f180455, type: 3}
       propertyPath: m_Name
-      value: Button
+      value: Status Button
       objectReference: {fileID: 0}
     - target: {fileID: 6680992069957980511, guid: ae03139bd0ed4604698ca3509f180455, type: 3}
       propertyPath: m_AnchorMax.y
@@ -8138,6 +8150,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6e3a8c274c7ecd84d8814a0259725ae5, type: 3}
+--- !u!114 &1703744233 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7827392393522298078, guid: 6e3a8c274c7ecd84d8814a0259725ae5, type: 3}
+  m_PrefabInstance: {fileID: 1703744232}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1338dacc73fc9543b3a4f25928ff69d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1762254257
 PrefabInstance:
   m_ObjectHideFlags: 0

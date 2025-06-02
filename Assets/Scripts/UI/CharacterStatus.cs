@@ -30,8 +30,18 @@ namespace Assets.Scripts.UI
 
             GameObject playerStatus = players[characterId];
             Destroy(playerStatus);
-            
+
             players.Remove(characterId);
+        }
+
+        public void RegisterHealthEvent(uint characterId, HealthModule healthModule)
+        {
+            GameObject characterStatus = players[characterId];
+
+            CharacterStatusController characterStatusController = characterStatus.GetComponentInChildren<CharacterStatusController>();
+
+            healthModule.OnHurt.AddListener(characterStatusController.UpdateHealth);
+            healthModule.OnHeal.AddListener(characterStatusController.UpdateHealth);
         }
     }
 }

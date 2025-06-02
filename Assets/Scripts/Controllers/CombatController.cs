@@ -12,7 +12,7 @@ namespace Assets.Scripts.Controllers
         public static CombatController Singleton { get; private set; }
 
         private List<PlayerController> players;
-        private List<EnemyController> enemies;
+        private List<EnemyController> enemies = new();
 
         void OnEnable()
         {
@@ -66,8 +66,18 @@ namespace Assets.Scripts.Controllers
 
         private void OnEnemySpawned(EnemyController enemy)
         {
+            enemies.Add(enemy);
             enemy.FlipDirection(true);
             CombatUIController.Singleton.LoadCharacter(enemy);
+        }
+
+        public void Attack()
+        {
+            EnemyController target = enemies[0];
+
+            Debug.Log("Attacking enemy with id " + target.Id);
+
+            CombatServerController.Singleton.AttackEnemy(target.Id);
         }
     }
 }

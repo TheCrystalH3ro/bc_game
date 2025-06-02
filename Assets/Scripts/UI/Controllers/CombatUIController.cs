@@ -32,6 +32,9 @@ namespace Assets.Scripts.UI.Controllers
         {
             CharacterData data = character.ToCharacterData();
             characterStatus.AddCharacter(data);
+
+            HealthModule healthModule = character.GetComponent<HealthModule>();
+            characterStatus.RegisterHealthEvent(data.GetId(), healthModule);
         }
     }
 }

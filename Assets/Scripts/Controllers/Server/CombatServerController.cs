@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using Assets.Scripts.Modules;
 using Assets.Scripts.Triggers;
 using FishNet;
+using FishNet.Connection;
 using FishNet.Managing.Scened;
 using FishNet.Object;
 using UnityEngine;
@@ -40,10 +42,17 @@ namespace Assets.Scripts.Controllers.Server
         {
             GameObject[] enemySlots = GameObject.FindGameObjectsWithTag("EnemySlot");
 
-            SetEnemy(enemy, sceneHandle, enemySlots[0].transform.position);
+            List<PlayerController> players = new() { player };
+            
+            List<EnemyController> enemies = new()
+            {
+                SetEnemy(enemy, sceneHandle, enemySlots[0].transform.position)
+            };
+
+            CombatModule.Singleton.StartCombat(players, enemies);
         }
 
-        private NetworkObject SetEnemy(EnemyController enemy, int sceneHandle, Vector3 position)
+        private EnemyController SetEnemy(EnemyController enemy, int sceneHandle, Vector3 position)
         {
             var instance = Instantiate(enemy.Prefab, position, enemy.Prefab.transform.rotation);
 
@@ -54,10 +63,18 @@ namespace Assets.Scripts.Controllers.Server
             enemyController.FlipDirection(true);
 
             enemyController.EnterCombat();
-            
+
             InstanceFinder.ServerManager.Spawn(instance, scene: SceneManager.GetScene(sceneHandle));
 
-            return enemyController.NetworkObject;
+            return enemyController;
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void AttackEnemy(uint enemyId, NetworkConnection sender = null)
+        {
+            PlayerController player = PlayerController.FindByConnection(sender);
+
+            CombatModule.Singleton.AttackEnemy(player, enemyId);
         }
     }
 }

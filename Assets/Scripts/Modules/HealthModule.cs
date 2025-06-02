@@ -1,20 +1,42 @@
+using FishNet.Object;
+using FishNet.Object.Synchronizing;
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace Assets.Scripts.Models
 {
-    public class HealthModule : MonoBehaviour
+    public class HealthModule : NetworkBehaviour
     {
         [SerializeField] private int maxHp;
-        private int currentHp;
+        private readonly SyncVar<int> currentHp = new(new SyncTypeSettings());
 
         public UnityEvent<int> OnHeal;
         public UnityEvent<int> OnHurt;
         public UnityEvent OnDeath;
 
-        void OnAwake()
+        public override void OnStartNetwork()
         {
-            currentHp = maxHp;
+            currentHp.Value = maxHp;
+            currentHp.OnChange += HPChanged;
+        }
+
+        void OnDisable()
+        {
+            currentHp.OnChange -= HPChanged;
+        }
+
+        private void HPChanged(int prev, int next, bool asServer)
+        {
+            if(next < prev)
+            {
+                OnHurt?.Invoke(next);
+
+                if(next <= 0)
+                    OnDeath?.Invoke();
+            }
+
+            if(next > prev)
+                OnHeal?.Invoke(currentHp.Value);
         }
 
         public int GetMaxHP()
@@ -29,33 +51,22 @@ namespace Assets.Scripts.Models
 
         public int GetHP()
         {
-            return currentHp;
+            return currentHp.Value;
         }
 
         public void SetHP(int hp)
         {
-            currentHp = Mathf.Clamp(hp, 0, maxHp);
-
-            if(hp < 0)
-            {
-                OnHurt?.Invoke(hp);
-
-                if(currentHp <= 0)
-                    OnDeath?.Invoke();
-            }
-
-            if(hp > 0)
-                OnHeal?.Invoke(hp);
+            currentHp.Value = Mathf.Clamp(hp, 0, maxHp);
         }
 
         public void AddHP(int amount)
         {
-            SetHP(currentHp + amount);
+            SetHP(currentHp.Value + amount);
         }
 
         public void TakeHP(int amount)
         {
-            SetHP(currentHp - amount);
+            SetHP(currentHp.Value - amount);
         }
     }
 }

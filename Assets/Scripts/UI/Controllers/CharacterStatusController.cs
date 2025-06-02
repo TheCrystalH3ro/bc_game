@@ -24,7 +24,7 @@ namespace Assets.Scripts.UI.Controllers
         }
 
         public void UpdateHealth(int health)
-        {   
+        {
             healthIndicator.SetValue(health);
         }
     }
