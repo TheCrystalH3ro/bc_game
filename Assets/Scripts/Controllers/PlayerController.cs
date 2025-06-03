@@ -214,10 +214,24 @@ namespace Assets.Scripts.Controllers
             EnterCombat();
         }
 
+        public void LeaveCombatRpc()
+        {
+            if (IsServerInitialized && !IsOwner)
+                LeaveCombatRpc(Owner);
+
+            LeaveCombat();
+        }
+
         [TargetRpc]
         public void EnterCombatRpc(NetworkConnection networkConnection)
         {
             EnterCombat();
+        }
+
+        [TargetRpc]
+        public void LeaveCombatRpc(NetworkConnection networkConnection)
+        {
+            LeaveCombat();
         }
 
         public override CharacterData ToCharacterData()

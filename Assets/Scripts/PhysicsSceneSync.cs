@@ -26,13 +26,17 @@ namespace Assets.Scripts
             }
         }
 
+        void OnDestroy()
+        {
+            if (InstanceFinder.TimeManager == null)
+                return;
+
+            UnregisterPhysicsSimulation();
+        }
+
         public override void OnStopNetwork()
-        { 
-            if (_synchronizePhysics || _synchronizePhysics2D)
-            {
-                _synchronizedScenes.Remove(gameObject.scene.handle);
-                InstanceFinder.TimeManager.OnPrePhysicsSimulation -= TimeManager_OnPrePhysicsSimulation;
-            }
+        {
+            UnregisterPhysicsSimulation();
         }
 
         private void TimeManager_OnPrePhysicsSimulation(float delta)
@@ -42,6 +46,17 @@ namespace Assets.Scripts
 
             if (_synchronizePhysics2D)
                 gameObject.scene.GetPhysicsScene2D().Simulate(delta);
+        }
+
+        private void UnregisterPhysicsSimulation()
+        {
+            if (_synchronizePhysics || _synchronizePhysics2D)
+            {
+                _synchronizePhysics = false;
+                _synchronizePhysics2D = false;
+                _synchronizedScenes.Remove(gameObject.scene.handle);
+                InstanceFinder.TimeManager.OnPrePhysicsSimulation -= TimeManager_OnPrePhysicsSimulation;
+            }
         }
     }
 }

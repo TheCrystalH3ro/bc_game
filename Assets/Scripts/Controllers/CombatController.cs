@@ -76,9 +76,7 @@ namespace Assets.Scripts.Controllers
 
         public void Attack()
         {
-            uint target = enemies.First().Key    ;
-
-            Debug.Log("Attacking enemy with id " + target);
+            uint target = enemies.First().Key;
 
             CombatServerController.Singleton.AttackEnemy(target);
         }

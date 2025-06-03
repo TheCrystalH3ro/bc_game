@@ -95,8 +95,15 @@ namespace Assets.Scripts.Modules
             sld.Options.Mode = UnloadOptions.ServerUnloadMode.KeepUnused;
             InstanceFinder.SceneManager.UnloadConnectionScenes(player, sld);
         }
+        
+        private void UnloadScene(NetworkConnection player, int sceneHandle)
+        {
+            SceneUnloadData sld = new(sceneHandle);
+            sld.Options.Mode = UnloadOptions.ServerUnloadMode.UnloadUnused;
+            InstanceFinder.SceneManager.UnloadConnectionScenes(player, sld);
+        }
 
-        public void LoadInstance(NetworkConnection player, string sceneName,  Vector3 startPosition = new(), Action<int> instanceLoadEvent = null)
+        public void LoadInstance(NetworkConnection player, string sceneName, Vector3 startPosition = new(), Action<int> instanceLoadEvent = null)
         {
             if (_processingPlayers.Contains(player))
                 return;
@@ -118,6 +125,23 @@ namespace Assets.Scripts.Modules
 
             LoadScene(player, sceneName, objectsToMove, true);
             UnloadScene(player, activeScene);
+        }
+
+        public void LeaveInstance(NetworkConnection player, Vector3 startPosition = new())
+        {
+            NetworkObject playerObject = player.FirstObject;
+            NetworkObject[] objectsToMove = new NetworkObject[] { playerObject };
+
+            PlayerController playerController = playerObject.GetComponent<PlayerController>();
+            string sceneName = playerController.ActiveScene;
+
+            string activeScene = playerObject.gameObject.scene.name;
+            int sceneHandle = playerObject.gameObject.scene.handle;
+
+            _playerSceneData.Add(player, new(playerObject, startPosition, sceneName, activeScene, -1));
+
+            LoadScene(player, sceneName, objectsToMove, false);
+            UnloadScene(player, sceneHandle);
         }
 
         private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)

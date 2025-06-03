@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Assets.Scripts.Interfaces;
 using Assets.Scripts.Modules;
 using Assets.Scripts.Triggers;
 using FishNet;
@@ -28,6 +29,16 @@ namespace Assets.Scripts.Controllers.Server
 
         public static readonly string COMBAT_SCENE_NAME = "Combat";
 
+        void OnEnable()
+        {
+            CombatModule.CombatEnded += OnCombatEnded;
+        }
+
+        void OnDisable()
+        {
+            CombatModule.CombatEnded -= OnCombatEnded;
+        }
+
         public void MoveToCombat(PlayerController player, EnemyController enemy)
         {
             player.EnterCombatRpc();
@@ -36,6 +47,12 @@ namespace Assets.Scripts.Controllers.Server
             {
                 Initialize(player, enemy, sceneHandle);
             });
+        }
+
+        public void MoveOutOfCombat(PlayerController player)
+        {
+            SceneModule.Singleton.LeaveInstance(player.Owner);
+            player.LeaveCombatRpc();
         }
 
         public void Initialize(PlayerController player, EnemyController enemy, int sceneHandle)
@@ -81,6 +98,14 @@ namespace Assets.Scripts.Controllers.Server
         private void PlayerAttack(uint playerId, uint enemyId)
         {
             CombatController.Singleton.PlayerAttack(playerId, enemyId);
+        }
+
+        private void OnCombatEnded(ICombatInstance instance)
+        {
+            foreach (PlayerController player in instance.GetPlayers())
+            {
+                MoveOutOfCombat(player);
+            }
         }
     }
 }
