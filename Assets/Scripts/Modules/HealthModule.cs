@@ -36,7 +36,7 @@ namespace Assets.Scripts.Models
             }
 
             if(next > prev)
-                OnHeal?.Invoke(currentHp.Value);
+                OnHeal?.Invoke(next);
         }
 
         public int GetMaxHP()
@@ -54,19 +54,20 @@ namespace Assets.Scripts.Models
             return currentHp.Value;
         }
 
-        public void SetHP(int hp)
+        public int SetHP(int hp)
         {
             currentHp.Value = Mathf.Clamp(hp, 0, maxHp);
+            return currentHp.Value;
         }
 
-        public void AddHP(int amount)
+        public int AddHP(int amount)
         {
-            SetHP(currentHp.Value + amount);
+            return SetHP(currentHp.Value + amount);
         }
 
-        public void TakeHP(int amount)
+        public int TakeHP(int amount)
         {
-            SetHP(currentHp.Value - amount);
+            return SetHP(currentHp.Value - amount);
         }
     }
 }

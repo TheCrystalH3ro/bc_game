@@ -22,12 +22,7 @@ namespace Assets.Scripts.Controllers
         public static PlayerController Singleton { get; private set; }
 
         private Rigidbody2D rb;
-        private Animator animator;
         private NetworkAnimator networkAnimator;
-
-        [SerializeField] private RuntimeAnimatorController knightAnimator;
-        [SerializeField] private RuntimeAnimatorController wizardAnimator;
-        [SerializeField] private RuntimeAnimatorController rogueAnimator;
 
         [SerializeField] private TMPro.TextMeshPro playerName;
 
@@ -118,7 +113,7 @@ namespace Assets.Scripts.Controllers
 
         private void PlayerCharacterChanged(PlayerCharacter prev, PlayerCharacter next, bool asServer)
         {
-            animator.runtimeAnimatorController = GetCharacterAnimatorController(next.GetPlayerClass());
+            animator.runtimeAnimatorController = ClassAnimationController.Singleton.GetCharacterAnimatorController(next.GetPlayerClass());
 
             if (playerName != null)
             {
@@ -146,16 +141,6 @@ namespace Assets.Scripts.Controllers
         public PlayerCharacter GetPlayerCharacter()
         {
             return playerCharacter.Value;
-        }
-
-        private RuntimeAnimatorController GetCharacterAnimatorController(PlayerClass playerClass)
-        {
-            return playerClass switch
-            {
-                PlayerClass.Wizard => wizardAnimator,
-                PlayerClass.Rogue => rogueAnimator,
-                _ => knightAnimator,
-            };
         }
 
         public void OnMouseDown()

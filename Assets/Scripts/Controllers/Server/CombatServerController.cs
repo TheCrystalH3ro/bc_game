@@ -43,7 +43,7 @@ namespace Assets.Scripts.Controllers.Server
             GameObject[] enemySlots = GameObject.FindGameObjectsWithTag("EnemySlot");
 
             List<PlayerController> players = new() { player };
-            
+
             List<EnemyController> enemies = new()
             {
                 SetEnemy(enemy, sceneHandle, enemySlots[0].transform.position)
@@ -60,10 +60,6 @@ namespace Assets.Scripts.Controllers.Server
 
             EnemyController enemyController = instance.GetComponent<EnemyController>();
 
-            enemyController.FlipDirection(true);
-
-            enemyController.EnterCombat();
-
             InstanceFinder.ServerManager.Spawn(instance, scene: SceneManager.GetScene(sceneHandle));
 
             return enemyController;
@@ -74,7 +70,17 @@ namespace Assets.Scripts.Controllers.Server
         {
             PlayerController player = PlayerController.FindByConnection(sender);
 
+            if (!CombatModule.Singleton.IsValidAttack(player, enemyId))
+                return;
+
+            PlayerAttack(player.GetPlayerCharacter().GetId(), enemyId);
             CombatModule.Singleton.AttackEnemy(player, enemyId);
+        }
+
+        [ObserversRpc]
+        private void PlayerAttack(uint playerId, uint enemyId)
+        {
+            CombatController.Singleton.PlayerAttack(playerId, enemyId);
         }
     }
 }

@@ -41,16 +41,24 @@ namespace Assets.Scripts.Modules
             }
         }
 
+        public bool IsValidAttack(PlayerController attacker, uint enemyId)
+        {
+            ICombatInstance instance = GetInstance(attacker);
+            EnemyController enemy = instance.GetEnemy(enemyId);
+
+            return instance.IsValidTarget(attacker, enemy);
+        }
+
         public void AttackEnemy(PlayerController attacker, uint enemyId)
         {
             ICombatInstance instance = GetInstance(attacker);
             EnemyController enemy = instance.GetEnemy(enemyId);
 
-            if (!instance.IsValidTarget(attacker, enemy))
-                return;
-
             HealthModule enemyHealth = enemy.GetComponent<HealthModule>();
-            enemyHealth.TakeHP(10);
+            int enemyHp = enemyHealth.TakeHP(10);
+
+            if (enemyHp <= 0)
+                return;
         }
     }
 }

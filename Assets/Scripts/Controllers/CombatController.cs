@@ -11,8 +11,10 @@ namespace Assets.Scripts.Controllers
     {
         public static CombatController Singleton { get; private set; }
 
-        private List<PlayerController> players;
-        private List<EnemyController> enemies = new();
+        [SerializeField] private GameObject hitPrefab;
+
+        private Dictionary<uint, PlayerController> players;
+        private Dictionary<uint, EnemyController> enemies = new();
 
         void OnEnable()
         {
@@ -39,8 +41,8 @@ namespace Assets.Scripts.Controllers
 
         public void Initialize()
         {
-            players = FindObjectsByType<PlayerController>(FindObjectsSortMode.InstanceID).ToList();
-            enemies = FindObjectsByType<EnemyController>(FindObjectsSortMode.InstanceID).ToList();
+            players = FindObjectsByType<PlayerController>(FindObjectsSortMode.InstanceID).ToDictionary(player => player.GetPlayerCharacter().GetId());
+            enemies = FindObjectsByType<EnemyController>(FindObjectsSortMode.InstanceID).ToDictionary(enemy => enemy.Id);
 
             PlacePlayers();
         }
@@ -50,7 +52,7 @@ namespace Assets.Scripts.Controllers
             GameObject[] playerSlots = GameObject.FindGameObjectsWithTag("PlayerSlot");
 
             int index = 0;
-            foreach (PlayerController player in players)
+            foreach (PlayerController player in players.Values)
             {
                 GameObject playerSlot = playerSlots[index];
 
@@ -66,18 +68,30 @@ namespace Assets.Scripts.Controllers
 
         private void OnEnemySpawned(EnemyController enemy)
         {
-            enemies.Add(enemy);
+            enemies.Add(enemy.Id, enemy);
             enemy.FlipDirection(true);
+            enemy.EnterCombat();
             CombatUIController.Singleton.LoadCharacter(enemy);
         }
 
         public void Attack()
         {
-            EnemyController target = enemies[0];
+            uint target = enemies.First().Key    ;
 
-            Debug.Log("Attacking enemy with id " + target.Id);
+            Debug.Log("Attacking enemy with id " + target);
 
-            CombatServerController.Singleton.AttackEnemy(target.Id);
+            CombatServerController.Singleton.AttackEnemy(target);
+        }
+
+        public void PlayerAttack(uint playerId, uint enemyId)
+        {
+            PlayerController player = players[playerId];
+            EnemyController enemy = enemies[enemyId];
+
+            RuntimeAnimatorController hitAnimator = ClassAnimationController.Singleton.GetCharacterAttackAnimatorController(player.GetPlayerCharacter().GetPlayerClass());
+            hitPrefab.GetComponent<Animator>().runtimeAnimatorController = hitAnimator;
+
+            Instantiate(hitPrefab, enemy.transform);
         }
     }
 }
