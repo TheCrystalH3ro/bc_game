@@ -3121,7 +3121,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5706108937505328975, guid: ae03139bd0ed4604698ca3509f180455, type: 3}
       propertyPath: m_Name
-      value: Status Button
+      value: Pass Button
       objectReference: {fileID: 0}
     - target: {fileID: 6680992069957980511, guid: ae03139bd0ed4604698ca3509f180455, type: 3}
       propertyPath: m_AnchorMax.y
@@ -3221,7 +3221,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8611039519900430231, guid: ae03139bd0ed4604698ca3509f180455, type: 3}
       propertyPath: m_text
-      value: Status
+      value: Pass
       objectReference: {fileID: 0}
     - target: {fileID: 8611039519900430231, guid: ae03139bd0ed4604698ca3509f180455, type: 3}
       propertyPath: m_fontSize
