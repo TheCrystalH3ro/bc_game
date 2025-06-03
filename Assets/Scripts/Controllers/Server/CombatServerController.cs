@@ -27,7 +27,11 @@ namespace Assets.Scripts.Controllers.Server
             }
         }
 
-        public static readonly string COMBAT_SCENE_NAME = "Combat";
+        [SerializeField] private GameObject combatModulePrefab;
+
+        private Dictionary<NetworkConnection, CombatModule> instances = new();
+
+        public static readonly string COMBAT_SCENE_NAME = "Combat"; 
 
         void OnEnable()
         {
@@ -66,7 +70,15 @@ namespace Assets.Scripts.Controllers.Server
                 SetEnemy(enemy, sceneHandle, enemySlots[0].transform.position)
             };
 
-            CombatModule.Singleton.StartCombat(players, enemies);
+            var combatModuleInstance = Instantiate(combatModulePrefab);
+
+            InstanceFinder.ServerManager.Spawn(combatModuleInstance, scene: SceneManager.GetScene(sceneHandle));
+
+            CombatModule combatModule = combatModuleInstance.GetComponent<CombatModule>();
+
+            instances.Add(player.Owner, combatModule);
+
+            combatModule.StartCombat(players, enemies);
         }
 
         private EnemyController SetEnemy(EnemyController enemy, int sceneHandle, Vector3 position)
@@ -86,12 +98,13 @@ namespace Assets.Scripts.Controllers.Server
         public void AttackEnemy(uint enemyId, NetworkConnection sender = null)
         {
             PlayerController player = PlayerController.FindByConnection(sender);
+            CombatModule combatModule = instances[player.Owner];
 
-            if (!CombatModule.Singleton.IsValidAttack(player, enemyId))
+            if (!combatModule.IsValidAttack(player, enemyId))
                 return;
 
             PlayerAttack(player.GetPlayerCharacter().GetId(), enemyId);
-            CombatModule.Singleton.AttackEnemy(player, enemyId);
+            combatModule.AttackEnemy(player, enemyId);
         }
 
         [ObserversRpc]
@@ -100,10 +113,11 @@ namespace Assets.Scripts.Controllers.Server
             CombatController.Singleton.PlayerAttack(playerId, enemyId);
         }
 
-        private void OnCombatEnded(ICombatInstance instance)
+        private void OnCombatEnded(List<PlayerController> players)
         {
-            foreach (PlayerController player in instance.GetPlayers())
+            foreach (PlayerController player in players)
             {
+                instances.Remove(player.Owner);
                 MoveOutOfCombat(player);
             }
         }

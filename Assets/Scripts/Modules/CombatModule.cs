@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Assets.Scripts.Controllers;
 using Assets.Scripts.Controllers.Server;
 using Assets.Scripts.Interfaces;
@@ -9,84 +10,70 @@ using FishNet.Object;
 
 namespace Assets.Scripts.Modules
 {
-    public class CombatModule
+    public class CombatModule : NetworkBehaviour
     {
         private static CombatModule _instance;
 
-        public static CombatModule Singleton
+        public static CombatModule Instance
         {
             get
             {
-                _instance ??= new();
+                _instance ??= FindFirstObjectByType<CombatModule>();
 
                 return _instance;
             }
         }
 
-        private Dictionary<NetworkConnection, ICombatInstance> instances = new();
+        private List<PlayerController> players;
+        private Dictionary<uint, EnemyController> enemies;
+        private Dictionary<uint, EnemyController> deadEnemies = new();
 
-        public static event Action<ICombatInstance> CombatEnded;
-
-        private ICombatInstance GetInstance(PlayerController player)
-        {
-            return instances[player.Owner];
-        }
+        public static event Action<List<PlayerController>> CombatEnded;
 
         public void StartCombat(List<PlayerController> players, List<EnemyController> enemies)
         {
-            ICombatInstance instance = new CombatInstance(players, enemies);
-
-            foreach (PlayerController player in players)
-            {
-                NetworkConnection connection = player.Owner;
-
-                instances.Add(connection, instance);
-            }
+            this.players = players;
+            this.enemies = enemies.ToDictionary(enemy => enemy.Id, enemy => enemy);
         }
 
         public bool IsValidAttack(PlayerController attacker, uint enemyId)
         {
-            ICombatInstance instance = GetInstance(attacker);
-            EnemyController enemy = instance.GetEnemy(enemyId);
+            if (!players.Contains(attacker))
+                return false;
 
-            return instance.IsValidTarget(attacker, enemy);
+            if (!enemies.ContainsKey(enemyId))
+                return false;
+
+            EnemyController enemy = enemies[enemyId];
+
+            return enemies.ContainsValue(enemy);
         }
 
         public void AttackEnemy(PlayerController attacker, uint enemyId)
         {
-            ICombatInstance instance = GetInstance(attacker);
-            EnemyController enemy = instance.GetEnemy(enemyId);
+            EnemyController enemy = enemies[enemyId];
 
             HealthModule enemyHealth = enemy.GetComponent<HealthModule>();
             int enemyHp = enemyHealth.TakeHP(10);
 
             if (enemyHp <= 0)
-                EnemyDeath(instance, enemy);
+                EnemyDeath(enemy);
         }
 
-        private void EnemyDeath(ICombatInstance instance, EnemyController enemy)
+        private void EnemyDeath(EnemyController enemy)
         {
-            instance.KillEnemy(enemy.Id);
+            deadEnemies.Add(enemy.Id, enemy);
+            enemies.Remove(enemy.Id);
 
-            if (instance.GetEnemyCount() > 0)
+            if (enemies.Count > 0)
                 return;
 
-            EndCombat(instance);
+            EndCombat();
         }
 
-        private void EndCombat(ICombatInstance instance)
+        private void EndCombat()
         {
-            CombatEnded?.Invoke(instance);
-
-            foreach (PlayerController player in instance.GetPlayers())
-            {
-                NetworkConnection connection = player.Owner;
-
-                if (!instances.ContainsKey(connection))
-                    continue;
-
-                instances.Remove(connection);
-            }
+            CombatEnded?.Invoke(players);
         }
     }
 }

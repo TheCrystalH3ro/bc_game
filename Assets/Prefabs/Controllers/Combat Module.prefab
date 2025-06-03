@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &1501815191581604016
+--- !u!1 &8826407695355372780
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,23 +8,23 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 9109604976928380013}
-  - component: {fileID: 2101648352488190247}
-  - component: {fileID: 294814982525229433}
+  - component: {fileID: 8740584259429899422}
+  - component: {fileID: 8416058766519014437}
+  - component: {fileID: 4199356213026046880}
   m_Layer: 0
-  m_Name: Combat Server Controller
+  m_Name: Combat Module
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &9109604976928380013
+--- !u!4 &8740584259429899422
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1501815191581604016}
+  m_GameObject: {fileID: 8826407695355372780}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -33,29 +33,28 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2101648352488190247
+--- !u!114 &8416058766519014437
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1501815191581604016}
+  m_GameObject: {fileID: 8826407695355372780}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e055ce778a1c5f047ab017ded4b5d36f, type: 3}
+  m_Script: {fileID: 11500000, guid: 84cbb24cee9682d4f892438173fe7284, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _componentIndexCache: 255
-  _addedNetworkObject: {fileID: 294814982525229433}
+  _addedNetworkObject: {fileID: 4199356213026046880}
   _networkObjectCache: {fileID: 0}
-  combatModulePrefab: {fileID: 8826407695355372780, guid: 233461e70a151294083a042f6a761320, type: 3}
---- !u!114 &294814982525229433
+--- !u!114 &4199356213026046880
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1501815191581604016}
+  m_GameObject: {fileID: 8826407695355372780}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 26b716c41e9b56b4baafaf13a523ba2e, type: 3}
@@ -74,7 +73,7 @@ MonoBehaviour:
   RuntimeChildNetworkBehaviours: []
   _isNetworked: 1
   _isSpawnable: 1
-  _isGlobal: 1
+  _isGlobal: 0
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
@@ -94,7 +93,7 @@ MonoBehaviour:
   _teleportThreshold: 1
   <PrefabId>k__BackingField: 65535
   <SpawnableCollectionId>k__BackingField: 0
-  <AssetPathHash>k__BackingField: 8074400141714605535
+  <AssetPathHash>k__BackingField: 15696791907747490149
   <SceneId>k__BackingField: 0
   SerializedTransformProperties:
     Position: {x: 0, y: 0, z: 0}
