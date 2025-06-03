@@ -42,6 +42,14 @@ namespace Assets.Scripts.UI
 
             healthModule.OnHurt.AddListener(characterStatusController.UpdateHealth);
             healthModule.OnHeal.AddListener(characterStatusController.UpdateHealth);
+
+            void deathEvent()
+            {
+                healthModule.OnDeath.RemoveListener(deathEvent);
+                RemoveCharacter(characterId);
+            }
+
+            healthModule.OnDeath.AddListener(deathEvent);
         }
     }
 }
