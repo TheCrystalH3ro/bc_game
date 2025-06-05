@@ -13,6 +13,8 @@ namespace Assets.Scripts.UI.Controllers
         [SerializeField] private CharacterStatus playerStatus;
         [SerializeField] private CharacterStatus enemyStatus;
 
+        [SerializeField] private RoundTimer roundTimer;
+
         void Awake()
         {
             Singleton = this;
@@ -35,6 +37,16 @@ namespace Assets.Scripts.UI.Controllers
 
             HealthModule healthModule = character.GetComponent<HealthModule>();
             characterStatus.RegisterHealthEvent(data.GetId(), healthModule);
+        }
+
+        public void SetRoundTime(int time)
+        {
+            roundTimer.SetMaxTime(time);
+        }
+
+        public void ChangeRoundTime(int time)
+        {
+            roundTimer.SetTime(time);
         }
     }
 }

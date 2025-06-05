@@ -34,7 +34,7 @@ namespace Assets.Scripts.Controllers
 
         private readonly SyncVar<PlayerCharacter> playerCharacter = new(new SyncTypeSettings());
 
-        public static event System.Action OnEscapePressed;
+        public static event Action OnEscapePressed;
 
         private MovementModule movementModule;
 
@@ -46,6 +46,7 @@ namespace Assets.Scripts.Controllers
         {
             rb = gameObject.GetComponent<Rigidbody2D>();
             animator = gameObject.GetComponent<Animator>();
+            spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
             networkAnimator = gameObject.GetComponent<NetworkAnimator>();
         }
 

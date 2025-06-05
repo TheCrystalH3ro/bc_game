@@ -10,6 +10,7 @@ namespace Assets.Scripts.Controllers.Server
     {
         [SerializeField] private string enemyName;
         [SerializeField] private int enemyLevel;
+        [SerializeField] private RuntimeAnimatorController hitAnimator;
 
         public NetworkObject Prefab;
 
@@ -35,6 +36,11 @@ namespace Assets.Scripts.Controllers.Server
         public override CharacterData ToCharacterData()
         {
             return base.ToCharacterData(Id, Character.GetName(), Character.GetLevel());
+        }
+
+        public RuntimeAnimatorController GetHitAnimator()
+        {
+            return hitAnimator;
         }
     }
 }

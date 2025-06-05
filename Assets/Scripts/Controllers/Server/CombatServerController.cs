@@ -33,16 +33,6 @@ namespace Assets.Scripts.Controllers.Server
 
         public static readonly string COMBAT_SCENE_NAME = "Combat"; 
 
-        void OnEnable()
-        {
-            CombatModule.CombatEnded += OnCombatEnded;
-        }
-
-        void OnDisable()
-        {
-            CombatModule.CombatEnded -= OnCombatEnded;
-        }
-
         public void MoveToCombat(PlayerController player, EnemyController enemy)
         {
             player.EnterCombatRpc();
@@ -79,6 +69,8 @@ namespace Assets.Scripts.Controllers.Server
             instances.Add(player.Owner, combatModule);
 
             combatModule.StartCombat(players, enemies);
+            combatModule.EnemyAttack.AddListener(OnEnemyAttack);
+            combatModule.CombatEnded.AddListener(OnCombatEnded);
         }
 
         private EnemyController SetEnemy(EnemyController enemy, int sceneHandle, Vector3 position)
@@ -113,13 +105,27 @@ namespace Assets.Scripts.Controllers.Server
             CombatController.Singleton.PlayerAttack(playerId, enemyId);
         }
 
-        private void OnCombatEnded(List<PlayerController> players)
+        private void OnEnemyAttack(EnemyController enemy, PlayerController player)
+        {
+            EnemyAttack(enemy.Id, player.GetPlayerCharacter().GetId());
+        }
+
+        [ObserversRpc]
+        private void EnemyAttack(uint enemyId, uint playerId)
+        {
+            CombatController.Singleton.EnemyAttack(enemyId, playerId);
+        }
+
+        private void OnCombatEnded(CombatModule combatModule, List<PlayerController> players)
         {
             foreach (PlayerController player in players)
             {
                 instances.Remove(player.Owner);
                 MoveOutOfCombat(player);
             }
+
+            combatModule.CombatEnded.RemoveListener(OnCombatEnded);
+            combatModule.EnemyAttack.RemoveListener(OnEnemyAttack);
         }
     }
 }

@@ -334,8 +334,11 @@ MonoBehaviour:
   _componentIndexCache: 1
   _addedNetworkObject: {fileID: 7502699605544101477}
   _networkObjectCache: {fileID: 7502699605544101477}
+  whiteFlashDuration: 0.05
+  redFlashDuration: 0.1
   enemyName: Base Enemy
   enemyLevel: 1
+  hitAnimator: {fileID: 9100000, guid: c94d16b9ca8cf06449b4c36fba02b44b, type: 2}
   Prefab: {fileID: 0}
 --- !u!114 &6101508134944757083
 MonoBehaviour:
@@ -361,6 +364,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e75115747755dca48bbad72c8cb84563, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 7502699605544101477}
+  _networkObjectCache: {fileID: 0}
   maxHp: 100
   OnHeal:
     m_PersistentCalls:
