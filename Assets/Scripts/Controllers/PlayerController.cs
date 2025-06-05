@@ -65,6 +65,7 @@ namespace Assets.Scripts.Controllers
             Singleton = this;
 
             base.SceneManager.OnLoadEnd += SceneChanged;
+            base.SceneManager.OnQueueEnd += LoadQueueEnded;
         }
 
         void OnDisable()
@@ -75,6 +76,7 @@ namespace Assets.Scripts.Controllers
                 return;
 
             base.SceneManager.OnLoadEnd -= SceneChanged;
+            base.SceneManager.OnQueueEnd -= LoadQueueEnded;
         }
 
         // Update is called once per frame
@@ -107,6 +109,11 @@ namespace Assets.Scripts.Controllers
             cameraConfiner.m_BoundingShape2D = GameObject.FindGameObjectWithTag("CameraBoundary").GetComponent<Collider2D>();
         }
 
+        private void LoadQueueEnded()
+        {
+            LoadPlayerStatus(playerCharacter.Value);
+        }
+
         public void SetPlayerCharacter(PlayerCharacter playerCharacter)
         {
             this.playerCharacter.Value = playerCharacter;
@@ -125,18 +132,29 @@ namespace Assets.Scripts.Controllers
 
             animator.Update(0);
 
-            if (playerStatusController == null && playerStatusPrefab != null)
+            LoadPlayerStatus(next);
+        }
+
+        private void LoadPlayerStatus(PlayerCharacter character)
+        {
+            GameObject playerHud = GameObject.FindGameObjectWithTag("PlayerStatus");
+
+            if (playerHud == null)
+                return;
+
+            if ((playerStatusController == null || FindFirstObjectByType<PlayerStatusController>() == null) && playerStatusPrefab != null)
             {
-                GameObject playerHud = GameObject.FindGameObjectWithTag("PlayerStatus");
                 GameObject playerStatus = Instantiate(playerStatusPrefab, playerHud.transform);
 
                 playerStatusController = playerStatus.GetComponent<PlayerStatusController>();
             }
 
-            playerStatusController.Init(next, gameObject.GetComponent<SpriteRenderer>().sprite, 100, 100);
+            HealthModule healthModule = GetComponent<HealthModule>();
 
-            playerStatusController.UpdateHealth(next.GetHealth());
-            playerStatusController.UpdateExp(next.GetExp());
+            playerStatusController.Init(character, gameObject.GetComponent<SpriteRenderer>().sprite, healthModule.GetMaxHP(), 100);
+
+            playerStatusController.UpdateHealth(character.GetHealth());
+            playerStatusController.UpdateExp(character.GetExp());
         }
 
         public PlayerCharacter GetPlayerCharacter()
