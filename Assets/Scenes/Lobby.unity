@@ -573,7 +573,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecc17f6d2a16144448ec7caba8e6027e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameControllerPrefab: {fileID: 610967823385966990, guid: 00580bbd68b4e184db97cde4e251910e, type: 3}
+  gameServerControllerPrefab: {fileID: 1084678397758692883, guid: d0ca78e2c83fbc84eb4184c2fbf5c413, type: 3}
 --- !u!114 &1026327442
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -652,67 +652,6 @@ MonoBehaviour:
   _maximumTimedObserversDuration: 10
   _defaultConditions:
   - {fileID: 11400000, guid: 2033f54fd2794464bae08fa5a55c8996, type: 2}
---- !u!1001 &1245146044
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 1084678397758692883, guid: d0ca78e2c83fbc84eb4184c2fbf5c413, type: 3}
-      propertyPath: m_Name
-      value: Game Server Controller
-      objectReference: {fileID: 0}
-    - target: {fileID: 2484368084055973870, guid: d0ca78e2c83fbc84eb4184c2fbf5c413, type: 3}
-      propertyPath: <SceneId>k__BackingField
-      value: 4275533723
-      objectReference: {fileID: 0}
-    - target: {fileID: 3010362083088182205, guid: d0ca78e2c83fbc84eb4184c2fbf5c413, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3010362083088182205, guid: d0ca78e2c83fbc84eb4184c2fbf5c413, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3010362083088182205, guid: d0ca78e2c83fbc84eb4184c2fbf5c413, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3010362083088182205, guid: d0ca78e2c83fbc84eb4184c2fbf5c413, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3010362083088182205, guid: d0ca78e2c83fbc84eb4184c2fbf5c413, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3010362083088182205, guid: d0ca78e2c83fbc84eb4184c2fbf5c413, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3010362083088182205, guid: d0ca78e2c83fbc84eb4184c2fbf5c413, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3010362083088182205, guid: d0ca78e2c83fbc84eb4184c2fbf5c413, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3010362083088182205, guid: d0ca78e2c83fbc84eb4184c2fbf5c413, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3010362083088182205, guid: d0ca78e2c83fbc84eb4184c2fbf5c413, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: d0ca78e2c83fbc84eb4184c2fbf5c413, type: 3}
 --- !u!114 &1366004239 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2978513863309287318, guid: 1f07bc8da2f25fd4b827d99e2a5cf9a8, type: 3}
@@ -1321,5 +1260,4 @@ SceneRoots:
   - {fileID: 1026327445}
   - {fileID: 1780800424}
   - {fileID: 941899093}
-  - {fileID: 1245146044}
   - {fileID: 1629380620233214772}

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Assets.Scripts.Controllers;
 using Assets.Scripts.Models;
 using FishNet;
@@ -78,6 +79,11 @@ namespace Assets.Scripts.Modules
 
         private void LoadScene(NetworkConnection player, string sceneName, NetworkObject[] objectsToMove = null, bool allowStacking = false)
         {
+            LoadScene(new List<NetworkConnection>() { player }, sceneName, objectsToMove, allowStacking);
+        }
+
+        private void LoadScene(List<NetworkConnection> players, string sceneName, NetworkObject[] objectsToMove = null, bool allowStacking = false)
+        {
             SceneLoadData sld = new(sceneName);
 
             sld.ReplaceScenes = ReplaceOption.All;
@@ -86,62 +92,92 @@ namespace Assets.Scripts.Modules
             sld.Options.AllowStacking = allowStacking;
             sld.Options.AutomaticallyUnload = false;
 
-            InstanceFinder.SceneManager.LoadConnectionScenes(player, sld);
+            InstanceFinder.SceneManager.LoadConnectionScenes(players.ToArray(), sld);
         }
 
         private void UnloadScene(NetworkConnection player, string sceneName)
         {
-            SceneUnloadData sld = new(sceneName);
-            sld.Options.Mode = UnloadOptions.ServerUnloadMode.KeepUnused;
-            InstanceFinder.SceneManager.UnloadConnectionScenes(player, sld);
+            UnloadScene(new List<NetworkConnection>() { player }, sceneName);
         }
         
         private void UnloadScene(NetworkConnection player, int sceneHandle)
         {
-            SceneUnloadData sld = new(sceneHandle);
-            sld.Options.Mode = UnloadOptions.ServerUnloadMode.UnloadUnused;
-            InstanceFinder.SceneManager.UnloadConnectionScenes(player, sld);
+            UnloadScene(new List<NetworkConnection>() { player }, sceneHandle);
         }
 
-        public void LoadInstance(NetworkConnection player, string sceneName, Vector3 startPosition = new(), Action<int> instanceLoadEvent = null)
+        private void UnloadScene(List<NetworkConnection> players, string sceneName)
         {
-            if (_processingPlayers.Contains(player))
-                return;
+            SceneUnloadData sld = new(sceneName);
+            sld.Options.Mode = UnloadOptions.ServerUnloadMode.KeepUnused;
+            InstanceFinder.SceneManager.UnloadConnectionScenes(players.ToArray(), sld);
+        }
+        
+        private void UnloadScene(List<NetworkConnection> players, int sceneHandle)
+        {
+            SceneUnloadData sld = new(sceneHandle);
+            sld.Options.Mode = UnloadOptions.ServerUnloadMode.UnloadUnused;
+            InstanceFinder.SceneManager.UnloadConnectionScenes(players.ToArray(), sld);
+        }
 
-            NetworkObject playerObject = player.FirstObject;
-            NetworkObject[] objectsToMove = new NetworkObject[] { playerObject };
-
-            PlayerController playerController = playerObject.GetComponent<PlayerController>();
-            string activeScene = playerController.ActiveScene;
+        public void LoadInstance(List<NetworkConnection> players, string sceneName, Vector3 startPosition = new(), Action<int> instanceLoadEvent = null)
+        {
+            List<NetworkConnection> playersToMove = new();
+            List<NetworkObject> playerObjects = new();
 
             int instanceId = ++lastInstanceId;
-
-            _playerSceneData.Add(player, new(playerObject, startPosition, sceneName, activeScene, instanceId));
 
             if (instanceLoadEvent != null)
             {
                 _instanceLoadEvents.Add(instanceId, instanceLoadEvent);
             }
 
-            LoadScene(player, sceneName, objectsToMove, true);
-            UnloadScene(player, activeScene);
+            string activeScene = "";
+
+            foreach (NetworkConnection player in players)
+            {
+                if (_processingPlayers.Contains(player))
+                    continue;
+
+                playersToMove.Add(player);
+
+                NetworkObject playerObject = player.FirstObject;
+                playerObjects.Add(playerObject);
+
+                PlayerController playerController = playerObject.GetComponent<PlayerController>();
+                activeScene = playerController.ActiveScene;
+                _playerSceneData.Add(player, new(playerObject, startPosition, sceneName, activeScene, instanceId));
+            }
+
+            NetworkObject[] objectsToMove = playerObjects.ToArray();
+
+            LoadScene(playersToMove, sceneName, objectsToMove, true);
+            UnloadScene(playersToMove, activeScene);
         }
 
-        public void LeaveInstance(NetworkConnection player, Vector3 startPosition = new())
+        public void LeaveInstance(List<NetworkConnection> players, Vector3 startPosition = new())
         {
-            NetworkObject playerObject = player.FirstObject;
-            NetworkObject[] objectsToMove = new NetworkObject[] { playerObject };
+            List<NetworkObject> playerObjects = new();
 
-            PlayerController playerController = playerObject.GetComponent<PlayerController>();
-            string sceneName = playerController.ActiveScene;
+            string sceneName = "";
+            int sceneHandle = players.First().FirstObject.gameObject.scene.handle;
 
-            string activeScene = playerObject.gameObject.scene.name;
-            int sceneHandle = playerObject.gameObject.scene.handle;
+            foreach (NetworkConnection player in players)
+            {
+                NetworkObject playerObject = player.FirstObject;
+                playerObjects.Add(playerObject);
 
-            _playerSceneData.Add(player, new(playerObject, startPosition, sceneName, activeScene, -1));
+                PlayerController playerController = playerObject.GetComponent<PlayerController>();
+                sceneName = playerController.ActiveScene;
 
-            LoadScene(player, sceneName, objectsToMove, false);
-            UnloadScene(player, sceneHandle);
+                string activeScene = playerObject.gameObject.scene.name;
+
+                _playerSceneData.Add(player, new(playerObject, startPosition, sceneName, activeScene, -1));
+            }
+
+            NetworkObject[] objectsToMove = playerObjects.ToArray();
+
+            LoadScene(players, sceneName, objectsToMove, false);
+            UnloadScene(players, sceneHandle);
         }
 
         private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)

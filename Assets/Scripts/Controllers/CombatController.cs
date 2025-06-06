@@ -25,19 +25,21 @@ namespace Assets.Scripts.Controllers
 
         [SerializeField] private GameObject hitPrefab;
 
-        private Dictionary<uint, PlayerController> players;
+        private Dictionary<uint, PlayerController> players = new();
         private Dictionary<uint, EnemyController> enemies = new();
 
         private Coroutine roundTimerCoroutine = null;
 
         void OnEnable()
         {
+            PlayerController.PlayerSpawned += OnPlayerSpawned;
             EnemyController.EnemySpawned += OnEnemySpawned;
             CombatModule.CombatStarted += StartCombat;
         }
 
         void OnDisable()
         {
+            PlayerController.PlayerSpawned -= OnPlayerSpawned;
             EnemyController.EnemySpawned -= OnEnemySpawned;
             CombatModule.CombatStarted -= StartCombat;
         }
@@ -53,9 +55,11 @@ namespace Assets.Scripts.Controllers
         public void Initialize()
         {
             players = FindObjectsByType<PlayerController>(FindObjectsSortMode.InstanceID).ToDictionary(player => player.GetPlayerCharacter().GetId());
-            enemies = FindObjectsByType<EnemyController>(FindObjectsSortMode.InstanceID).ToDictionary(enemy => enemy.Id);
 
-            PlacePlayers();
+            foreach (PlayerController player in players.Values)
+            {
+                PlacePlayer(player);
+            }
         }
 
         public void StartCombat()
@@ -64,23 +68,17 @@ namespace Assets.Scripts.Controllers
             CombatModule.Instance.RegisterOnTurnChangeEvent(TurnChanged);
         }
 
-        private void PlacePlayers()
+        private void PlacePlayer(PlayerController player)
         {
-            GameObject[] playerSlots = GameObject.FindGameObjectsWithTag("PlayerSlot");
+            GameObject[] playerSlots = GameObject.FindGameObjectsWithTag("PlayerSlot").OrderBy(slot => slot.name).ToArray();
 
-            int index = 0;
-            foreach (PlayerController player in players.Values)
-            {
-                GameObject playerSlot = playerSlots[index];
+            GameObject playerSlot = playerSlots[players.Count - 1];
 
-                player.gameObject.transform.position = playerSlot.transform.position;
+            player.gameObject.transform.position = playerSlot.transform.position;
 
-                player.FlipDirection(false);
+            player.FlipDirection(false);
 
-                CombatUIController.Singleton.LoadCharacter(player);
-
-                index++;
-            }
+            CombatUIController.Singleton.LoadCharacter(player);
         }
 
         private IEnumerator RoundTimer()
@@ -103,6 +101,12 @@ namespace Assets.Scripts.Controllers
                 StopCoroutine(roundTimerCoroutine);
 
             roundTimerCoroutine = StartCoroutine(RoundTimer());
+        }
+
+        private void OnPlayerSpawned(PlayerController player)
+        {
+            players.Add(player.GetPlayerCharacter().GetId(), player);
+            PlacePlayer(player);
         }
 
         private void OnEnemySpawned(EnemyController enemy)

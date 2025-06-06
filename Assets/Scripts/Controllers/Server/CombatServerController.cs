@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Assets.Scripts.Interfaces;
 using Assets.Scripts.Modules;
 using Assets.Scripts.Triggers;
@@ -35,40 +36,70 @@ namespace Assets.Scripts.Controllers.Server
 
         public void MoveToCombat(PlayerController player, EnemyController enemy)
         {
-            player.EnterCombatRpc();
+            List<NetworkConnection> connections;
+            IParty party = player.GetParty();
 
-            SceneModule.Singleton.LoadInstance(player.Owner, COMBAT_SCENE_NAME, instanceLoadEvent: (sceneHandle) =>
+            if (party != null)
             {
-                Initialize(player, enemy, sceneHandle);
+                connections = party.GetConnectionsInScene(player.gameObject.scene);
+            }
+            else
+            {
+                connections = new() { player.Owner };
+            }
+
+            foreach (NetworkConnection connection in connections)
+            {
+                PlayerController member = connection.FirstObject.GetComponent<PlayerController>();
+                member.EnterCombatRpc();
+            }
+
+            SceneModule.Singleton.LoadInstance(connections, COMBAT_SCENE_NAME, instanceLoadEvent: (sceneHandle) =>
+            {
+                Initialize(connections, enemy, sceneHandle);
             });
         }
 
-        public void MoveOutOfCombat(PlayerController player)
+        public void MoveOutOfCombat(List<PlayerController> players)
         {
-            SceneModule.Singleton.LeaveInstance(player.Owner);
-            player.LeaveCombatRpc();
+            List<NetworkConnection> connections = new();
+
+            foreach (PlayerController player in players)
+            {
+                instances.Remove(player.Owner);
+
+                connections.Add(player.Owner);
+                player.LeaveCombatRpc();
+            }
+
+            SceneModule.Singleton.LeaveInstance(connections);
         }
 
-        public void Initialize(PlayerController player, EnemyController enemy, int sceneHandle)
+        public void Initialize(List<NetworkConnection> connections, EnemyController enemy, int sceneHandle)
         {
-            GameObject[] enemySlots = GameObject.FindGameObjectsWithTag("EnemySlot");
+            GameObject[] enemySlots = GameObject.FindGameObjectsWithTag("EnemySlot").OrderBy(slot => slot.name).ToArray();
 
-            List<PlayerController> players = new() { player };
-
-            List<EnemyController> enemies = new()
-            {
-                SetEnemy(enemy, sceneHandle, enemySlots[0].transform.position)
-            };
+            List<PlayerController> players = new();
+            List<EnemyController> enemies = new();
 
             var combatModuleInstance = Instantiate(combatModulePrefab);
-
             InstanceFinder.ServerManager.Spawn(combatModuleInstance, scene: SceneManager.GetScene(sceneHandle));
 
             CombatModule combatModule = combatModuleInstance.GetComponent<CombatModule>();
 
-            instances.Add(player.Owner, combatModule);
+            foreach (NetworkConnection connection in connections)
+            {
+                PlayerController player = PlayerController.FindByConnection(connection);
+                players.Add(player);
+
+                EnemyController enemyInstance = SetEnemy(enemy, sceneHandle, enemySlots[enemies.Count].transform.position);
+                enemies.Add(enemyInstance);
+
+                instances.Add(player.Owner, combatModule);
+            }
 
             combatModule.StartCombat(players, enemies);
+
             combatModule.EnemyAttack.AddListener(OnEnemyAttack);
             combatModule.CombatEnded.AddListener(OnCombatEnded);
         }
@@ -118,11 +149,7 @@ namespace Assets.Scripts.Controllers.Server
 
         private void OnCombatEnded(CombatModule combatModule, List<PlayerController> players)
         {
-            foreach (PlayerController player in players)
-            {
-                instances.Remove(player.Owner);
-                MoveOutOfCombat(player);
-            }
+            MoveOutOfCombat(players);
 
             combatModule.CombatEnded.RemoveListener(OnCombatEnded);
             combatModule.EnemyAttack.RemoveListener(OnEnemyAttack);

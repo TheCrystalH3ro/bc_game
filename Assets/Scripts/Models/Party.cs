@@ -6,6 +6,7 @@ using Assets.Scripts.Controllers.Server;
 using Assets.Scripts.Interfaces;
 using FishNet;
 using FishNet.Connection;
+using FishNet.Managing.Scened;
 using UnityEngine;
 
 namespace Assets.Scripts.Models
@@ -112,6 +113,21 @@ namespace Assets.Scripts.Models
         public List<NetworkConnection> GetConnections()
         {
             return Members.Keys.Select(clientId => InstanceFinder.ServerManager.Clients[clientId]).ToList();
+        }
+
+        public List<NetworkConnection> GetConnectionsInScene(string scene)
+        {
+            return GetConnectionsInScene(SceneManager.GetScene(scene));
+        }
+
+        public List<NetworkConnection> GetConnectionsInScene(int scene)
+        {
+            return GetConnectionsInScene(SceneManager.GetScene(scene));
+        }
+
+        public List<NetworkConnection> GetConnectionsInScene(UnityEngine.SceneManagement.Scene scene)
+        {
+            return Members.Keys.Select(clientId => InstanceFinder.ServerManager.Clients[clientId]).Where(player => player.FirstObject.gameObject.scene == scene).ToList();
         }
 
         public int GetMemberCount()

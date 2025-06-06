@@ -50,3 +50,6 @@ MonoBehaviour:
   knightAttackAnimator: {fileID: 9100000, guid: c94d16b9ca8cf06449b4c36fba02b44b, type: 2}
   wizardAttackAnimator: {fileID: 9100000, guid: cec6eacbd3c56df428fd22a1941c23ba, type: 2}
   rogueAttackAnimator: {fileID: 9100000, guid: 17bfc171f14b9fe44af0c38d1bfe3f39, type: 2}
+  knightSprite: {fileID: -409689797, guid: 50b715e407a8d6541b2657c43fa1f613, type: 3}
+  wizardSprite: {fileID: -374882011, guid: 8fb5e530b0dea6842ab23719e59eb7b3, type: 3}
+  rogueSprite: {fileID: 1154612068, guid: b551e608353b52a41a7c04ae1a13aca1, type: 3}

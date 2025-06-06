@@ -93,7 +93,7 @@ namespace Assets.Scripts.Models
 
         public Sprite GetSprite()
         {
-            return GameController.Singleton.GetCharacterSprite(playerClass);
+            return ClassAnimationController.Singleton.GetCharacterSprite(playerClass);
         }
 
         public int GetHealth()

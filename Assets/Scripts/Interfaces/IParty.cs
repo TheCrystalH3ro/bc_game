@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Assets.Scripts.Models;
-using FishNet;
 using FishNet.Connection;
+using UnityEngine.SceneManagement;
 
 namespace Assets.Scripts.Interfaces
 {
@@ -31,6 +31,9 @@ namespace Assets.Scripts.Interfaces
         public PlayerCharacter GetMemberById(uint id);
 
         public List<NetworkConnection> GetConnections();
+        public List<NetworkConnection> GetConnectionsInScene(string scene);
+        public List<NetworkConnection> GetConnectionsInScene(int scene);
+        public List<NetworkConnection> GetConnectionsInScene(Scene scene);
 
         public int GetMemberCount();
     }

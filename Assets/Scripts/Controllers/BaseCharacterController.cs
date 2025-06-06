@@ -73,13 +73,16 @@ namespace Assets.Scripts.Controllers
             return ToCharacterData(0, "", 0);
         }
 
-        public CharacterData ToCharacterData(uint id, string name, int level)
+        public CharacterData ToCharacterData(uint id, string name, int level, Sprite sprite = null)
         {
             HealthModule healthModule = GetComponent<HealthModule>();
             int health = healthModule.GetHP();
             int maxHealth = healthModule.GetMaxHP();
 
-            Sprite sprite = GetComponent<SpriteRenderer>().sprite;
+            if (sprite == null)
+            {
+                sprite = GetComponent<SpriteRenderer>().sprite;
+            }
 
             return new(id, name, level, health, maxHealth, sprite);
         }

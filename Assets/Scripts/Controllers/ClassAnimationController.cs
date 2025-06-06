@@ -14,6 +14,9 @@ namespace Assets.Scripts.Controllers
         [SerializeField] private RuntimeAnimatorController knightAttackAnimator;
         [SerializeField] private RuntimeAnimatorController wizardAttackAnimator;
         [SerializeField] private RuntimeAnimatorController rogueAttackAnimator;
+        [SerializeField] private Sprite knightSprite;
+        [SerializeField] private Sprite wizardSprite;
+        [SerializeField] private Sprite rogueSprite;
 
         void Awake()
         {
@@ -37,6 +40,16 @@ namespace Assets.Scripts.Controllers
                 PlayerClass.Wizard => wizardAttackAnimator,
                 PlayerClass.Rogue => rogueAttackAnimator,
                 _ => knightAttackAnimator,
+            };
+        }
+
+        public Sprite GetCharacterSprite(PlayerClass playerClass)
+        {
+            return playerClass switch
+            {
+                PlayerClass.Wizard => wizardSprite,
+                PlayerClass.Rogue => rogueSprite,
+                _ => knightSprite,
             };
         }
     }

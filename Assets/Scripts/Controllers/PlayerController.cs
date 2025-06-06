@@ -42,6 +42,8 @@ namespace Assets.Scripts.Controllers
 
         public string ActiveScene { get; set; } = SceneModule.MAIN_SCENE_NAME;
 
+        public static event Action<PlayerController> PlayerSpawned;
+
         void Awake()
         {
             rb = gameObject.GetComponent<Rigidbody2D>();
@@ -54,6 +56,8 @@ namespace Assets.Scripts.Controllers
         {
             movementModule = gameObject.GetComponent<MovementModule>();
             playerCharacter.OnChange += PlayerCharacterChanged;
+
+            PlayerSpawned?.Invoke(this);
 
             if (!base.Owner.IsLocalClient)
             {
@@ -241,13 +245,13 @@ namespace Assets.Scripts.Controllers
             LeaveCombat();
         }
 
-        [TargetRpc]
+        [TargetRpc][ObserversRpc]
         public void EnterCombatRpc(NetworkConnection networkConnection)
         {
             EnterCombat();
         }
 
-        [TargetRpc]
+        [TargetRpc][ObserversRpc]
         public void LeaveCombatRpc(NetworkConnection networkConnection)
         {
             LeaveCombat();
@@ -259,7 +263,9 @@ namespace Assets.Scripts.Controllers
             string name = playerCharacter.Value.GetName();
             int level = playerCharacter.Value.GetLevel();
 
-            return base.ToCharacterData(id, name, level);
+            Sprite sprite = playerCharacter.Value.GetSprite();
+
+            return base.ToCharacterData(id, name, level, sprite);
         }
     }
 }

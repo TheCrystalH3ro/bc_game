@@ -75,16 +75,6 @@ namespace Assets.Scripts.Controllers
                 Destroy(GameServerController.Singleton.gameObject);
         }
 
-        public Sprite GetCharacterSprite(PlayerClass playerClass)
-        {
-            return playerClass switch
-            {
-                PlayerClass.Wizard => wizardSprite,
-                PlayerClass.Rogue => rogueSprite,
-                _ => knightSprite,
-            };
-        }
-
         private void LoadQueueStarted()
         {
             HUDController.Singleton.ShowLoadingScreen();
@@ -102,7 +92,6 @@ namespace Assets.Scripts.Controllers
 
         public void InspectPlayer(int playerId, PlayerCharacter character, Sprite avatar)
         {
-            Debug.Log(HUDController.Singleton);
             HUDController.Singleton.PlayerCard.Init(playerId, character, avatar);
         }
     }
