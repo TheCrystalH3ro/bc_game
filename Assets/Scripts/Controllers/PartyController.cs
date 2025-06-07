@@ -32,6 +32,19 @@ namespace Assets.Scripts.Controllers
             PartyServerController.OnPlayerKick -= OnPlayerKick;
         }
 
+        void Start()
+        {
+            if (!InstanceFinder.NetworkManager.IsClientStarted)
+                return;
+
+            IParty party = PlayerController.Singleton.GetParty();
+
+            if (party == null)
+                return;
+
+            HUDController.Singleton.UpdateParty(party);
+        }
+
         private IParty CreateParty()
         {
             PlayerCharacter playerCharacter = PlayerController.Singleton.GetPlayerCharacter();
