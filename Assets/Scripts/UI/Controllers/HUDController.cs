@@ -76,6 +76,17 @@ namespace Assets.Scripts.UI.Controllers
             PartyStatus.RemovePlayer(playerId);
         }
 
+        public void PartyChangedZone(uint characterId, bool isInSameZone)
+        {
+            if (isInSameZone)
+            {
+                PartyStatus.EnteredZone(characterId);
+                return;
+            }
+
+            PartyStatus.LeftZone(characterId);
+        }
+
         public void ShowLeavePartyButton()
         {
             partyLeaveButton.SetActive(true);

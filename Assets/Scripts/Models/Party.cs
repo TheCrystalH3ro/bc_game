@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,8 +46,8 @@ namespace Assets.Scripts.Models
         public void RemoveMember(PlayerCharacter character)
         {
             int connectionId = character.GetConnectionId();
-            
-            if (connectionId < 0 || ! Members.ContainsKey(connectionId)) return;
+
+            if (connectionId < 0 || !Members.ContainsKey(connectionId)) return;
 
             RemoveMember(connectionId);
         }
@@ -59,7 +60,7 @@ namespace Assets.Scripts.Models
         public bool IsMember(PlayerCharacter character)
         {
             int connectionId = character.GetConnectionId();
-            
+
             if (connectionId < 0) return false;
 
             return IsMember(connectionId);
@@ -79,7 +80,7 @@ namespace Assets.Scripts.Models
 
         public void ChangeLeader(int newLeaderId)
         {
-            if(!IsMember(newLeaderId))
+            if (!IsMember(newLeaderId))
             {
                 return;
             }

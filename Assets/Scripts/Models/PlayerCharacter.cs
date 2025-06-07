@@ -13,8 +13,10 @@ namespace Assets.Scripts.Models
         private uint id;
         private string name;
         private ushort level;
+        private int health = 0;
         private float experience;
         private PlayerClass playerClass;
+        private string currentScene;
 
         public PlayerCharacter(uint id, string name, ushort level, PlayerClass playerClass)
         {
@@ -98,7 +100,12 @@ namespace Assets.Scripts.Models
 
         public int GetHealth()
         {
-            return 90;
+            return health;
+        }
+
+        public void SetHealth(int health)
+        {
+            this.health = health;
         }
 
         public float GetExp()
@@ -110,6 +117,16 @@ namespace Assets.Scripts.Models
         {
             this.level = playerDataResponse.level;
             this.experience = playerDataResponse.experience;
+        }
+
+        public string GetCurrentScene()
+        {
+            return currentScene;
+        }
+
+        public void SetCurrentScene(string scene)
+        {
+            currentScene = scene;
         }
     }
 }

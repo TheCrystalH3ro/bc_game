@@ -115,6 +115,10 @@ namespace Assets.Scripts.Controllers.Server
         {
             PlayerController playerController = playerObject.GetComponent<PlayerController>();
 
+            int health = playerController.GetComponent<HealthModule>().GetHP();
+
+            playerCharacter.SetHealth(health);
+
             playerController.SetPlayerCharacter(playerCharacter);
             
             playerController.Load(character =>
@@ -146,10 +150,12 @@ namespace Assets.Scripts.Controllers.Server
 
         private void OnSceneChanged(NetworkConnection client, string sceneName, string previousScene)
         {
+            PlayerController playerController = PlayerController.FindByConnection(client);
+            playerController.OnZoneChange(sceneName);
+
             if (previousScene == SceneModule.MAIN_SCENE_NAME)
                 return;
 
-            PlayerController playerController = PlayerController.FindByConnection(client);
             playerController.Save();
         }
 

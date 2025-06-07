@@ -22,6 +22,7 @@ namespace Assets.Scripts.Controllers
             PartyServerController.OnPlayerJoined += OnPlayerJoined;
             PartyServerController.OnPlayerLeft += OnPlayerLeft;
             PartyServerController.OnPlayerKick += OnPlayerKick;
+            PartyServerController.OnPlayerSceneChanged += OnPlayerSceneChanged;
         }
 
         void OnDisable()
@@ -30,6 +31,7 @@ namespace Assets.Scripts.Controllers
             PartyServerController.OnPlayerJoined -= OnPlayerJoined;
             PartyServerController.OnPlayerLeft -= OnPlayerLeft;
             PartyServerController.OnPlayerKick -= OnPlayerKick;
+            PartyServerController.OnPlayerSceneChanged -= OnPlayerSceneChanged;
         }
 
         void Start()
@@ -239,6 +241,12 @@ namespace Assets.Scripts.Controllers
             party.RemoveMember(clientId);
 
             HUDController.Singleton.RemovePlayerFromParty(playerId);
+        }
+
+        private void OnPlayerSceneChanged(uint characterId, string zoneName)
+        {
+            bool isInSameZone = PlayerController.Singleton.gameObject.scene.name == zoneName;
+            HUDController.Singleton.PartyChangedZone(characterId, isInSameZone);
         }
     }
 }

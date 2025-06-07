@@ -46,6 +46,7 @@ namespace Assets.Scripts.Controllers
         public string ActiveScene { get; set; } = SceneModule.MAIN_SCENE_NAME;
 
         public static event Action<PlayerController> PlayerSpawned;
+        public static event Action<PlayerController, string> ZoneChanged;
 
         void Awake()
         {
@@ -168,7 +169,7 @@ namespace Assets.Scripts.Controllers
 
             playerStatusController.Init(character, gameObject.GetComponent<SpriteRenderer>().sprite, healthModule.GetMaxHP(), 100);
 
-            playerStatusController.UpdateHealth(character.GetHealth());
+            playerStatusController.UpdateHealth(healthModule.GetHP());
             playerStatusController.UpdateExp(character.GetExp());
         }
 
@@ -316,6 +317,12 @@ namespace Assets.Scripts.Controllers
         private void RespawnPlayerRpc(NetworkConnection client)
         {
             OnRespawn();
+        }
+
+        public void OnZoneChange(string zoneName)
+        {
+            ZoneChanged?.Invoke(this, zoneName);
+            playerCharacter.Value.SetCurrentScene(zoneName);
         }
     }
 }

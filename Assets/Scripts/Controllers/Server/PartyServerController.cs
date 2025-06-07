@@ -47,6 +47,17 @@ namespace Assets.Scripts.Controllers.Server
         public static event Action<PlayerCharacter, int> OnPlayerJoined;
         public static event Action<uint, int, bool> OnPlayerLeft;
         public static event Action<uint, int> OnPlayerKick;
+        public static event Action<uint, string> OnPlayerSceneChanged;
+
+        public void OnEnable()
+        {
+            PlayerController.ZoneChanged += OnPlayerZoneChanged;
+        }
+
+        private void OnDisable()
+        {
+            PlayerController.ZoneChanged -= OnPlayerZoneChanged;
+        }
 
         [ServerRpc(RequireOwnership = false)]
         public void InvitePlayer(PlayerCharacter invitedPlayer, NetworkConnection client = null)
@@ -197,7 +208,7 @@ namespace Assets.Scripts.Controllers.Server
         {
             MessageBoxModule.Singleton.SendMessage(invitedClient, errorMessage);
         }
-        
+
         [TargetRpc]
         private void NotifyPlayerKick(NetworkConnection kickedClient)
         {
@@ -208,6 +219,25 @@ namespace Assets.Scripts.Controllers.Server
         private void NotifyPartyOnPlayerKick(NetworkConnection partyClient, uint formerMemberId, int formerClientId)
         {
             OnPlayerKick?.Invoke(formerMemberId, formerClientId);
+        }
+
+        private void OnPlayerZoneChanged(PlayerController player, string zoneName)
+        {
+            IParty party = player.GetParty();
+            if (party == null)
+                return;
+
+            List<NetworkConnection> connections = party.GetConnections().Where(connection => connection != player.Owner).ToList();
+
+            uint characterId = player.GetPlayerCharacter().GetId();
+
+            ConnectionModule.Singleton.GroupRpc(connections, (Action<NetworkConnection, uint, string>)NotifyPlayerChangedZone, characterId, zoneName);
+        }
+
+        [TargetRpc]
+        private void NotifyPlayerChangedZone(NetworkConnection partyClient, uint characterId, string zoneName)
+        {
+            OnPlayerSceneChanged?.Invoke(characterId, zoneName);
         }
     }
 }

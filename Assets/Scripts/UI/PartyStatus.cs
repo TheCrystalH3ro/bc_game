@@ -31,9 +31,11 @@ public class PartyStatus : MonoBehaviour
     {
         ClearPlayers();
 
+        PlayerCharacter player = PlayerController.Singleton.GetPlayerCharacter();
+
         foreach (PlayerCharacter character in party)
         {
-            if (PlayerController.Singleton.GetPlayerCharacter().Equals(character)) continue;
+            if (player.Equals(character)) continue;
 
             AddPlayer(character);
         }
@@ -45,7 +47,9 @@ public class PartyStatus : MonoBehaviour
 
         PlayerStatusController playerStatusController = playerStatus.GetComponentInChildren<PlayerStatusController>();
 
-        playerStatusController.Init(character, character.GetSprite(), 100, 100);
+        bool isInSameZone = character.GetCurrentScene() == PlayerController.Singleton.gameObject.scene.name;
+
+        playerStatusController.Init(character, character.GetSprite(), 100, 100, isInSameZone);
 
         playerStatusController.UpdateHealth(character.GetHealth());
         playerStatusController.UpdateExp(character.GetExp());
@@ -61,7 +65,29 @@ public class PartyStatus : MonoBehaviour
 
         GameObject playerStatus = players[characterId];
         Destroy(playerStatus);
-        
+
         players.Remove(characterId);
+    }
+
+    public void EnteredZone(uint characterId)
+    {
+        if (!players.ContainsKey(characterId)) return;
+
+        GameObject playerStatus = players[characterId];
+
+        PlayerStatusController playerStatusController = playerStatus.GetComponentInChildren<PlayerStatusController>();
+
+        playerStatusController.SetTransparency(1);
+    }
+
+    public void LeftZone(uint characterId)
+    {
+        if (!players.ContainsKey(characterId)) return;
+
+        GameObject playerStatus = players[characterId];
+
+        PlayerStatusController playerStatusController = playerStatus.GetComponentInChildren<PlayerStatusController>();
+
+        playerStatusController.SetTransparency(0.5f);
     }
 }
