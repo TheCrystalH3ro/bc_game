@@ -29,7 +29,7 @@ namespace Assets.Scripts.Controllers
             }
         }
 
-        public void EnterCombat()
+        public virtual void EnterCombat()
         {
             if (gameObject.TryGetComponent<MovementModule>(out var movementModule))
             {
@@ -49,7 +49,7 @@ namespace Assets.Scripts.Controllers
             }
         }
 
-        public void LeaveCombat()
+        public virtual void LeaveCombat()
         {
             if (gameObject.TryGetComponent<MovementModule>(out var movementModule))
             {
@@ -94,7 +94,7 @@ namespace Assets.Scripts.Controllers
 
         private IEnumerator HitAnimation()
         {
-            Color originalColor = spriteRenderer.color;
+            Color originalColor = Color.white;
             Color whiteFlash = new(0.9716981f, 0.4720986f, 0.6089923f, 1f);
 
             spriteRenderer.color = whiteFlash;
@@ -112,6 +112,11 @@ namespace Assets.Scripts.Controllers
         protected void OnDeath()
         {
             animator.SetTrigger("Death");
+        }
+
+        protected void OnRespawn()
+        {
+            animator.SetTrigger("Respawn");
         }
     }
 }

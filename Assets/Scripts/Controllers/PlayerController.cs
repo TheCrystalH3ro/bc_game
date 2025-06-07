@@ -13,6 +13,7 @@ using FishNet.Connection;
 using FishNet.Managing.Scened;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
+using NUnit.Framework;
 using UnityEngine;
 
 namespace Assets.Scripts.Controllers
@@ -40,6 +41,8 @@ namespace Assets.Scripts.Controllers
 
         private IParty party;
 
+        protected bool IsInCombat = false;
+
         public string ActiveScene { get; set; } = SceneModule.MAIN_SCENE_NAME;
 
         public static event Action<PlayerController> PlayerSpawned;
@@ -61,8 +64,16 @@ namespace Assets.Scripts.Controllers
 
             if (!base.Owner.IsLocalClient)
             {
-                HoverPointerCursor hover = gameObject.AddComponent<HoverPointerCursor>();
+                if (IsInCombat)
+                    return;
+
+                if (!gameObject.TryGetComponent<HoverPointerCursor>(out var hover))
+                {
+                    hover = gameObject.AddComponent<HoverPointerCursor>();
+                }
+
                 hover.SetPointerCursor(hoverCursor);
+
                 return;
             }
 
@@ -168,7 +179,7 @@ namespace Assets.Scripts.Controllers
 
         public void OnMouseDown()
         {
-            if (IsOwner) return;
+            if (IsOwner || IsInCombat) return;
 
             int playerId = OwnerId;
             PlayerCharacter playerCharacter = GetPlayerCharacter();
@@ -245,16 +256,42 @@ namespace Assets.Scripts.Controllers
             LeaveCombat();
         }
 
-        [TargetRpc][ObserversRpc]
+        [TargetRpc]
+        [ObserversRpc]
         public void EnterCombatRpc(NetworkConnection networkConnection)
         {
             EnterCombat();
         }
 
-        [TargetRpc][ObserversRpc]
+        [TargetRpc]
+        [ObserversRpc]
         public void LeaveCombatRpc(NetworkConnection networkConnection)
         {
             LeaveCombat();
+        }
+
+        public override void EnterCombat()
+        {
+            IsInCombat = true;
+
+            if (gameObject.TryGetComponent<HoverPointerCursor>(out var hover))
+            {
+                hover.SetPointerCursor(null);
+            }
+
+            base.EnterCombat();
+        }
+
+        public override void LeaveCombat()
+        {
+            IsInCombat = false;
+
+            if (gameObject.TryGetComponent<HoverPointerCursor>(out var hover))
+            {
+                hover.SetPointerCursor(hoverCursor);
+            }
+
+            base.LeaveCombat();
         }
 
         public override CharacterData ToCharacterData()
@@ -266,6 +303,19 @@ namespace Assets.Scripts.Controllers
             Sprite sprite = playerCharacter.Value.GetSprite();
 
             return base.ToCharacterData(id, name, level, sprite);
+        }
+
+        public void RespawnPlayer()
+        {
+            RespawnPlayerRpc(Owner);
+
+            OnRespawn();
+        }
+
+        [TargetRpc]
+        private void RespawnPlayerRpc(NetworkConnection client)
+        {
+            OnRespawn();
         }
     }
 }

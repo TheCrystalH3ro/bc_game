@@ -1,10 +1,13 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Interfaces;
+using Assets.Scripts.Models;
 using Assets.Scripts.Modules;
 using Assets.Scripts.Triggers;
 using FishNet;
 using FishNet.Connection;
+using FishNet.Demo.AdditiveScenes;
 using FishNet.Managing.Scened;
 using FishNet.Object;
 using UnityEngine;
@@ -60,19 +63,26 @@ namespace Assets.Scripts.Controllers.Server
             });
         }
 
-        public void MoveOutOfCombat(List<PlayerController> players)
+        public void MoveOutOfCombat(PlayerController player, string newScene = null)
+        {
+            MoveOutOfCombat(new List<PlayerController>() { player }, newScene);
+        }
+
+        public void MoveOutOfCombat(List<PlayerController> players, string newScene = null)
         {
             List<NetworkConnection> connections = new();
 
             foreach (PlayerController player in players)
             {
-                instances.Remove(player.Owner);
-
                 connections.Add(player.Owner);
+
+                instances.Remove(player.Owner);
                 player.LeaveCombatRpc();
             }
 
-            SceneModule.Singleton.LeaveInstance(connections);
+            Debug.Log("Removing " + connections.Count + " player(s) from the instance");
+
+            SceneModule.Singleton.LeaveInstance(connections, newScene);
         }
 
         public void Initialize(List<NetworkConnection> connections, EnemyController enemy, int sceneHandle)
@@ -102,6 +112,7 @@ namespace Assets.Scripts.Controllers.Server
 
             combatModule.EnemyAttack.AddListener(OnEnemyAttack);
             combatModule.CombatEnded.AddListener(OnCombatEnded);
+            combatModule.PlayerEliminated.AddListener(OnPlayerDeath);
         }
 
         private EnemyController SetEnemy(EnemyController enemy, int sceneHandle, Vector3 position)
@@ -147,12 +158,30 @@ namespace Assets.Scripts.Controllers.Server
             CombatController.Singleton.EnemyAttack(enemyId, playerId);
         }
 
+        public void OnPlayerDeath(PlayerController player)
+        {
+            StartCoroutine(PlayerDied(player));
+        }
+
+        private IEnumerator PlayerDied(PlayerController player)
+        {
+            yield return new WaitForSeconds(1f);
+
+            MoveOutOfCombat(player, SceneModule.DEFAULT_SCENE_NAME);
+
+            player.RespawnPlayer();
+        }
+
         private void OnCombatEnded(CombatModule combatModule, List<PlayerController> players)
         {
-            MoveOutOfCombat(players);
+            if (players.Count > 0)
+            {
+                MoveOutOfCombat(players);
+            }
 
             combatModule.CombatEnded.RemoveListener(OnCombatEnded);
             combatModule.EnemyAttack.RemoveListener(OnEnemyAttack);
+            combatModule.PlayerEliminated.RemoveListener(OnPlayerDeath);
         }
     }
 }

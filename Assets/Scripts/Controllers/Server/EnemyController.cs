@@ -11,10 +11,14 @@ namespace Assets.Scripts.Controllers.Server
         [SerializeField] private string enemyName;
         [SerializeField] private int enemyLevel;
         [SerializeField] private RuntimeAnimatorController hitAnimator;
+        [SerializeField] private Texture2D hoverCursor;
+        [SerializeField] private GameObject selectIndicator;
 
         public NetworkObject Prefab;
 
         public IEnemy Character { get; private set; }
+
+        public bool IsSelectable { get; private set; }
 
         public uint Id { get; private set; }
 
@@ -41,6 +45,34 @@ namespace Assets.Scripts.Controllers.Server
         public RuntimeAnimatorController GetHitAnimator()
         {
             return hitAnimator;
+        }
+
+        public void SetSelectable(bool selectable)
+        {
+            IsSelectable = selectable;
+
+            if (!gameObject.TryGetComponent<HoverPointerCursor>(out var hover))
+            {
+                hover = gameObject.AddComponent<HoverPointerCursor>();
+            }
+
+            if (selectable)
+            {
+                selectIndicator.SetActive(true);
+                hover.SetPointerCursor(hoverCursor);
+                return;
+            }
+
+            selectIndicator.SetActive(false);
+            hover.SetPointerCursor(null);
+        }
+
+        public void OnMouseDown()
+        {
+            if (!IsSelectable)
+                return;
+
+            CombatController.Singleton.AttackTarget(Id);
         }
     }
 }

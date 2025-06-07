@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Controllers.Server;
+using Assets.Scripts.Models;
 using Assets.Scripts.Modules;
 using Assets.Scripts.UI.Controllers;
 using FishNet;
@@ -29,6 +30,7 @@ namespace Assets.Scripts.Controllers
         private Dictionary<uint, EnemyController> enemies = new();
 
         private Coroutine roundTimerCoroutine = null;
+        private bool IsSelectingTarget = false;
 
         void OnEnable()
         {
@@ -70,6 +72,8 @@ namespace Assets.Scripts.Controllers
 
         private void PlacePlayer(PlayerController player)
         {
+            player.EnterCombat();
+
             GameObject[] playerSlots = GameObject.FindGameObjectsWithTag("PlayerSlot").OrderBy(slot => slot.name).ToArray();
 
             GameObject playerSlot = playerSlots[players.Count - 1];
@@ -101,6 +105,9 @@ namespace Assets.Scripts.Controllers
                 StopCoroutine(roundTimerCoroutine);
 
             roundTimerCoroutine = StartCoroutine(RoundTimer());
+
+            if (IsSelectingTarget)
+                TargetSelected();
         }
 
         private void OnPlayerSpawned(PlayerController player)
@@ -114,14 +121,48 @@ namespace Assets.Scripts.Controllers
             enemies.Add(enemy.Id, enemy);
             enemy.FlipDirection(true);
             enemy.EnterCombat();
+            OnEnemyDeath(enemy);
             CombatUIController.Singleton.LoadCharacter(enemy);
+        }
+
+        private void OnEnemyDeath(EnemyController enemy)
+        {
+            enemy.GetComponent<HealthModule>().OnDeath.AddListener(() =>
+            {
+                enemies.Remove(enemy.Id);
+            });
         }
 
         public void Attack()
         {
-            uint target = enemies.First().Key;
+            ChooseTarget();
+        }
 
-            CombatServerController.Singleton.AttackEnemy(target);
+        private void ChooseTarget()
+        {
+            IsSelectingTarget = true;
+
+            foreach (EnemyController enemy in enemies.Values)
+            {
+                enemy.SetSelectable(true);
+            }
+        }
+
+        private void TargetSelected()
+        {
+            IsSelectingTarget = false;
+
+            foreach (EnemyController enemy in enemies.Values)
+            {
+                enemy.SetSelectable(false);
+            }
+        }
+
+        public void AttackTarget(uint targetId)
+        {
+            TargetSelected();
+
+            CombatServerController.Singleton.AttackEnemy(targetId);
         }
 
         public void PlayerAttack(uint playerId, uint enemyId)
@@ -140,6 +181,9 @@ namespace Assets.Scripts.Controllers
         {
             EnemyController enemy = enemies[enemyId];
             PlayerController player = players[playerId];
+
+            if (player == null)
+                return;
 
             RuntimeAnimatorController hitAnimator = enemy.GetHitAnimator();
             hitPrefab.GetComponent<Animator>().runtimeAnimatorController = hitAnimator;

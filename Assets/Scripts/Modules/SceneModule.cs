@@ -154,11 +154,11 @@ namespace Assets.Scripts.Modules
             UnloadScene(playersToMove, activeScene);
         }
 
-        public void LeaveInstance(List<NetworkConnection> players, Vector3 startPosition = new())
+        public void LeaveInstance(List<NetworkConnection> players, string newScene = null, Vector3 startPosition = new())
         {
             List<NetworkObject> playerObjects = new();
 
-            string sceneName = "";
+            string sceneName = newScene ?? "";
             int sceneHandle = players.First().FirstObject.gameObject.scene.handle;
 
             foreach (NetworkConnection player in players)
@@ -167,7 +167,9 @@ namespace Assets.Scripts.Modules
                 playerObjects.Add(playerObject);
 
                 PlayerController playerController = playerObject.GetComponent<PlayerController>();
-                sceneName = playerController.ActiveScene;
+
+                if (sceneName == "")
+                    sceneName = playerController.ActiveScene;
 
                 string activeScene = playerObject.gameObject.scene.name;
 

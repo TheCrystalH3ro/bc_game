@@ -29,6 +29,8 @@ namespace Assets.Scripts.Modules
 
         public int ROUND_TIME = 10;
 
+        private bool isMatchInProgress = false;
+
         private Dictionary<uint, PlayerController> players;
         private Dictionary<uint, EnemyController> enemies;
         private Dictionary<uint, EnemyController> deadEnemies = new();
@@ -41,6 +43,7 @@ namespace Assets.Scripts.Modules
 
         public static event Action CombatStarted;
         public UnityEvent<CombatModule, List<PlayerController>> CombatEnded;
+        public UnityEvent<PlayerController> PlayerEliminated;
 
         public override void OnStartNetwork()
         {
@@ -65,6 +68,7 @@ namespace Assets.Scripts.Modules
             this.players = players.ToDictionary(player => player.GetPlayerCharacter().GetId());
             this.enemies = enemies.ToDictionary(enemy => enemy.Id);
             currentTurn.Value = -1;
+            isMatchInProgress = true;
             ChangeTurn();
         }
 
@@ -75,6 +79,9 @@ namespace Assets.Scripts.Modules
 
         private IEnumerator ChangingTurnProcess()
         {
+            if (!isMatchInProgress)
+                yield break;
+
             currentTurn.Value = (currentTurn.Value + 1) % (players.Count + enemies.Count); 
 
             if (turnTimerCoroutine != null)
@@ -143,9 +150,8 @@ namespace Assets.Scripts.Modules
             ChangeTurn();
         }
 
-        private uint PickTarget(int enemyIndex)
+        private uint PickTarget(int playerIndex)
         {
-            int playerIndex = -enemyIndex;
             List<uint> targets = players.Keys.ToList();
 
             if (playerIndex >= 0 && playerIndex < targets.Count)
@@ -196,6 +202,7 @@ namespace Assets.Scripts.Modules
         private void PlayerDeath(PlayerController player)
         {
             players.Remove(player.GetPlayerCharacter().GetId());
+            PlayerEliminated?.Invoke(player);
 
             if (players.Count > 0)
                 return;
@@ -205,7 +212,14 @@ namespace Assets.Scripts.Modules
 
         private void EndCombat(bool playerWon)
         {
+            isMatchInProgress = false;
+
             CombatEnded?.Invoke(this, players.Values.ToList());
+
+            StopCoroutine(turnTimerCoroutine);
+
+            players = new();
+            enemies = new();
         }
     }
 }
