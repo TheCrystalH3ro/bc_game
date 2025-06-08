@@ -14,6 +14,7 @@ namespace Assets.Scripts.UI.Controllers
         [SerializeField] private CharacterStatus enemyStatus;
 
         [SerializeField] private RoundTimer roundTimer;
+        [SerializeField] private ActionBar actionBar;
 
         void Awake()
         {
@@ -47,6 +48,26 @@ namespace Assets.Scripts.UI.Controllers
         public void ChangeRoundTime(int time)
         {
             roundTimer.SetTime(time);
+        }
+
+        public void SetCharacterTurn(BaseCharacterController character)
+        {
+            actionBar.SetCharacterTurn(character);
+        }
+
+        public void SetCharacterAttack(BaseCharacterController character, BaseCharacterController target)
+        {
+            actionBar.SetCharacterAttack(character, target);
+        }
+
+        public void SetCharacterDeath(BaseCharacterController character)
+        {
+            actionBar.SetCharacterDeath(character);
+        }
+
+        public void SetButtonsActive(bool active)
+        {
+            actionBar.SetButtonsActive(active);
         }
     }
 }

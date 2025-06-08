@@ -37,6 +37,26 @@ namespace Assets.Scripts.Controllers.Server
             EnemySpawned?.Invoke(this);
         }
 
+        public override bool Equals(BaseCharacterController other)
+        {
+            EnemyController otherEnemy = other as EnemyController;
+
+            if (otherEnemy == null)
+                return false;
+
+            return Equals(otherEnemy);
+        }
+
+        public bool Equals(EnemyController enemy)
+        {
+            return this.Id == enemy.Id;
+        }
+
+        public override string ToString()
+        {
+            return Character.GetName();
+        }
+
         public override CharacterData ToCharacterData()
         {
             return base.ToCharacterData(Id, Character.GetName(), Character.GetLevel());

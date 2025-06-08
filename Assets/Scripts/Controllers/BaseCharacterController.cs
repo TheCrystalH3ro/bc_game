@@ -21,6 +21,9 @@ namespace Assets.Scripts.Controllers
             animator = GetComponent<Animator>();
         }
 
+        public abstract bool Equals(BaseCharacterController other);
+        public abstract override string ToString();
+
         public void FlipDirection(bool isFlipped)
         {
             if (gameObject.TryGetComponent<CharacterMovementModule>(out var movementModule))

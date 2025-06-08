@@ -106,6 +106,26 @@ namespace Assets.Scripts.Controllers
             }
         }
 
+        public override bool Equals(BaseCharacterController other)
+        {
+            PlayerController otherPlayer = other as PlayerController;
+
+            if (otherPlayer == null)
+                return false;
+
+            return Equals(otherPlayer);
+        }
+
+        public bool Equals(PlayerController other)
+        {
+            return playerCharacter.Value.Equals(other.GetPlayerCharacter());
+        }
+
+        public override string ToString()
+        {
+            return playerCharacter.Value.GetName();
+        }
+
         public static PlayerController FindByConnection(NetworkConnection connection)
         {
             return ObjectUtil.FindFirstByType<PlayerController>(connection.Objects);

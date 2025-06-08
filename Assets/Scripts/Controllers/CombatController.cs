@@ -99,8 +99,9 @@ namespace Assets.Scripts.Controllers
             }
         }
 
-        private void TurnChanged(int prev, int next, bool asServer)
+        private void TurnChanged(BaseCharacterController prev, BaseCharacterController next, bool asServer)
         {
+
             if (roundTimerCoroutine != null)
                 StopCoroutine(roundTimerCoroutine);
 
@@ -108,12 +109,36 @@ namespace Assets.Scripts.Controllers
 
             if (IsSelectingTarget)
                 TargetSelected();
+
+            CombatUIController.Singleton.SetCharacterTurn(next);
+
+            PlayerController player = PlayerController.Singleton;
+
+            if (!player.Equals(next))
+            {
+                if (player.Equals(prev))
+                    CombatUIController.Singleton.SetButtonsActive(false);
+
+                return;
+            }
+
+            CombatUIController.Singleton.SetButtonsActive(true);
         }
 
         private void OnPlayerSpawned(PlayerController player)
         {
             players.Add(player.GetPlayerCharacter().GetId(), player);
             PlacePlayer(player);
+            OnPlayerDeath(player);
+        }
+
+        private void OnPlayerDeath(PlayerController player)
+        {
+            player.GetComponent<HealthModule>().OnDeath.AddListener(() =>
+            {
+                players.Remove(player.GetPlayerCharacter().GetId());
+                CombatUIController.Singleton.SetCharacterDeath(player);
+            });
         }
 
         private void OnEnemySpawned(EnemyController enemy)
@@ -130,6 +155,7 @@ namespace Assets.Scripts.Controllers
             enemy.GetComponent<HealthModule>().OnDeath.AddListener(() =>
             {
                 enemies.Remove(enemy.Id);
+                CombatUIController.Singleton.SetCharacterDeath(enemy);
             });
         }
 
@@ -170,6 +196,11 @@ namespace Assets.Scripts.Controllers
             PlayerController player = players[playerId];
             EnemyController enemy = enemies[enemyId];
 
+            if (enemy == null || player == null)
+                return;
+
+            CombatUIController.Singleton.SetCharacterAttack(player, enemy);
+
             RuntimeAnimatorController hitAnimator = ClassAnimationController.Singleton.GetCharacterAttackAnimatorController(player.GetPlayerCharacter().GetPlayerClass());
             hitPrefab.GetComponent<Animator>().runtimeAnimatorController = hitAnimator;
             hitPrefab.GetComponent<SpriteRenderer>().flipX = false;
@@ -182,8 +213,10 @@ namespace Assets.Scripts.Controllers
             EnemyController enemy = enemies[enemyId];
             PlayerController player = players[playerId];
 
-            if (player == null)
+            if (enemy == null || player == null)
                 return;
+
+            CombatUIController.Singleton.SetCharacterAttack(enemy, player);
 
             RuntimeAnimatorController hitAnimator = enemy.GetHitAnimator();
             hitPrefab.GetComponent<Animator>().runtimeAnimatorController = hitAnimator;

@@ -37,7 +37,9 @@ namespace Assets.Scripts.Modules
 
         private Coroutine turnTimerCoroutine;
 
-        private readonly SyncVar<int> currentTurn = new(new SyncTypeSettings());
+        private readonly SyncVar<BaseCharacterController> CharacterOnTurn = new(new SyncTypeSettings());
+
+        private int currentTurn;
 
         public UnityEvent<EnemyController, PlayerController> EnemyAttack;
 
@@ -53,21 +55,21 @@ namespace Assets.Scripts.Modules
             CombatStarted?.Invoke();
         }
 
-        public void RegisterOnTurnChangeEvent(SyncVar<int>.OnChanged OnTurnChange)
+        public void RegisterOnTurnChangeEvent(SyncVar<BaseCharacterController>.OnChanged OnTurnChange)
         {
-            currentTurn.OnChange += OnTurnChange;
+            CharacterOnTurn.OnChange += OnTurnChange;
         }
 
-        public void UnregisterOnTurnChangeEvent(SyncVar<int>.OnChanged OnTurnChange)
+        public void UnregisterOnTurnChangeEvent(SyncVar<BaseCharacterController>.OnChanged OnTurnChange)
         {
-            currentTurn.OnChange -= OnTurnChange;
+            CharacterOnTurn.OnChange -= OnTurnChange;
         }
 
         public void StartCombat(List<PlayerController> players, List<EnemyController> enemies)
         {
             this.players = players.ToDictionary(player => player.GetPlayerCharacter().GetId());
             this.enemies = enemies.ToDictionary(enemy => enemy.Id);
-            currentTurn.Value = -1;
+            currentTurn = -1;
             isMatchInProgress = true;
             ChangeTurn();
         }
@@ -82,7 +84,8 @@ namespace Assets.Scripts.Modules
             if (!isMatchInProgress)
                 yield break;
 
-            currentTurn.Value = (currentTurn.Value + 1) % (players.Count + enemies.Count); 
+            currentTurn = (currentTurn + 1) % (players.Count + enemies.Count);
+            CharacterOnTurn.Value = GetCharacterOnTurn();
 
             if (turnTimerCoroutine != null)
                 StopCoroutine(turnTimerCoroutine);
@@ -91,7 +94,7 @@ namespace Assets.Scripts.Modules
 
             turnTimerCoroutine = StartCoroutine(StartRoundTimer());
 
-            if (currentTurn.Value >= players.Count)
+            if (currentTurn >= players.Count)
                 EnemyAction();
         }
 
@@ -109,16 +112,30 @@ namespace Assets.Scripts.Modules
             ChangeTurn();
         }
 
+        private BaseCharacterController GetCharacterOnTurn()
+        {
+            if (currentTurn >= players.Count)
+            {
+                int enemyIndex = currentTurn - players.Count;
+                uint enemyId = enemies.Keys.ToList()[enemyIndex];
+
+                return enemies[enemyId];
+            }
+
+            uint playerId = players.Keys.ToList()[currentTurn];
+            return players[playerId];
+        }
+
         private bool IsOnTurn(PlayerController player)
         {
             int index = players.Keys.ToList().IndexOf(player.GetPlayerCharacter().GetId());
-            return currentTurn.Value == index;
+            return currentTurn == index;
         }
 
         private bool IsOnTurn(EnemyController enemy)
         {
             int index = (enemies.Keys.ToList().IndexOf(enemy.Id) * -1) + players.Count;
-            return currentTurn.Value == index;
+            return currentTurn == index;
         }
 
         public bool IsValidAttack(PlayerController attacker, uint enemyId)
@@ -164,11 +181,12 @@ namespace Assets.Scripts.Modules
 
         private void EnemyAction()
         {
-            int enemyIndex = currentTurn.Value - players.Count;
-            uint enemyId = enemies.Keys.ToList()[enemyIndex];
+            EnemyController enemy = CharacterOnTurn.Value as EnemyController;
 
-            EnemyController enemy = enemies[enemyId];
+            if (enemy == null)
+                return;
 
+            int enemyIndex = currentTurn - players.Count;
             uint targetId = PickTarget(enemyIndex);
 
             AttackPlayer(enemy, targetId);
