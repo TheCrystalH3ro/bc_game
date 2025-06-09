@@ -43,6 +43,8 @@ namespace Assets.Scripts.Controllers
 
         protected bool IsInCombat = false;
 
+        private int BASE_DAMAGE = 10;
+
         public string ActiveScene { get; set; } = SceneModule.MAIN_SCENE_NAME;
 
         public static event Action<PlayerController> PlayerSpawned;
@@ -343,6 +345,26 @@ namespace Assets.Scripts.Controllers
         {
             ZoneChanged?.Invoke(this, zoneName);
             playerCharacter.Value.SetCurrentScene(zoneName);
+        }
+
+        public int GetDamage(FlashCard flashCard, float remainingTime)
+        {
+            float questionTime = flashCard.GetTime();
+
+            float perfectTime = 0.8f * questionTime;
+            float goodTime = 0.65f * questionTime;
+            float averageTime = 0.4f * questionTime;
+
+            if (remainingTime >= perfectTime)
+                return BASE_DAMAGE * 2;
+
+            if (remainingTime >= goodTime)
+                return Mathf.CeilToInt(BASE_DAMAGE * 1.5f);
+
+            if (remainingTime >= averageTime)
+                return Mathf.FloorToInt(BASE_DAMAGE * 1.2f);
+
+            return BASE_DAMAGE;
         }
     }
 }

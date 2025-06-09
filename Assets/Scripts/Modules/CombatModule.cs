@@ -40,6 +40,8 @@ namespace Assets.Scripts.Modules
         private Coroutine turnTimerCoroutine;
         private Coroutine questionTimerCoroutine;
 
+        private float remainingQuestionTime;
+
         private readonly SyncVar<BaseCharacterController> CharacterOnTurn = new(new SyncTypeSettings());
         private bool actionFinished = false;
 
@@ -133,7 +135,7 @@ namespace Assets.Scripts.Modules
 
         private IEnumerator StartQuestionTimer()
         {
-            float remainingQuestionTime = currentQuestion.GetTime();
+            remainingQuestionTime = currentQuestion.GetTime();
             OnTimerStarted((int) Math.Floor(remainingQuestionTime));
 
             while (remainingQuestionTime > 0)
@@ -274,8 +276,10 @@ namespace Assets.Scripts.Modules
             if (enemy == null)
                 return;
 
+            int damage = player.GetDamage(currentQuestion, remainingQuestionTime);
+
             HealthModule enemyHealth = enemy.GetComponent<HealthModule>();
-            int enemyHp = enemyHealth.TakeHP(10);
+            int enemyHp = enemyHealth.TakeHP(damage);
 
             if (enemyHp <= 0)
                 EnemyDeath(enemy);
