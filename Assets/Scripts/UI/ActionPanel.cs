@@ -1,10 +1,12 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.Scripts.UI
 {
     public class ActionPanel : MonoBehaviour
     {
-        [SerializeField] private ActionButtons buttons;
+        [SerializeField] private ActionButtons actions;
+        [SerializeField] private AnswerButtonsList answerButtons;
 
         private GameObject activePanel;
 
@@ -18,13 +20,24 @@ namespace Assets.Scripts.UI
             if (activePanel != null)
                 activePanel.SetActive(false);
 
-            buttons.gameObject.SetActive(true);
-            activePanel = buttons.gameObject;
+            actions.gameObject.SetActive(true);
+            activePanel = actions.gameObject;
         }
 
         public void SetButtonsActive(bool active)
         {
-            buttons.SetEnabled(active);
+            actions.SetEnabled(active);
+        }
+
+        public void SetAnswers(Dictionary<uint, string> answers)
+        {
+            if (activePanel != null)
+                activePanel.SetActive(false);
+
+            activePanel = answerButtons.gameObject;
+            answerButtons.gameObject.SetActive(true);
+
+            answerButtons.SetAnswers(answers);
         }
     }
 }

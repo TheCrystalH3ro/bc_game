@@ -27,5 +27,10 @@ namespace Assets.Scripts.UI
         {
             SetText(character.ToString() + " was defeated.");
         }
+
+        public void SetQuestion(string question)
+        {
+            SetText("Question : " + question);
+        }
     }
 }

@@ -137,8 +137,22 @@ namespace Assets.Scripts.Controllers.Server
             if (!combatModule.IsValidAttack(player, enemyId))
                 return;
 
-            PlayerAttack(player.GetPlayerCharacter().GetId(), enemyId);
             combatModule.AttackEnemy(player, enemyId);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void AnswerQuestion(uint answerId, NetworkConnection sender = null)
+        {
+            PlayerController player = PlayerController.FindByConnection(sender);
+            CombatModule combatModule = instances[player.Owner];
+
+            if (!combatModule.IsValidAnswer(player))
+                return;
+
+            EnemyController enemy = combatModule.GetCurrentTarget() as EnemyController;
+
+            PlayerAttack(player.GetPlayerCharacter().GetId(), enemy.Id);
+            combatModule.AnswerQuestion(player, answerId);
         }
 
         [ObserversRpc]

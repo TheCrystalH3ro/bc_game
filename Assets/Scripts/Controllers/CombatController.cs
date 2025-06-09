@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,12 +32,15 @@ namespace Assets.Scripts.Controllers
 
         private Coroutine roundTimerCoroutine = null;
         private bool IsSelectingTarget = false;
+        private bool isAnsweringQuestion = false;
+        private BaseCharacterController characterOnTurn;
 
         void OnEnable()
         {
             PlayerController.PlayerSpawned += OnPlayerSpawned;
             EnemyController.EnemySpawned += OnEnemySpawned;
             CombatModule.CombatStarted += StartCombat;
+            CombatModule.QuestionCreated += OnQuestionCreated;
         }
 
         void OnDisable()
@@ -44,6 +48,7 @@ namespace Assets.Scripts.Controllers
             PlayerController.PlayerSpawned -= OnPlayerSpawned;
             EnemyController.EnemySpawned -= OnEnemySpawned;
             CombatModule.CombatStarted -= StartCombat;
+            CombatModule.QuestionCreated -= OnQuestionCreated;
         }
 
         void Start()
@@ -85,9 +90,9 @@ namespace Assets.Scripts.Controllers
             CombatUIController.Singleton.LoadCharacter(player);
         }
 
-        private IEnumerator RoundTimer()
+        private IEnumerator RoundTimer(int maxTime)
         {
-            int remainingTurnTime = CombatModule.Instance.ROUND_TIME;
+            int remainingTurnTime = maxTime;
 
             while (remainingTurnTime >= 0)
             {
@@ -99,16 +104,20 @@ namespace Assets.Scripts.Controllers
             }
         }
 
-        private void TurnChanged(BaseCharacterController prev, BaseCharacterController next, bool asServer)
+        private void StartTimer(int maxTime)
         {
-
             if (roundTimerCoroutine != null)
                 StopCoroutine(roundTimerCoroutine);
 
-            roundTimerCoroutine = StartCoroutine(RoundTimer());
+            CombatUIController.Singleton.SetRoundTime(maxTime);
+            roundTimerCoroutine = StartCoroutine(RoundTimer(maxTime));
+        }
 
-            if (IsSelectingTarget)
-                TargetSelected();
+        private void TurnChanged(BaseCharacterController prev, BaseCharacterController next, bool asServer)
+        {
+            characterOnTurn = next;
+
+            StartTimer(CombatModule.Instance.ROUND_TIME);
 
             CombatUIController.Singleton.SetCharacterTurn(next);
 
@@ -117,7 +126,15 @@ namespace Assets.Scripts.Controllers
             if (!player.Equals(next))
             {
                 if (player.Equals(prev))
+                {
+                    if (IsSelectingTarget)
+                        TargetSelected();
+
+                    if (isAnsweringQuestion)
+                        QuestionAnswered();
+
                     CombatUIController.Singleton.SetButtonsActive(false);
+                }
 
                 return;
             }
@@ -189,6 +206,30 @@ namespace Assets.Scripts.Controllers
             TargetSelected();
 
             CombatServerController.Singleton.AttackEnemy(targetId);
+        }
+
+        private void OnQuestionCreated(FlashCard flashCard)
+        {
+            isAnsweringQuestion = true;
+            StartTimer((int) Math.Floor(flashCard.GetTime()));
+
+            CombatUIController.Singleton.SetQuestion(flashCard.GetQuestion(), flashCard.GetAnswers());
+        }
+
+        public void AnswerQuestion(uint answerId)
+        {
+            if (!characterOnTurn.Equals(PlayerController.Singleton))
+                return;
+
+            QuestionAnswered();
+
+            CombatServerController.Singleton.AnswerQuestion(answerId);
+        }
+
+        private void QuestionAnswered()
+        {
+            isAnsweringQuestion = false;
+            CombatUIController.Singleton.OpenButtonsPanel();
         }
 
         public void PlayerAttack(uint playerId, uint enemyId)

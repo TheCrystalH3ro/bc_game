@@ -5,6 +5,7 @@ using System.Linq;
 using Assets.Scripts.Controllers;
 using Assets.Scripts.Controllers.Server;
 using Assets.Scripts.Models;
+using FishNet.Connection;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using Unity.VisualScripting;
@@ -29,21 +30,27 @@ namespace Assets.Scripts.Modules
 
         public int ROUND_TIME = 10;
 
-        private bool isMatchInProgress = false;
+        private bool isRoundTimeRunning = false;
+        private bool isQuestionTimeRunning = false;
 
         private Dictionary<uint, PlayerController> players;
         private Dictionary<uint, EnemyController> enemies;
         private Dictionary<uint, EnemyController> deadEnemies = new();
 
         private Coroutine turnTimerCoroutine;
+        private Coroutine questionTimerCoroutine;
 
         private readonly SyncVar<BaseCharacterController> CharacterOnTurn = new(new SyncTypeSettings());
 
         private int currentTurn;
 
+        private FlashCard currentQuestion;
+        private BaseCharacterController currentTarget;
+
         public UnityEvent<EnemyController, PlayerController> EnemyAttack;
 
         public static event Action CombatStarted;
+        public static event Action<FlashCard> QuestionCreated;
         public UnityEvent<CombatModule, List<PlayerController>> CombatEnded;
         public UnityEvent<PlayerController> PlayerEliminated;
 
@@ -70,20 +77,17 @@ namespace Assets.Scripts.Modules
             this.players = players.ToDictionary(player => player.GetPlayerCharacter().GetId());
             this.enemies = enemies.ToDictionary(enemy => enemy.Id);
             currentTurn = -1;
-            isMatchInProgress = true;
             ChangeTurn();
         }
 
         private void ChangeTurn()
         {
+            isRoundTimeRunning = true;
             StartCoroutine(ChangingTurnProcess());
         }
 
         private IEnumerator ChangingTurnProcess()
         {
-            if (!isMatchInProgress)
-                yield break;
-
             currentTurn = (currentTurn + 1) % (players.Count + enemies.Count);
             CharacterOnTurn.Value = GetCharacterOnTurn();
 
@@ -107,9 +111,44 @@ namespace Assets.Scripts.Modules
                 yield return new WaitForSeconds(1f);
 
                 remainingTurnTime--;
+
+                if (!isRoundTimeRunning)
+                    yield break;
             }
 
             ChangeTurn();
+        }
+
+        private void StopRoundTimer()
+        {
+            isRoundTimeRunning = false;
+            StopCoroutine(turnTimerCoroutine);
+        }
+
+        private IEnumerator StartQuestionTimer()
+        {
+            float remainingQuestionTime = currentQuestion.GetTime();
+
+            while (remainingQuestionTime > 0)
+            {
+                yield return new WaitForSeconds(1f);
+
+                remainingQuestionTime--;
+
+                if (!isQuestionTimeRunning)
+                    yield break;
+            }
+
+            isQuestionTimeRunning = false;
+            QuestionAnswerFailed();
+        }
+
+        private void StopQuestionTimer()
+        {
+            isQuestionTimeRunning = false;
+
+            if (questionTimerCoroutine != null)
+                StopCoroutine(questionTimerCoroutine);
         }
 
         private BaseCharacterController GetCharacterOnTurn()
@@ -138,6 +177,11 @@ namespace Assets.Scripts.Modules
             return currentTurn == index;
         }
 
+        public BaseCharacterController GetCurrentTarget()
+        {
+            return currentTarget;
+        }
+
         public bool IsValidAttack(PlayerController attacker, uint enemyId)
         {
             if (!players.Values.Contains(attacker))
@@ -154,9 +198,61 @@ namespace Assets.Scripts.Modules
             return enemies.ContainsValue(enemy);
         }
 
+        public bool IsValidAnswer(PlayerController player)
+        {
+            if (!players.Values.Contains(player))
+                return false;
+
+            if (!IsOnTurn(player))
+                return false;
+
+            if (currentQuestion == null || currentTarget == null || currentTarget is not EnemyController)
+                return false;
+
+            return true;
+        }
+
         public void AttackEnemy(PlayerController attacker, uint enemyId)
         {
             EnemyController enemy = enemies[enemyId];
+
+            currentTarget = enemy;
+
+            StopRoundTimer();
+
+            GenerateQuestion();
+        }
+
+        private void GenerateQuestion()
+        {
+            currentQuestion = FlashCardModule.Singleton.GetFlashCard();
+
+            SendQuestion(CharacterOnTurn.Value.Owner, currentQuestion);
+
+            isQuestionTimeRunning = true;
+            questionTimerCoroutine = StartCoroutine(StartQuestionTimer());
+        }
+
+        [TargetRpc]
+        private void SendQuestion(NetworkConnection client, FlashCard flashCard)
+        {
+            QuestionCreated?.Invoke(flashCard);
+        } 
+
+        public void AnswerQuestion(PlayerController player, uint answer)
+        {
+            StopQuestionTimer();
+
+            if (!currentQuestion.IsCorrectAnswer(answer))
+            {
+                QuestionAnswerFailed();
+                return;
+            }
+
+            EnemyController enemy = currentTarget as EnemyController;
+
+            if (enemy == null)
+                return;
 
             HealthModule enemyHealth = enemy.GetComponent<HealthModule>();
             int enemyHp = enemyHealth.TakeHP(10);
@@ -164,6 +260,16 @@ namespace Assets.Scripts.Modules
             if (enemyHp <= 0)
                 EnemyDeath(enemy);
 
+            currentQuestion = null;
+            currentTarget = null;
+
+            ChangeTurn();
+        }
+
+        private void QuestionAnswerFailed()
+        {
+            currentQuestion = null;
+            currentTarget = null;
             ChangeTurn();
         }
 
@@ -230,7 +336,7 @@ namespace Assets.Scripts.Modules
 
         private void EndCombat(bool playerWon)
         {
-            isMatchInProgress = false;
+            isRoundTimeRunning = false;
 
             CombatEnded?.Invoke(this, players.Values.ToList());
 

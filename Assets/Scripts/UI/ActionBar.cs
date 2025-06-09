@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Assets.Scripts.Controllers;
 using UnityEngine;
 
@@ -23,9 +24,20 @@ namespace Assets.Scripts.UI
             actionLog.SetCharacterDeath(character);
         }
 
+        public void OpenButtons()
+        {
+            actionPanel.OpenButtons();    
+        }
+
         public void SetButtonsActive(bool active)
         {
             actionPanel.SetButtonsActive(active);
+        }
+
+        public void SetQuestion(string question, Dictionary<uint, string> answers)
+        {
+            actionLog.SetQuestion(question);
+            actionPanel.SetAnswers(answers);
         }
     }
 }

@@ -65,9 +65,19 @@ namespace Assets.Scripts.UI.Controllers
             actionBar.SetCharacterDeath(character);
         }
 
+        public void OpenButtonsPanel()
+        {
+            actionBar.OpenButtons();
+        }
+
         public void SetButtonsActive(bool active)
         {
             actionBar.SetButtonsActive(active);
+        }
+
+        public void SetQuestion(string question, Dictionary<uint, string> answers)
+        {
+            actionBar.SetQuestion(question, answers);
         }
     }
 }
