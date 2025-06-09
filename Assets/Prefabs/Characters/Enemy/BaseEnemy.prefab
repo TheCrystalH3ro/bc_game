@@ -367,6 +367,7 @@ MonoBehaviour:
   _componentIndexCache: 1
   _addedNetworkObject: {fileID: 7502699605544101477}
   _networkObjectCache: {fileID: 7502699605544101477}
+  floatTextPrefab: {fileID: 8897392211876304230, guid: df385db905f9d69489bf087ba3069038, type: 3}
   whiteFlashDuration: 0.05
   redFlashDuration: 0.1
   enemyName: Base Enemy

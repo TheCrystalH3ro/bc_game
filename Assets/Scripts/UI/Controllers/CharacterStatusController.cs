@@ -23,7 +23,7 @@ namespace Assets.Scripts.UI.Controllers
             healthIndicator.SetValue(character.GetHealth());
         }
 
-        public void UpdateHealth(int health)
+        public void UpdateHealth(int amount, int health)
         {
             healthIndicator.SetValue(health);
         }

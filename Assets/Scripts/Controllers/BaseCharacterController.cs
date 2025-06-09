@@ -1,6 +1,7 @@
 using System.Collections;
 using Assets.Scripts.Models;
 using Assets.Scripts.Modules;
+using Assets.Scripts.UI;
 using FishNet.Component.Transforming;
 using FishNet.Object;
 using UnityEngine;
@@ -12,6 +13,7 @@ namespace Assets.Scripts.Controllers
         protected SpriteRenderer spriteRenderer;
         protected Animator animator;
 
+        [SerializeField] private FloatText floatTextPrefab;
         [SerializeField] private float whiteFlashDuration = 0.05f;
         [SerializeField] private float redFlashDuration = 0.1f;
 
@@ -90,8 +92,12 @@ namespace Assets.Scripts.Controllers
             return new(id, name, level, health, maxHealth, sprite);
         }
 
-        protected void OnHitReceived(int hp)
+        protected void OnHitReceived(int amount, int hp)
         {
+            FloatText floatText = Instantiate(floatTextPrefab, gameObject.transform);
+            floatText.SetText("- " + amount);
+            floatText.SetColor(Color.red);
+
             StartCoroutine(HitAnimation());
         }
 

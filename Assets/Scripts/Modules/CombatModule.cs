@@ -55,6 +55,7 @@ namespace Assets.Scripts.Modules
         public static event Action CombatStarted;
         public static event Action<FlashCard> QuestionCreated;
         public static event Action<int> TimerStarted;
+        public UnityEvent<EnemyController> AttackFailed;
         public UnityEvent<PlayerController, bool> QuestionAnswered;
         public UnityEvent<CombatModule, List<PlayerController>> CombatEnded;
         public UnityEvent<PlayerController> PlayerEliminated;
@@ -293,6 +294,7 @@ namespace Assets.Scripts.Modules
         private void QuestionAnswerFailed()
         {
             QuestionAnswered?.Invoke(CharacterOnTurn.Value as PlayerController, false);
+            AttackFailed?.Invoke(currentTarget as EnemyController);
 
             currentQuestion = null;
             currentTarget = null;

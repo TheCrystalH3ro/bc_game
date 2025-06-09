@@ -112,6 +112,7 @@ namespace Assets.Scripts.Controllers.Server
 
             combatModule.EnemyAttack.AddListener(OnEnemyAttack);
             combatModule.CombatEnded.AddListener(OnCombatEnded);
+            combatModule.AttackFailed.AddListener(OnAttackFailed);
             combatModule.PlayerEliminated.AddListener(OnPlayerDeath);
             combatModule.QuestionAnswered.AddListener(OnQuestionAnswered);
         }
@@ -171,6 +172,17 @@ namespace Assets.Scripts.Controllers.Server
         private void PlayerAttack(uint playerId, uint enemyId)
         {
             CombatController.Singleton.PlayerAttack(playerId, enemyId);
+        }
+
+        private void OnAttackFailed(EnemyController target)
+        {
+            AttackMissed(target.Id);
+        }
+
+        [ObserversRpc]
+        private void AttackMissed(uint enemyId)
+        {
+            CombatController.Singleton.AttackMissed(enemyId);
         }
 
         private void OnEnemyAttack(EnemyController enemy, PlayerController player)

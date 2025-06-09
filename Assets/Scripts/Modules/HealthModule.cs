@@ -10,8 +10,8 @@ namespace Assets.Scripts.Models
         [SerializeField] private int maxHp;
         private readonly SyncVar<int> currentHp = new(new SyncTypeSettings());
 
-        public UnityEvent<int> OnHeal;
-        public UnityEvent<int> OnHurt;
+        public UnityEvent<int, int> OnHeal;
+        public UnityEvent<int, int> OnHurt;
         public UnityEvent OnDeath;
 
         public override void OnStartNetwork()
@@ -29,14 +29,14 @@ namespace Assets.Scripts.Models
         {
             if(next < prev)
             {
-                OnHurt?.Invoke(next);
+                OnHurt?.Invoke(prev - next, next);
 
                 if(next <= 0)
                     OnDeath?.Invoke();
             }
 
             if(next > prev)
-                OnHeal?.Invoke(next);
+                OnHeal?.Invoke(next - prev, next);
         }
 
         public int GetMaxHP()

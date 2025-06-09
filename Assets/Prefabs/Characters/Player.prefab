@@ -457,12 +457,9 @@ MonoBehaviour:
   _componentIndexCache: 0
   _addedNetworkObject: {fileID: 7502699605544101477}
   _networkObjectCache: {fileID: 7502699605544101477}
-  rb: {fileID: 8012232266985887796}
-  animator: {fileID: 3263957809805876574}
-  networkAnimator: {fileID: 8541999166470816635}
-  knightAnimator: {fileID: 9100000, guid: 6726e66cae56e6640a08510a3e8db17f, type: 2}
-  wizardAnimator: {fileID: 9100000, guid: e4aa3edf40e07374f9d0254095478fc9, type: 2}
-  rogueAnimator: {fileID: 9100000, guid: ceb72158649d55d4d8cfa5fd7e8c517d, type: 2}
+  floatTextPrefab: {fileID: 8897392211876304230, guid: df385db905f9d69489bf087ba3069038, type: 3}
+  whiteFlashDuration: 0.05
+  redFlashDuration: 0.1
   playerName: {fileID: 4430801892695631280}
   playerStatusPrefab: {fileID: 4296549916899931298, guid: d6328fbf10221284fbefa8321a2fcd70, type: 3}
   hoverCursor: {fileID: 2800000, guid: c5533c9859e0012459630c3e790bf542, type: 3}
@@ -494,6 +491,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e75115747755dca48bbad72c8cb84563, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 7502699605544101477}
+  _networkObjectCache: {fileID: 0}
   maxHp: 100
   OnHeal:
     m_PersistentCalls:

@@ -5,6 +5,7 @@ using System.Linq;
 using Assets.Scripts.Controllers.Server;
 using Assets.Scripts.Models;
 using Assets.Scripts.Modules;
+using Assets.Scripts.UI;
 using Assets.Scripts.UI.Controllers;
 using FishNet;
 using UnityEngine;
@@ -26,6 +27,7 @@ namespace Assets.Scripts.Controllers
         }
 
         [SerializeField] private GameObject hitPrefab;
+        [SerializeField] private FloatText floatTextPrefab;
 
         private Dictionary<uint, PlayerController> players = new();
         private Dictionary<uint, EnemyController> enemies = new();
@@ -283,6 +285,17 @@ namespace Assets.Scripts.Controllers
             hitPrefab.GetComponent<SpriteRenderer>().flipX = false;
 
             Instantiate(hitPrefab, enemy.transform);
+        }
+
+        public void AttackMissed(uint enemyId)
+        {
+            EnemyController enemy = enemies[enemyId];
+
+            if (enemy == null)
+                return;
+
+            FloatText floatText = Instantiate(floatTextPrefab, enemy.transform);
+            floatText.SetText("Missed");
         }
 
         public void EnemyAttack(uint enemyId, uint playerId)

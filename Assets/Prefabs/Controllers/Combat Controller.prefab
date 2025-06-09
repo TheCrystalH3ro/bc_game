@@ -46,6 +46,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitPrefab: {fileID: 8115020172338114974, guid: 3569a4732da7d6e4899ad3c756096023, type: 3}
+  floatTextPrefab: {fileID: 8897392211876304230, guid: df385db905f9d69489bf087ba3069038, type: 3}
 --- !u!114 &801730227593568698
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -60,3 +61,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerStatus: {fileID: 0}
   enemyStatus: {fileID: 0}
+  roundTimer: {fileID: 0}
+  actionBar: {fileID: 0}
