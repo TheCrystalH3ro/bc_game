@@ -51,6 +51,7 @@ namespace Assets.Scripts.Modules
 
         public static event Action CombatStarted;
         public static event Action<FlashCard> QuestionCreated;
+        public static event Action<int> TimerStarted;
         public UnityEvent<CombatModule, List<PlayerController>> CombatEnded;
         public UnityEvent<PlayerController> PlayerEliminated;
 
@@ -128,6 +129,7 @@ namespace Assets.Scripts.Modules
         private IEnumerator StartQuestionTimer()
         {
             float remainingQuestionTime = currentQuestion.GetTime();
+            OnTimerStarted((int) Math.Floor(remainingQuestionTime));
 
             while (remainingQuestionTime > 0)
             {
@@ -149,6 +151,12 @@ namespace Assets.Scripts.Modules
 
             if (questionTimerCoroutine != null)
                 StopCoroutine(questionTimerCoroutine);
+        }
+
+        [ObserversRpc]
+        private void OnTimerStarted(int time)
+        {
+            TimerStarted?.Invoke(time);
         }
 
         private BaseCharacterController GetCharacterOnTurn()

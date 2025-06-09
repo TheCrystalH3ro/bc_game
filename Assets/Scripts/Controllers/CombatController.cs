@@ -41,6 +41,7 @@ namespace Assets.Scripts.Controllers
             EnemyController.EnemySpawned += OnEnemySpawned;
             CombatModule.CombatStarted += StartCombat;
             CombatModule.QuestionCreated += OnQuestionCreated;
+            CombatModule.TimerStarted += OnTimerStarted;
         }
 
         void OnDisable()
@@ -49,6 +50,7 @@ namespace Assets.Scripts.Controllers
             EnemyController.EnemySpawned -= OnEnemySpawned;
             CombatModule.CombatStarted -= StartCombat;
             CombatModule.QuestionCreated -= OnQuestionCreated;
+            CombatModule.TimerStarted -= OnTimerStarted;
         }
 
         void Start()
@@ -111,6 +113,14 @@ namespace Assets.Scripts.Controllers
 
             CombatUIController.Singleton.SetRoundTime(maxTime);
             roundTimerCoroutine = StartCoroutine(RoundTimer(maxTime));
+        }
+
+        private void OnTimerStarted(int time)
+        {
+            if (PlayerController.Singleton.Equals(characterOnTurn))
+                return;
+
+            StartTimer(time);
         }
 
         private void TurnChanged(BaseCharacterController prev, BaseCharacterController next, bool asServer)
