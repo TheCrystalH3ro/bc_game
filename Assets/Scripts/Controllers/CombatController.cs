@@ -29,8 +29,8 @@ namespace Assets.Scripts.Controllers
         [SerializeField] private GameObject hitPrefab;
         [SerializeField] private FloatText floatTextPrefab;
 
-        private Dictionary<uint, PlayerController> players = new();
-        private Dictionary<uint, EnemyController> enemies = new();
+        private Dictionary<uint, BaseCharacterController> teamA = new();
+        private Dictionary<uint, BaseCharacterController> teamB = new();
 
         private Coroutine roundTimerCoroutine = null;
         private bool IsSelectingTarget = false;
@@ -66,10 +66,11 @@ namespace Assets.Scripts.Controllers
 
         public void Initialize()
         {
-            players = FindObjectsByType<PlayerController>(FindObjectsSortMode.InstanceID).ToDictionary(player => player.GetPlayerCharacter().GetId());
+            List<PlayerController> players = FindObjectsByType<PlayerController>(FindObjectsSortMode.InstanceID).ToList();
 
-            foreach (PlayerController player in players.Values)
+            foreach (PlayerController player in players)
             {
+                teamA.Add(player.GetPlayerCharacter().GetId(), player);
                 PlacePlayer(player);
             }
         }
@@ -86,7 +87,7 @@ namespace Assets.Scripts.Controllers
 
             GameObject[] playerSlots = GameObject.FindGameObjectsWithTag("PlayerSlot").OrderBy(slot => slot.name).ToArray();
 
-            GameObject playerSlot = playerSlots[players.Count - 1];
+            GameObject playerSlot = playerSlots[teamA.Count - 1];
 
             player.gameObject.transform.position = playerSlot.transform.position;
 
@@ -161,36 +162,27 @@ namespace Assets.Scripts.Controllers
 
         private void OnPlayerSpawned(PlayerController player)
         {
-            players.Add(player.GetPlayerCharacter().GetId(), player);
+            teamA.Add(player.GetPlayerCharacter().GetId(), player);
             PlacePlayer(player);
-            OnPlayerDeath(player);
+            OnDeath(player, teamA);
         }
 
-        private void OnPlayerDeath(PlayerController player)
+        private void OnDeath(BaseCharacterController character, Dictionary<uint, BaseCharacterController> team)
         {
-            player.GetComponent<HealthModule>().OnDeath.AddListener(() =>
+            character.GetComponent<HealthModule>().OnDeath.AddListener(() =>
             {
-                players.Remove(player.GetPlayerCharacter().GetId());
-                CombatUIController.Singleton.SetCharacterDeath(player);
+                team.Remove(character.GetId());
+                CombatUIController.Singleton.SetCharacterDeath(character);
             });
         }
 
         private void OnEnemySpawned(EnemyController enemy)
         {
-            enemies.Add(enemy.Id, enemy);
+            teamB.Add(enemy.Id, enemy);
             enemy.FlipDirection(true);
             enemy.EnterCombat();
-            OnEnemyDeath(enemy);
+            OnDeath(enemy, teamB);
             CombatUIController.Singleton.LoadCharacter(enemy);
-        }
-
-        private void OnEnemyDeath(EnemyController enemy)
-        {
-            enemy.GetComponent<HealthModule>().OnDeath.AddListener(() =>
-            {
-                enemies.Remove(enemy.Id);
-                CombatUIController.Singleton.SetCharacterDeath(enemy);
-            });
         }
 
         public void Attack()
@@ -202,9 +194,9 @@ namespace Assets.Scripts.Controllers
         {
             IsSelectingTarget = true;
 
-            foreach (EnemyController enemy in enemies.Values)
+            foreach (BaseCharacterController target in teamB.Values)
             {
-                enemy.SetSelectable(true);
+                target.SetSelectable(true);
             }
         }
 
@@ -212,9 +204,9 @@ namespace Assets.Scripts.Controllers
         {
             IsSelectingTarget = false;
 
-            foreach (EnemyController enemy in enemies.Values)
+            foreach (BaseCharacterController target in teamB.Values)
             {
-                enemy.SetSelectable(false);
+                target.SetSelectable(false);
             }
         }
 
@@ -222,7 +214,7 @@ namespace Assets.Scripts.Controllers
         {
             TargetSelected();
 
-            CombatServerController.Singleton.AttackEnemy(targetId);
+            CombatServerController.Singleton.Attack(targetId);
         }
 
         private void OnQuestionCreated(FlashCard flashCard)
@@ -272,47 +264,58 @@ namespace Assets.Scripts.Controllers
 
         public void PlayerAttack(uint playerId, uint enemyId)
         {
-            PlayerController player = players[playerId];
-            EnemyController enemy = enemies[enemyId];
+            BaseCharacterController attacker = teamA[playerId];
+            BaseCharacterController target = teamB[enemyId];
 
-            if (enemy == null || player == null)
+            if (target == null || attacker == null)
                 return;
 
-            CombatUIController.Singleton.SetCharacterAttack(player, enemy);
+            CombatUIController.Singleton.SetCharacterAttack(attacker, target);
 
-            RuntimeAnimatorController hitAnimator = ClassAnimationController.Singleton.GetCharacterAttackAnimatorController(player.GetPlayerCharacter().GetPlayerClass());
+            RuntimeAnimatorController hitAnimator = attacker.GetHitAnimator();
             hitPrefab.GetComponent<Animator>().runtimeAnimatorController = hitAnimator;
             hitPrefab.GetComponent<SpriteRenderer>().flipX = false;
 
-            Instantiate(hitPrefab, enemy.transform);
+            Instantiate(hitPrefab, target.transform);
         }
 
-        public void AttackMissed(uint enemyId)
+        public void PlayerAttackMissed(uint targetId)
         {
-            EnemyController enemy = enemies[enemyId];
+            BaseCharacterController target = teamB[targetId];
 
-            if (enemy == null)
+            if (target == null)
                 return;
 
-            FloatText floatText = Instantiate(floatTextPrefab, enemy.transform);
+            FloatText floatText = Instantiate(floatTextPrefab, target.transform);
+            floatText.SetText("Missed");
+        }
+
+        public void EnemyAttackMissed(uint targetId)
+        {
+            BaseCharacterController target = teamA[targetId];
+
+            if (target == null)
+                return;
+
+            FloatText floatText = Instantiate(floatTextPrefab, target.transform);
             floatText.SetText("Missed");
         }
 
         public void EnemyAttack(uint enemyId, uint playerId)
         {
-            EnemyController enemy = enemies[enemyId];
-            PlayerController player = players[playerId];
+            BaseCharacterController attacker = teamB[enemyId];
+            BaseCharacterController target = teamA[playerId];
 
-            if (enemy == null || player == null)
+            if (attacker == null || target == null)
                 return;
 
-            CombatUIController.Singleton.SetCharacterAttack(enemy, player);
+            CombatUIController.Singleton.SetCharacterAttack(attacker, target);
 
-            RuntimeAnimatorController hitAnimator = enemy.GetHitAnimator();
+            RuntimeAnimatorController hitAnimator = attacker.GetHitAnimator();
             hitPrefab.GetComponent<Animator>().runtimeAnimatorController = hitAnimator;
             hitPrefab.GetComponent<SpriteRenderer>().flipX = true;
 
-            Instantiate(hitPrefab, player.transform);
+            Instantiate(hitPrefab, target.transform);
         }
     }
 }

@@ -27,15 +27,15 @@ namespace Assets.Scripts.Models
 
         private void HPChanged(int prev, int next, bool asServer)
         {
-            if(next < prev)
+            if (next < prev)
             {
                 OnHurt?.Invoke(prev - next, next);
 
-                if(next <= 0)
+                if (next <= 0)
                     OnDeath?.Invoke();
             }
 
-            if(next > prev)
+            if (next > prev)
                 OnHeal?.Invoke(next - prev, next);
         }
 
@@ -68,6 +68,11 @@ namespace Assets.Scripts.Models
         public int TakeHP(int amount)
         {
             return SetHP(currentHp.Value - amount);
+        }
+
+        public void Respawn()
+        {
+            currentHp.Value = maxHp;
         }
     }
 }

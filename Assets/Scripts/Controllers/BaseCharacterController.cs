@@ -13,9 +13,13 @@ namespace Assets.Scripts.Controllers
         protected SpriteRenderer spriteRenderer;
         protected Animator animator;
 
+        public Texture2D hoverCursor;
+        [SerializeField] private GameObject selectIndicator;
         [SerializeField] private FloatText floatTextPrefab;
         [SerializeField] private float whiteFlashDuration = 0.05f;
         [SerializeField] private float redFlashDuration = 0.1f;
+
+        public bool IsSelectable { get; private set; }
 
         void Awake()
         {
@@ -25,6 +29,8 @@ namespace Assets.Scripts.Controllers
 
         public abstract bool Equals(BaseCharacterController other);
         public abstract override string ToString();
+
+        public abstract uint GetId();
 
         public void FlipDirection(bool isFlipped)
         {
@@ -127,5 +133,37 @@ namespace Assets.Scripts.Controllers
         {
             animator.SetTrigger("Respawn");
         }
+
+        public void SetSelectable(bool selectable)
+        {
+            IsSelectable = selectable;
+
+            if (!gameObject.TryGetComponent<HoverPointerCursor>(out var hover))
+            {
+                hover = gameObject.AddComponent<HoverPointerCursor>();
+            }
+
+            if (selectable)
+            {
+                selectIndicator.SetActive(true);
+                hover.SetPointerCursor(hoverCursor);
+                return;
+            }
+
+            selectIndicator.SetActive(false);
+            hover.SetPointerCursor(null);
+        }
+
+        public virtual void OnMouseDown()
+        {
+            if (!IsSelectable)
+                return;
+
+            CombatController.Singleton.AttackTarget(GetId());
+        }
+
+        public abstract RuntimeAnimatorController GetHitAnimator();
+
+        public abstract int GetDamage(FlashCard card, float remainingTime);
     }
 }

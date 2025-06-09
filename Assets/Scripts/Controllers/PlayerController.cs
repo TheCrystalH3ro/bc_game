@@ -29,8 +29,6 @@ namespace Assets.Scripts.Controllers
 
         [SerializeField] private GameObject playerStatusPrefab;
 
-        [SerializeField] private Texture2D hoverCursor;
-
         private PlayerStatusController playerStatusController = null;
 
         private readonly SyncVar<PlayerCharacter> playerCharacter = new(new SyncTypeSettings());
@@ -43,7 +41,7 @@ namespace Assets.Scripts.Controllers
 
         protected bool IsInCombat = false;
 
-        private int BASE_DAMAGE = 10;
+        [SerializeField] private int BASE_DAMAGE = 10;
 
         public string ActiveScene { get; set; } = SceneModule.MAIN_SCENE_NAME;
 
@@ -128,6 +126,11 @@ namespace Assets.Scripts.Controllers
             return playerCharacter.Value.GetName();
         }
 
+        public override uint GetId()
+        {
+            return playerCharacter.Value.GetId();
+        }
+
         public static PlayerController FindByConnection(NetworkConnection connection)
         {
             return ObjectUtil.FindFirstByType<PlayerController>(connection.Objects);
@@ -200,8 +203,10 @@ namespace Assets.Scripts.Controllers
             return playerCharacter.Value;
         }
 
-        public void OnMouseDown()
+        public override void OnMouseDown()
         {
+            base.OnMouseDown();
+
             if (IsOwner || IsInCombat) return;
 
             int playerId = OwnerId;
@@ -332,6 +337,9 @@ namespace Assets.Scripts.Controllers
         {
             RespawnPlayerRpc(Owner);
 
+            HealthModule healthModule = GetComponent<HealthModule>();
+            healthModule.Respawn();
+
             OnRespawn();
         }
 
@@ -347,7 +355,7 @@ namespace Assets.Scripts.Controllers
             playerCharacter.Value.SetCurrentScene(zoneName);
         }
 
-        public int GetDamage(FlashCard flashCard, float remainingTime)
+        public override int GetDamage(FlashCard flashCard, float remainingTime)
         {
             float questionTime = flashCard.GetTime();
 
@@ -365,6 +373,11 @@ namespace Assets.Scripts.Controllers
                 return Mathf.FloorToInt(BASE_DAMAGE * 1.2f);
 
             return BASE_DAMAGE;
+        }
+
+        public override RuntimeAnimatorController GetHitAnimator()
+        {
+            return ClassAnimationController.Singleton.GetCharacterAttackAnimatorController(playerCharacter.Value.GetPlayerClass());
         }
     }
 }

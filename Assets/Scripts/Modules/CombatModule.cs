@@ -6,6 +6,7 @@ using Assets.Scripts.Controllers;
 using Assets.Scripts.Controllers.Server;
 using Assets.Scripts.Models;
 using FishNet.Connection;
+using FishNet.Demo.AdditiveScenes;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using Unity.VisualScripting;
@@ -33,8 +34,8 @@ namespace Assets.Scripts.Modules
         private bool isRoundTimeRunning = false;
         private bool isQuestionTimeRunning = false;
 
-        private Dictionary<uint, PlayerController> players;
-        private Dictionary<uint, EnemyController> enemies;
+        private Dictionary<uint, BaseCharacterController> teamA;
+        private Dictionary<uint, BaseCharacterController> teamB;
         private Dictionary<uint, EnemyController> deadEnemies = new();
 
         private Coroutine turnTimerCoroutine;
@@ -50,14 +51,15 @@ namespace Assets.Scripts.Modules
         private FlashCard currentQuestion;
         private BaseCharacterController currentTarget;
 
-        public UnityEvent<EnemyController, PlayerController> EnemyAttack;
+        public UnityEvent<EnemyController, BaseCharacterController> EnemyAttack;
 
         public static event Action CombatStarted;
         public static event Action<FlashCard> QuestionCreated;
         public static event Action<int> TimerStarted;
-        public UnityEvent<EnemyController> AttackFailed;
+        public UnityEvent<EnemyController> PlayerAttackFailed;
+        public UnityEvent<PlayerController> EnemyAttackFailed;
         public UnityEvent<PlayerController, bool> QuestionAnswered;
-        public UnityEvent<CombatModule, List<PlayerController>> CombatEnded;
+        public UnityEvent<CombatModule, List<BaseCharacterController>> CombatEnded;
         public UnityEvent<PlayerController> PlayerEliminated;
 
         public override void OnStartNetwork()
@@ -78,10 +80,23 @@ namespace Assets.Scripts.Modules
             CharacterOnTurn.OnChange -= OnTurnChange;
         }
 
-        public void StartCombat(List<PlayerController> players, List<EnemyController> enemies)
+        private Dictionary<uint, BaseCharacterController> CreateTeam(List<BaseCharacterController> characters)
         {
-            this.players = players.ToDictionary(player => player.GetPlayerCharacter().GetId());
-            this.enemies = enemies.ToDictionary(enemy => enemy.Id);
+            return characters.ToDictionary(character =>
+            {
+                PlayerController player = character as PlayerController;
+                if (player != null)
+                    return player.GetPlayerCharacter().GetId();
+
+                EnemyController enemy = character as EnemyController;
+                return enemy.Id;
+            });
+        }
+
+        public void StartCombat(List<BaseCharacterController> charactersA, List<BaseCharacterController> charactersB)
+        {
+            teamA = CreateTeam(charactersA);
+            teamB = CreateTeam(charactersB);
             currentTurn = -1;
             ChangeTurn();
         }
@@ -96,7 +111,7 @@ namespace Assets.Scripts.Modules
         {
             yield return new WaitForSeconds(waitTime);
 
-            currentTurn = (currentTurn + 1) % (players.Count + enemies.Count);
+            currentTurn = (currentTurn + 1) % (teamA.Count + teamB.Count);
             CharacterOnTurn.Value = GetCharacterOnTurn();
             actionFinished = false;
 
@@ -107,7 +122,7 @@ namespace Assets.Scripts.Modules
 
             turnTimerCoroutine = StartCoroutine(StartRoundTimer());
 
-            if (currentTurn >= players.Count)
+            if (CharacterOnTurn.Value is EnemyController)
                 EnemyAction();
         }
 
@@ -169,28 +184,23 @@ namespace Assets.Scripts.Modules
 
         private BaseCharacterController GetCharacterOnTurn()
         {
-            if (currentTurn >= players.Count)
-            {
-                int enemyIndex = currentTurn - players.Count;
-                uint enemyId = enemies.Keys.ToList()[enemyIndex];
+            uint characterId;
 
-                return enemies[enemyId];
+            if (currentTurn >= teamA.Count)
+            {
+                int index = currentTurn - teamA.Count;
+                characterId = teamB.Keys.ToList()[index];
+
+                return teamB[characterId];
             }
 
-            uint playerId = players.Keys.ToList()[currentTurn];
-            return players[playerId];
+            characterId = teamA.Keys.ToList()[currentTurn];
+            return teamA[characterId];
         }
 
-        private bool IsOnTurn(PlayerController player)
+        private bool IsOnTurn(BaseCharacterController player)
         {
-            int index = players.Keys.ToList().IndexOf(player.GetPlayerCharacter().GetId());
-            return currentTurn == index;
-        }
-
-        private bool IsOnTurn(EnemyController enemy)
-        {
-            int index = (enemies.Keys.ToList().IndexOf(enemy.Id) * -1) + players.Count;
-            return currentTurn == index;
+            return player.Equals(CharacterOnTurn.Value);
         }
 
         public BaseCharacterController GetCurrentTarget()
@@ -198,9 +208,14 @@ namespace Assets.Scripts.Modules
             return currentTarget;
         }
 
-        public bool IsValidAttack(PlayerController attacker, uint enemyId)
+        private bool IsInTeam(Dictionary<uint, BaseCharacterController> team, BaseCharacterController character)
         {
-            if (!players.Values.Contains(attacker))
+            return team.Values.Contains(character);
+        }
+
+        public bool IsValidAttack(BaseCharacterController attacker, uint targetId)
+        {
+            if (!IsInTeam(teamA, attacker) && !IsInTeam(teamB, attacker))
                 return false;
 
             if (!IsOnTurn(attacker))
@@ -209,35 +224,38 @@ namespace Assets.Scripts.Modules
             if (actionFinished)
                 return false;
 
-            if (!enemies.ContainsKey(enemyId))
-                return false;
+            if (IsInTeam(teamA, attacker))
+            {
+                if (!teamB.ContainsKey(targetId))
+                    return false;
 
-            EnemyController enemy = enemies[enemyId];
+                return true;
+            }
 
-            return enemies.ContainsValue(enemy);
-        }
-
-        public bool IsValidAnswer(PlayerController player)
-        {
-            if (!players.Values.Contains(player))
-                return false;
-
-            if (!IsOnTurn(player))
-                return false;
-
-            if (currentQuestion == null || currentTarget == null || currentTarget is not EnemyController)
+            if (!teamA.ContainsKey(targetId))
                 return false;
 
             return true;
         }
 
-        public void AttackEnemy(PlayerController attacker, uint enemyId)
+        public bool IsValidAnswer(PlayerController player)
+        {
+            if (!IsOnTurn(player))
+                return false;
+
+            if (currentQuestion == null || currentTarget == null)
+                return false;
+
+            return true;
+        }
+
+        public void Attack(BaseCharacterController attacker, uint targetId)
         {
             actionFinished = true;
 
-            EnemyController enemy = enemies[enemyId];
+            BaseCharacterController target = IsInTeam(teamA, attacker) ? teamB[targetId] : teamA[targetId];
 
-            currentTarget = enemy;
+            currentTarget = target;
 
             StopRoundTimer();
 
@@ -252,6 +270,10 @@ namespace Assets.Scripts.Modules
 
             isQuestionTimeRunning = true;
             questionTimerCoroutine = StartCoroutine(StartQuestionTimer());
+
+            EnemyController enemy = CharacterOnTurn.Value as EnemyController;
+            if (enemy != null)
+                StartCoroutine(EnemyAnswerQuestion(enemy));
         }
 
         [TargetRpc]
@@ -260,7 +282,7 @@ namespace Assets.Scripts.Modules
             QuestionCreated?.Invoke(flashCard);
         } 
 
-        public void AnswerQuestion(PlayerController player, uint answer)
+        public void AnswerQuestion(BaseCharacterController character, uint answer)
         {
             StopQuestionTimer();
 
@@ -270,20 +292,18 @@ namespace Assets.Scripts.Modules
                 return;
             }
 
-            QuestionAnswered?.Invoke(player, true);
+            PlayerController player = character as PlayerController;
 
-            EnemyController enemy = currentTarget as EnemyController;
+            if(player != null)
+                QuestionAnswered?.Invoke(player, true);
 
-            if (enemy == null)
-                return;
+            int damage = character.GetDamage(currentQuestion, remainingQuestionTime);
 
-            int damage = player.GetDamage(currentQuestion, remainingQuestionTime);
+            HealthModule targetHealth = currentTarget.GetComponent<HealthModule>();
+            int targetHp = targetHealth.TakeHP(damage);
 
-            HealthModule enemyHealth = enemy.GetComponent<HealthModule>();
-            int enemyHp = enemyHealth.TakeHP(damage);
-
-            if (enemyHp <= 0)
-                EnemyDeath(enemy);
+            if (targetHp <= 0)
+                Death(currentTarget);
 
             currentQuestion = null;
             currentTarget = null;
@@ -293,24 +313,44 @@ namespace Assets.Scripts.Modules
 
         private void QuestionAnswerFailed()
         {
-            QuestionAnswered?.Invoke(CharacterOnTurn.Value as PlayerController, false);
-            AttackFailed?.Invoke(currentTarget as EnemyController);
+            PlayerController player = CharacterOnTurn.Value as PlayerController;
+            
+            if (player != null)
+                QuestionAnswered?.Invoke(player, false);
+
+            if (currentTarget is PlayerController)
+                EnemyAttackFailed?.Invoke(currentTarget as PlayerController);
+            else
+                PlayerAttackFailed?.Invoke(currentTarget as EnemyController);
 
             currentQuestion = null;
             currentTarget = null;
+
             ChangeTurn(1.5f);
         }
 
-        private uint PickTarget(int playerIndex)
+        private IEnumerator EnemyAnswerQuestion(EnemyController enemy)
         {
-            List<uint> targets = players.Keys.ToList();
+            if (currentQuestion == null)
+                yield break;
 
-            if (playerIndex >= 0 && playerIndex < targets.Count)
-                return targets[playerIndex];
+            yield return new WaitForSeconds(enemy.GetThinkingTime(currentQuestion));
 
-            playerIndex = UnityEngine.Random.Range(0, targets.Count);
+            EnemyAttack?.Invoke(enemy, currentTarget);
 
-            return targets[playerIndex];
+            AnswerQuestion(enemy, enemy.GetQuestionAnswer(currentQuestion));
+        }
+
+        private uint PickTarget(Dictionary<uint, BaseCharacterController> team, int index)
+        {
+            List<uint> targets = team.Keys.ToList();
+
+            if (index >= 0 && index < targets.Count)
+                return targets[index];
+
+            index = UnityEngine.Random.Range(0, targets.Count);
+
+            return targets[index];
         }
 
         private void EnemyAction()
@@ -320,58 +360,54 @@ namespace Assets.Scripts.Modules
             if (enemy == null)
                 return;
 
-            int enemyIndex = currentTurn - players.Count;
-            uint targetId = PickTarget(enemyIndex);
+            Dictionary<uint, BaseCharacterController> team = IsInTeam(teamA, enemy) ? teamB : teamA;
 
-            AttackPlayer(enemy, targetId);
+            int enemyIndex = currentTurn - teamB.Count;
+            uint targetId = PickTarget(team, enemyIndex);
+
+            Attack(enemy, targetId);
         }
 
-        private void AttackPlayer(EnemyController attacker, uint playerId)
+        private void Death(BaseCharacterController character)
         {
-            PlayerController player = players[playerId];
-            EnemyAttack?.Invoke(attacker, player);
+            Dictionary<uint, BaseCharacterController> team = IsInTeam(teamA, character) ? teamA : teamB;
 
-            HealthModule playerHealth = player.GetComponent<HealthModule>();
-            int playerHp = playerHealth.TakeHP(10);
+            PlayerController player = character as PlayerController;
 
-            if (playerHp <= 0)
-                PlayerDeath(player);
+            bool playerWon = true;
 
-            ChangeTurn();
-        }
+            if (player != null)
+            {
+                PlayerEliminated?.Invoke(player);
+                playerWon = false;
+            }
+            else
+            {
+                EnemyController enemy = character as EnemyController;
+                deadEnemies.Add(enemy.Id, enemy);
+            }
 
-        private void EnemyDeath(EnemyController enemy)
-        {
-            deadEnemies.Add(enemy.Id, enemy);
-            enemies.Remove(enemy.Id);
+            team.Remove(character.GetId());
 
-            if (enemies.Count > 0)
+            if (team.Count > 0)
                 return;
 
-            EndCombat(true);
+            Dictionary<uint, BaseCharacterController> winningTeam = !IsInTeam(teamA, character) ? teamA : teamB;
+
+            EndCombat(winningTeam, playerWon);
         }
 
-        private void PlayerDeath(PlayerController player)
-        {
-            players.Remove(player.GetPlayerCharacter().GetId());
-            PlayerEliminated?.Invoke(player);
-
-            if (players.Count > 0)
-                return;
-
-            EndCombat(false);
-        }
-
-        private void EndCombat(bool playerWon)
+        private void EndCombat(Dictionary<uint, BaseCharacterController> winningTeam, bool playerWon)
         {
             isRoundTimeRunning = false;
 
-            CombatEnded?.Invoke(this, players.Values.ToList());
+            if (playerWon)
+                CombatEnded?.Invoke(this, winningTeam.Values.ToList());
 
             StopCoroutine(turnTimerCoroutine);
 
-            players = new();
-            enemies = new();
+            teamA = new();
+            teamB = new();
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Assets.Scripts.Interfaces;
 using Assets.Scripts.Models;
 using FishNet.Object;
@@ -11,18 +12,16 @@ namespace Assets.Scripts.Controllers.Server
         [SerializeField] private string enemyName;
         [SerializeField] private int enemyLevel;
         [SerializeField] private RuntimeAnimatorController hitAnimator;
-        [SerializeField] private Texture2D hoverCursor;
-        [SerializeField] private GameObject selectIndicator;
 
         public NetworkObject Prefab;
 
         public IEnemy Character { get; private set; }
 
-        public bool IsSelectable { get; private set; }
-
         public uint Id { get; private set; }
 
         public static uint lastId = 0;
+
+        [SerializeField] private int BASE_DAMAGE = 10;
 
         public static event Action<EnemyController> EnemySpawned;
 
@@ -57,42 +56,37 @@ namespace Assets.Scripts.Controllers.Server
             return Character.GetName();
         }
 
+        public override uint GetId()
+        {
+            return Id;
+        }
+
         public override CharacterData ToCharacterData()
         {
             return base.ToCharacterData(Id, Character.GetName(), Character.GetLevel());
         }
 
-        public RuntimeAnimatorController GetHitAnimator()
+        public override RuntimeAnimatorController GetHitAnimator()
         {
             return hitAnimator;
         }
 
-        public void SetSelectable(bool selectable)
+        public float GetThinkingTime(FlashCard flashCard)
         {
-            IsSelectable = selectable;
-
-            if (!gameObject.TryGetComponent<HoverPointerCursor>(out var hover))
-            {
-                hover = gameObject.AddComponent<HoverPointerCursor>();
-            }
-
-            if (selectable)
-            {
-                selectIndicator.SetActive(true);
-                hover.SetPointerCursor(hoverCursor);
-                return;
-            }
-
-            selectIndicator.SetActive(false);
-            hover.SetPointerCursor(null);
+            return UnityEngine.Random.Range(0, flashCard.GetTime());
         }
 
-        public void OnMouseDown()
+        public uint GetQuestionAnswer(FlashCard flashCard)
         {
-            if (!IsSelectable)
-                return;
+            int answers = flashCard.GetAnswers().Keys.Count;
+            int answerIndex = UnityEngine.Random.Range(0, answers);
 
-            CombatController.Singleton.AttackTarget(Id);
+            return flashCard.GetAnswers().Keys.ElementAt(answerIndex);
+        }
+
+        public override int GetDamage(FlashCard flashCard, float remainingTime)
+        {
+            return BASE_DAMAGE;
         }
     }
 }
