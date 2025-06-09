@@ -41,6 +41,7 @@ namespace Assets.Scripts.Modules
         private Coroutine questionTimerCoroutine;
 
         private readonly SyncVar<BaseCharacterController> CharacterOnTurn = new(new SyncTypeSettings());
+        private bool actionFinished = false;
 
         private int currentTurn;
 
@@ -52,6 +53,7 @@ namespace Assets.Scripts.Modules
         public static event Action CombatStarted;
         public static event Action<FlashCard> QuestionCreated;
         public static event Action<int> TimerStarted;
+        public UnityEvent<PlayerController, bool> QuestionAnswered;
         public UnityEvent<CombatModule, List<PlayerController>> CombatEnded;
         public UnityEvent<PlayerController> PlayerEliminated;
 
@@ -81,16 +83,19 @@ namespace Assets.Scripts.Modules
             ChangeTurn();
         }
 
-        private void ChangeTurn()
+        private void ChangeTurn(float waitTime = 0)
         {
             isRoundTimeRunning = true;
-            StartCoroutine(ChangingTurnProcess());
+            StartCoroutine(ChangingTurnProcess(waitTime));
         }
 
-        private IEnumerator ChangingTurnProcess()
+        private IEnumerator ChangingTurnProcess(float waitTime = 0)
         {
+            yield return new WaitForSeconds(waitTime);
+
             currentTurn = (currentTurn + 1) % (players.Count + enemies.Count);
             CharacterOnTurn.Value = GetCharacterOnTurn();
+            actionFinished = false;
 
             if (turnTimerCoroutine != null)
                 StopCoroutine(turnTimerCoroutine);
@@ -198,6 +203,9 @@ namespace Assets.Scripts.Modules
             if (!IsOnTurn(attacker))
                 return false;
 
+            if (actionFinished)
+                return false;
+
             if (!enemies.ContainsKey(enemyId))
                 return false;
 
@@ -222,6 +230,8 @@ namespace Assets.Scripts.Modules
 
         public void AttackEnemy(PlayerController attacker, uint enemyId)
         {
+            actionFinished = true;
+
             EnemyController enemy = enemies[enemyId];
 
             currentTarget = enemy;
@@ -257,6 +267,8 @@ namespace Assets.Scripts.Modules
                 return;
             }
 
+            QuestionAnswered?.Invoke(player, true);
+
             EnemyController enemy = currentTarget as EnemyController;
 
             if (enemy == null)
@@ -271,14 +283,16 @@ namespace Assets.Scripts.Modules
             currentQuestion = null;
             currentTarget = null;
 
-            ChangeTurn();
+            ChangeTurn(1.5f);
         }
 
         private void QuestionAnswerFailed()
         {
+            QuestionAnswered?.Invoke(CharacterOnTurn.Value as PlayerController, false);
+
             currentQuestion = null;
             currentTarget = null;
-            ChangeTurn();
+            ChangeTurn(1.5f);
         }
 
         private uint PickTarget(int playerIndex)

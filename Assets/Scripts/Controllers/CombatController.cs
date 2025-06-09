@@ -33,6 +33,7 @@ namespace Assets.Scripts.Controllers
         private Coroutine roundTimerCoroutine = null;
         private bool IsSelectingTarget = false;
         private bool isAnsweringQuestion = false;
+        private int selectedAnswer;
         private BaseCharacterController characterOnTurn;
 
         void OnEnable()
@@ -92,7 +93,7 @@ namespace Assets.Scripts.Controllers
             CombatUIController.Singleton.LoadCharacter(player);
         }
 
-        private IEnumerator RoundTimer(int maxTime)
+        private IEnumerator RoundTimer(int maxTime, Action onTimerRunOut = null)
         {
             int remainingTurnTime = maxTime;
 
@@ -104,15 +105,17 @@ namespace Assets.Scripts.Controllers
 
                 remainingTurnTime--;
             }
+
+            onTimerRunOut?.Invoke();
         }
 
-        private void StartTimer(int maxTime)
+        private void StartTimer(int maxTime, Action onTimerRunOut = null)
         {
             if (roundTimerCoroutine != null)
                 StopCoroutine(roundTimerCoroutine);
 
             CombatUIController.Singleton.SetRoundTime(maxTime);
-            roundTimerCoroutine = StartCoroutine(RoundTimer(maxTime));
+            roundTimerCoroutine = StartCoroutine(RoundTimer(maxTime, onTimerRunOut));
         }
 
         private void OnTimerStarted(int time)
@@ -137,6 +140,8 @@ namespace Assets.Scripts.Controllers
             {
                 if (player.Equals(prev))
                 {
+                    CombatUIController.Singleton.OpenButtonsPanel();
+
                     if (IsSelectingTarget)
                         TargetSelected();
 
@@ -221,17 +226,19 @@ namespace Assets.Scripts.Controllers
         private void OnQuestionCreated(FlashCard flashCard)
         {
             isAnsweringQuestion = true;
-            StartTimer((int) Math.Floor(flashCard.GetTime()));
+            StartTimer((int) Math.Floor(flashCard.GetTime()), OnQuestionTimerRunOut);
 
             CombatUIController.Singleton.SetQuestion(flashCard.GetQuestion(), flashCard.GetAnswers());
         }
 
-        public void AnswerQuestion(uint answerId)
+        public void AnswerQuestion(uint answerId, int answerIndex)
         {
             if (!characterOnTurn.Equals(PlayerController.Singleton))
                 return;
 
-            QuestionAnswered();
+            CombatUIController.Singleton.AnswerSubmitted();
+
+            selectedAnswer = answerIndex;
 
             CombatServerController.Singleton.AnswerQuestion(answerId);
         }
@@ -239,7 +246,26 @@ namespace Assets.Scripts.Controllers
         private void QuestionAnswered()
         {
             isAnsweringQuestion = false;
-            CombatUIController.Singleton.OpenButtonsPanel();
+
+            if (selectedAnswer < 0)
+                return;
+
+            CombatUIController.Singleton.ClearAnswerResult(selectedAnswer);
+
+            selectedAnswer = -1;
+        }
+
+        private void OnQuestionTimerRunOut()
+        {
+            selectedAnswer = -1;
+        }
+
+        public void AnswerResultReceived(bool isCorrect)
+        {
+            if (selectedAnswer < 0)
+                return;
+
+            CombatUIController.Singleton.SetAnswerResult(selectedAnswer, isCorrect);
         }
 
         public void PlayerAttack(uint playerId, uint enemyId)

@@ -39,5 +39,20 @@ namespace Assets.Scripts.UI
 
             answerButtons.SetAnswers(answers);
         }
+
+        public void AnswerSubmitted()
+        {
+            answerButtons.SetButtonsEnabled(false);
+        }
+
+        public void SetAnswerResult(int answerId, bool isCorrect)
+        {
+            answerButtons.SetAnswerResult(answerId, isCorrect);
+        }
+
+        public void ClearAnswerResult(int answerId)
+        {
+            answerButtons.ClearAnswerResult(answerId);
+        }
     }
 }

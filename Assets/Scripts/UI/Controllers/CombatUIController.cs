@@ -79,5 +79,20 @@ namespace Assets.Scripts.UI.Controllers
         {
             actionBar.SetQuestion(question, answers);
         }
+
+        public void AnswerSubmitted()
+        {
+            actionBar.AnswerSubmitted();
+        }
+
+        public void SetAnswerResult(int answerId, bool isCorrect)
+        {
+            actionBar.SetAnswerResult(answerId, isCorrect);
+        }
+
+        public void ClearAnswerResult(int answerId)
+        {
+            actionBar.ClearAnswerResult(answerId);
+        }
     }
 }

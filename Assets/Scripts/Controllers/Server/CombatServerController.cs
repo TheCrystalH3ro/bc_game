@@ -113,6 +113,7 @@ namespace Assets.Scripts.Controllers.Server
             combatModule.EnemyAttack.AddListener(OnEnemyAttack);
             combatModule.CombatEnded.AddListener(OnCombatEnded);
             combatModule.PlayerEliminated.AddListener(OnPlayerDeath);
+            combatModule.QuestionAnswered.AddListener(OnQuestionAnswered);
         }
 
         private EnemyController SetEnemy(EnemyController enemy, int sceneHandle, Vector3 position)
@@ -153,6 +154,17 @@ namespace Assets.Scripts.Controllers.Server
 
             PlayerAttack(player.GetPlayerCharacter().GetId(), enemy.Id);
             combatModule.AnswerQuestion(player, answerId);
+        }
+
+        private void OnQuestionAnswered(PlayerController player, bool isCorrect)
+        {
+            NotifyQuestionAnswer(player.Owner, isCorrect);
+        }
+
+        [TargetRpc]
+        private void NotifyQuestionAnswer(NetworkConnection connection, bool isCorrect)
+        {
+            CombatController.Singleton.AnswerResultReceived(isCorrect);
         }
 
         [ObserversRpc]
@@ -196,6 +208,7 @@ namespace Assets.Scripts.Controllers.Server
             combatModule.CombatEnded.RemoveListener(OnCombatEnded);
             combatModule.EnemyAttack.RemoveListener(OnEnemyAttack);
             combatModule.PlayerEliminated.RemoveListener(OnPlayerDeath);
+            combatModule.QuestionAnswered.RemoveListener(OnQuestionAnswered);
         }
     }
 }

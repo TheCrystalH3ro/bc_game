@@ -26,7 +26,7 @@ namespace Assets.Scripts.UI
 
         public void OpenButtons()
         {
-            actionPanel.OpenButtons();    
+            actionPanel.OpenButtons();
         }
 
         public void SetButtonsActive(bool active)
@@ -38,6 +38,21 @@ namespace Assets.Scripts.UI
         {
             actionLog.SetQuestion(question);
             actionPanel.SetAnswers(answers);
+        }
+
+        public void AnswerSubmitted()
+        {
+            actionPanel.AnswerSubmitted();
+        }
+
+        public void SetAnswerResult(int answerId, bool isCorrect)
+        {
+            actionPanel.SetAnswerResult(answerId, isCorrect);
+        }
+
+        public void ClearAnswerResult(int answerId)
+        {
+            actionPanel.ClearAnswerResult(answerId);
         }
     }
 }
