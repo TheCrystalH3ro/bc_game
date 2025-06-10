@@ -165,5 +165,6 @@ namespace Assets.Scripts.Controllers
         public abstract RuntimeAnimatorController GetHitAnimator();
 
         public abstract int GetDamage(FlashCard card, float remainingTime);
+        public abstract float GetDefense(FlashCard card, float remainingTime);
     }
 }

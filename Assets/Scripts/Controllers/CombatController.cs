@@ -139,6 +139,12 @@ namespace Assets.Scripts.Controllers
 
             PlayerController player = PlayerController.Singleton;
 
+            if (isAnsweringQuestion)
+            {
+                CombatUIController.Singleton.OpenButtonsPanel();
+                QuestionAnswered();
+            }
+
             if (!player.Equals(next))
             {
                 if (player.Equals(prev))
@@ -148,12 +154,9 @@ namespace Assets.Scripts.Controllers
                     if (IsSelectingTarget)
                         TargetSelected();
 
-                    if (isAnsweringQuestion)
-                        QuestionAnswered();
-
                     CombatUIController.Singleton.SetButtonsActive(false);
                 }
-
+                
                 return;
             }
 
@@ -227,9 +230,6 @@ namespace Assets.Scripts.Controllers
 
         public void AnswerQuestion(uint answerId, int answerIndex)
         {
-            if (!characterOnTurn.Equals(PlayerController.Singleton))
-                return;
-
             CombatUIController.Singleton.AnswerSubmitted();
 
             selectedAnswer = answerIndex;
@@ -299,6 +299,28 @@ namespace Assets.Scripts.Controllers
 
             FloatText floatText = Instantiate(floatTextPrefab, target.transform);
             floatText.SetText("Missed");
+        }
+
+        public void PlayerAttackBlocked(uint targetId)
+        {
+            BaseCharacterController target = teamB[targetId];
+
+            if (target == null)
+                return;
+
+            FloatText floatText = Instantiate(floatTextPrefab, target.transform);
+            floatText.SetText("Blocked");
+        }
+
+        public void EnemyAttackBlocked(uint targetId)
+        {
+            BaseCharacterController target = teamA[targetId];
+
+            if (target == null)
+                return;
+
+            FloatText floatText = Instantiate(floatTextPrefab, target.transform);
+            floatText.SetText("Blocked");
         }
 
         public void EnemyAttack(uint enemyId, uint playerId)

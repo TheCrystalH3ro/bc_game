@@ -88,6 +88,11 @@ namespace Assets.Scripts.Controllers.Server
             return attackModule.GetDamage(flashCard, remainingTime);
         }
 
+        public override float GetDefense(FlashCard flashCard, float remainingTime)
+        {
+            return attackModule.GetDefense(flashCard, remainingTime);
+        }
+
         public void Learn(FlashCard question, bool isCorrect, float answeredTime)
         {
             attackModule.Learn(question, isCorrect, answeredTime);

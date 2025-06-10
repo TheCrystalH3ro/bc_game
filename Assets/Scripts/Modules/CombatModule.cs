@@ -51,6 +51,10 @@ namespace Assets.Scripts.Modules
         private FlashCard currentQuestion;
         private BaseCharacterController currentTarget;
 
+        private Answer attackerAnswer = null;
+        private Answer targetAnswer = null;
+
+        public UnityEvent<PlayerController, BaseCharacterController> PlayerAttack;
         public UnityEvent<EnemyController, BaseCharacterController> EnemyAttack;
 
         public static event Action CombatStarted;
@@ -58,6 +62,8 @@ namespace Assets.Scripts.Modules
         public static event Action<int> TimerStarted;
         public UnityEvent<EnemyController> PlayerAttackFailed;
         public UnityEvent<PlayerController> EnemyAttackFailed;
+        public UnityEvent<EnemyController> PlayerAttackBlocked;
+        public UnityEvent<PlayerController> EnemyAttackBlocked;
         public UnityEvent<PlayerController, bool> QuestionAnswered;
         public UnityEvent<CombatModule, List<BaseCharacterController>> CombatEnded;
         public UnityEvent<PlayerController> PlayerEliminated;
@@ -165,7 +171,7 @@ namespace Assets.Scripts.Modules
             }
 
             isQuestionTimeRunning = false;
-            QuestionAnswerFailed();
+            QuestionTimerRunout();
         }
 
         private void StopQuestionTimer()
@@ -174,6 +180,14 @@ namespace Assets.Scripts.Modules
 
             if (questionTimerCoroutine != null)
                 StopCoroutine(questionTimerCoroutine);
+        }
+
+        private void QuestionTimerRunout()
+        {
+            attackerAnswer ??= new(false, 0);
+            targetAnswer ??= new(false, 0);
+
+            EvaluateAnswers();
         }
 
         [ObserversRpc]
@@ -240,12 +254,12 @@ namespace Assets.Scripts.Modules
 
         public bool IsValidAnswer(BaseCharacterController character)
         {
-            if (!IsOnTurn(character))
-                return false;
-
             if (currentQuestion == null || currentTarget == null)
                 return false;
 
+            if (!IsOnTurn(character) && !character.Equals(currentTarget))
+                return false;
+            
             return true;
         }
 
@@ -266,18 +280,28 @@ namespace Assets.Scripts.Modules
         {
             currentQuestion = FlashCardModule.Singleton.GetFlashCard();
 
-            SendQuestion(CharacterOnTurn.Value.Owner, currentQuestion);
+            SendQuestion(CharacterOnTurn.Value);
+            SendQuestion(currentTarget);
 
             isQuestionTimeRunning = true;
             questionTimerCoroutine = StartCoroutine(StartQuestionTimer());
+        }
 
-            EnemyController enemy = CharacterOnTurn.Value as EnemyController;
+        private void SendQuestion(BaseCharacterController character)
+        {
+            EnemyController enemy = character as EnemyController;
+
             if (enemy != null)
+            {
                 StartCoroutine(EnemyAnswerQuestion(enemy));
+                return;
+            }
+
+            SendQuestionToPlayer(character.Owner, currentQuestion);
         }
 
         [TargetRpc]
-        private void SendQuestion(NetworkConnection client, FlashCard flashCard)
+        private void SendQuestionToPlayer(NetworkConnection client, FlashCard flashCard)
         {
             QuestionCreated?.Invoke(flashCard);
         }
@@ -287,47 +311,95 @@ namespace Assets.Scripts.Modules
             if (!IsValidAnswer(character))
                 return;
 
-            StopQuestionTimer();
-
-            if (!currentQuestion.IsCorrectAnswer(answer))
-            {
-                QuestionAnswerFailed();
-                return;
-            }
+            bool isCorrect = currentQuestion.IsCorrectAnswer(answer);
 
             PlayerController player = character as PlayerController;
 
             if (player != null)
-                QuestionAnswered?.Invoke(player, true);
+                QuestionAnswered?.Invoke(player, isCorrect);
 
-            int damage = character.GetDamage(currentQuestion, remainingQuestionTime);
+            Answer characterAnswer = new(isCorrect, remainingQuestionTime);
 
-            HealthModule targetHealth = currentTarget.GetComponent<HealthModule>();
-            int targetHp = targetHealth.TakeHP(damage);
+            if (IsOnTurn(character))
+            {
+                attackerAnswer = characterAnswer;
 
-            if (targetHp <= 0)
-                Death(currentTarget);
+                if (targetAnswer != null)
+                    EvaluateAnswers();
 
-            currentQuestion = null;
-            currentTarget = null;
+                return;
+            }
 
-            ChangeTurn(1.5f);
+            targetAnswer = characterAnswer;
+
+            if (attackerAnswer != null)
+                EvaluateAnswers();
         }
 
         private void QuestionAnswerFailed()
         {
-            PlayerController player = CharacterOnTurn.Value as PlayerController;
-            
-            if (player != null)
-                QuestionAnswered?.Invoke(player, false);
-
             if (currentTarget is PlayerController)
                 EnemyAttackFailed?.Invoke(currentTarget as PlayerController);
             else
                 PlayerAttackFailed?.Invoke(currentTarget as EnemyController);
+        }
 
+        private void EvaluateAnswers()
+        {
+            StopQuestionTimer();
+
+            BaseCharacterController attacker = CharacterOnTurn.Value;
+
+            if (CharacterOnTurn.Value is EnemyController)
+                EnemyAttack?.Invoke(attacker as EnemyController, currentTarget);
+            else
+                PlayerAttack?.Invoke(attacker as PlayerController, currentTarget);
+
+            if (!attackerAnswer.IsCorrect)
+            {
+                QuestionAnswerFailed();
+                EndQuestion();
+                return;
+            }
+
+            int damage = attacker.GetDamage(currentQuestion, attackerAnswer.RemainingTime);
+
+            float defense = 1f;
+
+            if (targetAnswer.IsCorrect)
+            {
+                defense = 0.85f;
+
+                if (attackerAnswer.RemainingTime < targetAnswer.RemainingTime)
+                {    
+                    defense = currentTarget.GetDefense(currentQuestion, targetAnswer.RemainingTime);
+
+                    if (currentTarget is PlayerController)
+                        EnemyAttackBlocked?.Invoke(currentTarget as PlayerController);
+                    else
+                        PlayerAttackBlocked?.Invoke(currentTarget as EnemyController);
+                }
+
+            }
+
+            int finalDamage = Mathf.FloorToInt(damage * defense);
+
+            HealthModule targetHealth = currentTarget.GetComponent<HealthModule>();
+            int targetHp = targetHealth.TakeHP(finalDamage);
+
+            if (targetHp <= 0)
+                Death(currentTarget);
+
+            EndQuestion();
+        }
+
+        private void EndQuestion()
+        {
             currentQuestion = null;
             currentTarget = null;
+
+            attackerAnswer = null;
+            targetAnswer = null;
 
             ChangeTurn(1.5f);
         }
@@ -343,8 +415,6 @@ namespace Assets.Scripts.Modules
             uint answer = enemy.GetQuestionAnswer(question);
 
             yield return new WaitForSeconds(answerTime);
-
-            EnemyAttack?.Invoke(enemy, currentTarget);
 
             AnswerQuestion(enemy, answer);
 

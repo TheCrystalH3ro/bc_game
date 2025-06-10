@@ -360,6 +360,11 @@ namespace Assets.Scripts.Controllers
             return attackModule.GetDamage(flashCard, remainingTime);
         }
 
+        public override float GetDefense(FlashCard flashCard, float remainingTime)
+        {
+            return attackModule.GetDefense(flashCard, remainingTime);
+        }
+
         public override RuntimeAnimatorController GetHitAnimator()
         {
             return ClassAnimationController.Singleton.GetCharacterAttackAnimatorController(playerCharacter.Value.GetPlayerClass());

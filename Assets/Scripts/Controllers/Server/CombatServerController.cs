@@ -113,10 +113,13 @@ namespace Assets.Scripts.Controllers.Server
 
             combatModule.StartCombat(players, enemies);
 
+            combatModule.PlayerAttack.AddListener(OnPlayerAttack);
             combatModule.EnemyAttack.AddListener(OnEnemyAttack);
             combatModule.CombatEnded.AddListener(OnCombatEnded);
             combatModule.PlayerAttackFailed.AddListener(OnPlayerAttackFailed);
             combatModule.EnemyAttackFailed.AddListener(OnEnemyAttackFailed);
+            combatModule.PlayerAttackBlocked.AddListener(OnPlayerAttackBlocked);
+            combatModule.EnemyAttackBlocked.AddListener(OnEnemyAttackBlocked);
             combatModule.PlayerEliminated.AddListener(OnPlayerDeath);
             combatModule.QuestionAnswered.AddListener(OnQuestionAnswered);
         }
@@ -157,7 +160,6 @@ namespace Assets.Scripts.Controllers.Server
 
             BaseCharacterController target = combatModule.GetCurrentTarget();
 
-            PlayerAttack(player.GetPlayerCharacter().GetId(), target.GetId());
             combatModule.AnswerQuestion(player, answerId);
         }
 
@@ -189,6 +191,22 @@ namespace Assets.Scripts.Controllers.Server
             CombatController.Singleton.PlayerAttackMissed(targetId);
         }
 
+        private void OnPlayerAttackBlocked(BaseCharacterController target)
+        {
+            PlayerAttackBlocked(target.GetId());
+        }
+
+        [ObserversRpc]
+        private void PlayerAttackBlocked(uint targetId)
+        {
+            CombatController.Singleton.PlayerAttackBlocked(targetId);
+        }
+
+        private void OnPlayerAttack(PlayerController player, BaseCharacterController target)
+        {
+            PlayerAttack(player.GetPlayerCharacter().GetId(), target.GetId());
+        }
+
         private void OnEnemyAttackFailed(BaseCharacterController target)
         {
             EnemyAttackMissed(target.GetId());
@@ -198,6 +216,17 @@ namespace Assets.Scripts.Controllers.Server
         private void EnemyAttackMissed(uint targetId)
         {
             CombatController.Singleton.EnemyAttackMissed(targetId);
+        }
+
+        private void OnEnemyAttackBlocked(BaseCharacterController target)
+        {
+            EnemyAttackBlocked(target.GetId());
+        }
+
+        [ObserversRpc]
+        private void EnemyAttackBlocked(uint targetId)
+        {
+            CombatController.Singleton.EnemyAttackBlocked(targetId);
         }
 
         private void OnEnemyAttack(EnemyController enemy, BaseCharacterController target)
