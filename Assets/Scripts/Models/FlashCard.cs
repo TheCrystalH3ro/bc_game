@@ -27,6 +27,11 @@ namespace Assets.Scripts.Models
             this.time = time;
         }
 
+        public bool Equals(FlashCard other)
+        {
+            return question.Equals(other.GetQuestion());
+        }
+
         public string GetQuestion()
         {
             return question;
@@ -35,6 +40,11 @@ namespace Assets.Scripts.Models
         public Dictionary<uint, string> GetAnswers()
         {
             return answers;
+        }
+
+        public uint GetCorrectAnswer()
+        {
+            return correctAnswer;
         }
 
         public bool IsCorrectAnswer(uint answer)

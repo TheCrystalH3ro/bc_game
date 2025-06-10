@@ -198,9 +198,9 @@ namespace Assets.Scripts.Modules
             return teamA[characterId];
         }
 
-        private bool IsOnTurn(BaseCharacterController player)
+        private bool IsOnTurn(BaseCharacterController character)
         {
-            return player.Equals(CharacterOnTurn.Value);
+            return character.Equals(CharacterOnTurn.Value);
         }
 
         public BaseCharacterController GetCurrentTarget()
@@ -238,9 +238,9 @@ namespace Assets.Scripts.Modules
             return true;
         }
 
-        public bool IsValidAnswer(PlayerController player)
+        public bool IsValidAnswer(BaseCharacterController character)
         {
-            if (!IsOnTurn(player))
+            if (!IsOnTurn(character))
                 return false;
 
             if (currentQuestion == null || currentTarget == null)
@@ -280,10 +280,13 @@ namespace Assets.Scripts.Modules
         private void SendQuestion(NetworkConnection client, FlashCard flashCard)
         {
             QuestionCreated?.Invoke(flashCard);
-        } 
+        }
 
         public void AnswerQuestion(BaseCharacterController character, uint answer)
         {
+            if (!IsValidAnswer(character))
+                return;
+
             StopQuestionTimer();
 
             if (!currentQuestion.IsCorrectAnswer(answer))
@@ -294,7 +297,7 @@ namespace Assets.Scripts.Modules
 
             PlayerController player = character as PlayerController;
 
-            if(player != null)
+            if (player != null)
                 QuestionAnswered?.Invoke(player, true);
 
             int damage = character.GetDamage(currentQuestion, remainingQuestionTime);
@@ -334,11 +337,18 @@ namespace Assets.Scripts.Modules
             if (currentQuestion == null)
                 yield break;
 
-            yield return new WaitForSeconds(enemy.GetThinkingTime(currentQuestion));
+            FlashCard question = currentQuestion;
+
+            float answerTime = enemy.GetThinkingTime(question);
+            uint answer = enemy.GetQuestionAnswer(question);
+
+            yield return new WaitForSeconds(answerTime);
 
             EnemyAttack?.Invoke(enemy, currentTarget);
 
-            AnswerQuestion(enemy, enemy.GetQuestionAnswer(currentQuestion));
+            AnswerQuestion(enemy, answer);
+
+            enemy.Learn(question, question.IsCorrectAnswer(answer), answerTime);
         }
 
         private uint PickTarget(Dictionary<uint, BaseCharacterController> team, int index)

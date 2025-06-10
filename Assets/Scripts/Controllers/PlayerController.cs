@@ -36,12 +36,11 @@ namespace Assets.Scripts.Controllers
         public static event Action OnEscapePressed;
 
         private MovementModule movementModule;
+        private AttackModule attackModule;
 
         private IParty party;
 
         protected bool IsInCombat = false;
-
-        [SerializeField] private int BASE_DAMAGE = 10;
 
         public string ActiveScene { get; set; } = SceneModule.MAIN_SCENE_NAME;
 
@@ -54,6 +53,7 @@ namespace Assets.Scripts.Controllers
             animator = gameObject.GetComponent<Animator>();
             spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
             networkAnimator = gameObject.GetComponent<NetworkAnimator>();
+            attackModule = gameObject.GetComponent<AttackModule>();
         }
 
         public override void OnStartNetwork()
@@ -357,22 +357,7 @@ namespace Assets.Scripts.Controllers
 
         public override int GetDamage(FlashCard flashCard, float remainingTime)
         {
-            float questionTime = flashCard.GetTime();
-
-            float perfectTime = 0.8f * questionTime;
-            float goodTime = 0.65f * questionTime;
-            float averageTime = 0.4f * questionTime;
-
-            if (remainingTime >= perfectTime)
-                return BASE_DAMAGE * 2;
-
-            if (remainingTime >= goodTime)
-                return Mathf.CeilToInt(BASE_DAMAGE * 1.5f);
-
-            if (remainingTime >= averageTime)
-                return Mathf.FloorToInt(BASE_DAMAGE * 1.2f);
-
-            return BASE_DAMAGE;
+            return attackModule.GetDamage(flashCard, remainingTime);
         }
 
         public override RuntimeAnimatorController GetHitAnimator()

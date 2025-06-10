@@ -1,7 +1,7 @@
 using System;
-using System.Linq;
 using Assets.Scripts.Interfaces;
 using Assets.Scripts.Models;
+using Assets.Scripts.Modules.Attack;
 using FishNet.Object;
 using UnityEngine;
 
@@ -15,19 +15,21 @@ namespace Assets.Scripts.Controllers.Server
 
         public NetworkObject Prefab;
 
+        private EnemyAttackModule attackModule;
+
         public IEnemy Character { get; private set; }
 
         public uint Id { get; private set; }
 
         public static uint lastId = 0;
 
-        [SerializeField] private int BASE_DAMAGE = 10;
-
         public static event Action<EnemyController> EnemySpawned;
 
         public override void OnStartNetwork()
         {
             base.OnStartNetwork();
+
+            attackModule = GetComponent<EnemyAttackModule>();
 
             Character = new Enemy(enemyName, enemyLevel);
 
@@ -73,20 +75,22 @@ namespace Assets.Scripts.Controllers.Server
 
         public float GetThinkingTime(FlashCard flashCard)
         {
-            return UnityEngine.Random.Range(0, flashCard.GetTime());
+            return attackModule.GetThinkingTime(flashCard);
         }
 
         public uint GetQuestionAnswer(FlashCard flashCard)
         {
-            int answers = flashCard.GetAnswers().Keys.Count;
-            int answerIndex = UnityEngine.Random.Range(0, answers);
-
-            return flashCard.GetAnswers().Keys.ElementAt(answerIndex);
+            return attackModule.GetQuestionAnswer(flashCard);
         }
 
         public override int GetDamage(FlashCard flashCard, float remainingTime)
         {
-            return BASE_DAMAGE;
+            return attackModule.GetDamage(flashCard, remainingTime);
+        }
+
+        public void Learn(FlashCard question, bool isCorrect, float answeredTime)
+        {
+            attackModule.Learn(question, isCorrect, answeredTime);
         }
     }
 }
