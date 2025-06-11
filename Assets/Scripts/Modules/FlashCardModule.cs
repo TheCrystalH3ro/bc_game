@@ -1,54 +1,60 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using Assets.Scripts.Controllers;
+using Assets.Scripts.Controllers.Server;
 using Assets.Scripts.Models;
+using Assets.Scripts.Responses;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace Assets.Scripts.Modules
 {
-    public class FlashCardModule
+    public class FlashCardModule : MonoBehaviour
     {
-        private static FlashCardModule _instance;
-
-        public static FlashCardModule Singleton
-        {
-            get
-            {
-                _instance ??= new();
-
-                return _instance;
-            }
-        }
+        public static FlashCardModule Singleton { get; private set; }
 
         public List<FlashCard> flashCards;
 
-        public FlashCardModule()
+        private readonly string apiUrl = ConfigModule.Get("API_URL");
+        private readonly string apiKey = ConfigModule.Get("SERVER_API_KEY");
+
+        void Awake()
         {
-            LoadFlashCards();
+            Singleton = this;
         }
 
-        private void LoadFlashCards()
+        public void GetFlashCard(BaseCharacterController character, Action<FlashCard> onFlashCardGenerated, Action<string> onFlashCardGeneratedFail)
         {
-            flashCards = new()
+            StartCoroutine(FetchFlashCard(character, onFlashCardGenerated, onFlashCardGeneratedFail));
+        }
+
+        private IEnumerator FetchFlashCard(BaseCharacterController character, Action<FlashCard> onFlashCardGeneratedSuccess, Action<string> onFlashCardGeneratedFail)
+        {
+            string flashCardUrl = $"{apiUrl}/question";
+
+            if (character is PlayerController)
+                flashCardUrl += "/character/" + character.GetId();
+            else
+                flashCardUrl += "/enemy/" + ((int)(character as EnemyController).GetEnemyType());
+            
+            using (UnityWebRequest request = UnityWebRequest.Get(flashCardUrl))
             {
-                new FlashCard
-                (
-                    "TEST 1",
-                    new()
-                    {
-                        { 0, "Odpoved 1" },
-                        { 1, "Odpoved 2" },
-                        { 2, "Odpoved 3" },
-                        { 3, "Odpoved 4" }
-                    },
-                    0,
-                    5f
-                ),
-            };
-        }
+                request.SetRequestHeader("Authorization", apiKey);
 
-        public FlashCard GetFlashCard()
-        {
-            int index = Random.Range(0, flashCards.Count);
-            return flashCards[index];
+                yield return request.SendWebRequest();
+
+                if (request.result != UnityWebRequest.Result.Success)
+                {
+                    onFlashCardGeneratedFail?.Invoke(request.error);
+                    yield break;
+                }
+
+                FlashCardResponse flashCardResponse = FlashCardResponse.CreateFromJSON(request.downloadHandler.text);
+                FlashCard flashCard = new(flashCardResponse);
+
+                onFlashCardGeneratedSuccess?.Invoke(flashCard);
+            }
         }
     }
 }
