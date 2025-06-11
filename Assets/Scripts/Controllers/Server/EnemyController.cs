@@ -1,4 +1,5 @@
 using System;
+using Assets.Scripts.Enums;
 using Assets.Scripts.Interfaces;
 using Assets.Scripts.Models;
 using Assets.Scripts.Modules.Attack;
@@ -11,6 +12,7 @@ namespace Assets.Scripts.Controllers.Server
     {
         [SerializeField] private string enemyName;
         [SerializeField] private int enemyLevel;
+        [SerializeField] private EnemyType type;
         [SerializeField] private RuntimeAnimatorController hitAnimator;
 
         public NetworkObject Prefab;
@@ -72,6 +74,11 @@ namespace Assets.Scripts.Controllers.Server
         public override uint GetId()
         {
             return Id;
+        }
+
+        public EnemyType GetEnemyType()
+        {
+            return type;
         }
 
         public override CharacterData ToCharacterData()

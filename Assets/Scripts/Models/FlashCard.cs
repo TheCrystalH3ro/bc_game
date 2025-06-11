@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Assets.Scripts.Responses;
 
 namespace Assets.Scripts.Models
 {
@@ -25,6 +26,17 @@ namespace Assets.Scripts.Models
             this.answers = answers;
             this.correctAnswer = correctAnswer;
             this.time = time;
+        }
+
+        public FlashCard(FlashCardResponse response)
+        {
+            this.question = response.question;
+            this.answers = new();
+            this.correctAnswer = response.correctAnswer;
+            this.time = response.time;
+
+            foreach (AnswerData answer in response.answers)
+                answers.Add(answer.id, answer.text);
         }
 
         public bool Equals(FlashCard other)

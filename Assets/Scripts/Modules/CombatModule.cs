@@ -149,7 +149,8 @@ namespace Assets.Scripts.Modules
                     yield break;
             }
 
-            ChangeTurn();
+            if (!actionFinished)
+                ChangeTurn();
         }
 
         private void StopRoundTimer()
@@ -272,7 +273,7 @@ namespace Assets.Scripts.Modules
             {
                 attacker.UseStun();
                 ChangeTurn(1.5f);
-                
+
                 return;
             }
 
@@ -289,13 +290,24 @@ namespace Assets.Scripts.Modules
 
         private void GenerateQuestion()
         {
-            currentQuestion = FlashCardModule.Singleton.GetFlashCard();
+            FlashCardModule.Singleton.GetFlashCard(CharacterOnTurn.Value, OnQuestionGenerated, QuestionGenerationFail);
+        }
+
+        private void OnQuestionGenerated(FlashCard question)
+        {
+            currentQuestion = question;
 
             SendQuestion(CharacterOnTurn.Value);
             SendQuestion(currentTarget);
 
             isQuestionTimeRunning = true;
             questionTimerCoroutine = StartCoroutine(StartQuestionTimer());
+        }
+
+        private void QuestionGenerationFail(string error)
+        {
+            Debug.LogError("Question Generation Failed: " + error);
+            EndQuestion();
         }
 
         private void SendQuestion(BaseCharacterController character)
