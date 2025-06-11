@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Assets.Scripts.Controllers;
 using Assets.Scripts.Enums;
 using Assets.Scripts.Models;
 using UnityEngine;
@@ -16,26 +17,6 @@ namespace Assets.Scripts.Modules.Attack
         void Start()
         {
             InitializeIntelligence();
-        }
-
-        public ReactionTime GetReactionTime(FlashCard flashCard, float time)
-        {
-            float questionTime = flashCard.GetTime();
-
-            float perfectTime = GetTimeThreshold(ReactionTime.PERFECT) * questionTime;
-            float goodTime = GetTimeThreshold(ReactionTime.GOOD) * questionTime;
-            float averageTime = GetTimeThreshold(ReactionTime.AVG) * questionTime;
-
-            if (time >= perfectTime)
-                return ReactionTime.PERFECT;
-
-            if (time >= goodTime)
-                return ReactionTime.GOOD;
-
-            if (time >= averageTime)
-                return ReactionTime.AVG;
-
-            return ReactionTime.POOR;
         }
 
         private void InitializeIntelligence()
@@ -186,6 +167,29 @@ namespace Assets.Scripts.Modules.Attack
             questionIntelligence.IncreaseKnowledge(questionKnowledgeIncrease);
 
             questionKnowledge[flashCard] = questionIntelligence;
+        }
+
+        public override int BeforeDamage(int damage, BaseCharacterController target, Answer answer, Answer targetAnswer)
+        {
+            return damage;
+        }
+
+        public override int BeforeFinalDamage(int finalDamage, int originalDamage, float defense, BaseCharacterController target, Answer answer, Answer targetAnswer)
+        {
+            return finalDamage;
+        }
+
+        public override void AfterDamage(BaseCharacterController target, Answer answer, Answer targetAnswer)
+        {
+        }
+
+        public override float BeforeDefense(float defense, BaseCharacterController attacker, Answer answer, Answer attackerAnswer)
+        {
+            return defense;
+        }
+
+        public override void AfterDefense(BaseCharacterController attacker, Answer answer, Answer attackerAnswer)
+        {
         }
     }
 }

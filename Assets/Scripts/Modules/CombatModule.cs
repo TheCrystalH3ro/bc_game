@@ -53,20 +53,15 @@ namespace Assets.Scripts.Modules
 
         private Answer attackerAnswer = null;
         private Answer targetAnswer = null;
-
-        public UnityEvent<PlayerController, BaseCharacterController> PlayerAttack;
-        public UnityEvent<EnemyController, BaseCharacterController> EnemyAttack;
-
         public static event Action CombatStarted;
         public static event Action<FlashCard> QuestionCreated;
         public static event Action<int> TimerStarted;
-        public UnityEvent<EnemyController> PlayerAttackFailed;
-        public UnityEvent<PlayerController> EnemyAttackFailed;
-        public UnityEvent<EnemyController> PlayerAttackBlocked;
-        public UnityEvent<PlayerController> EnemyAttackBlocked;
+        public UnityEvent<BaseCharacterController, bool> AttackFailed;
+        public UnityEvent<BaseCharacterController, bool> AttackBlocked;
         public UnityEvent<PlayerController, bool> QuestionAnswered;
-        public UnityEvent<CombatModule, List<BaseCharacterController>> CombatEnded;
+        public UnityEvent<CombatModule, List<BaseCharacterController>, List<BaseCharacterController>> CombatEnded;
         public UnityEvent<PlayerController> PlayerEliminated;
+        public UnityEvent<EnemyController> EnemyEliminated;
 
         public override void OnStartNetwork()
         {
@@ -99,6 +94,11 @@ namespace Assets.Scripts.Modules
             });
         }
 
+        public Dictionary<uint, BaseCharacterController> GetTeam(BaseCharacterController character)
+        {
+            return IsInTeam(teamA, character) ? teamA : teamB;
+        }
+
         public void StartCombat(List<BaseCharacterController> charactersA, List<BaseCharacterController> charactersB)
         {
             teamA = CreateTeam(charactersA);
@@ -116,6 +116,9 @@ namespace Assets.Scripts.Modules
         private IEnumerator ChangingTurnProcess(float waitTime = 0)
         {
             yield return new WaitForSeconds(waitTime);
+
+            if ((teamA.Count + teamB.Count) == 0)
+                yield break;
 
             currentTurn = (currentTurn + 1) % (teamA.Count + teamB.Count);
             CharacterOnTurn.Value = GetCharacterOnTurn();
@@ -184,8 +187,8 @@ namespace Assets.Scripts.Modules
 
         private void QuestionTimerRunout()
         {
-            attackerAnswer ??= new(false, 0);
-            targetAnswer ??= new(false, 0);
+            attackerAnswer ??= new(currentQuestion, false, 0);
+            targetAnswer ??= new(currentQuestion, false, 0);
 
             EvaluateAnswers();
         }
@@ -265,6 +268,14 @@ namespace Assets.Scripts.Modules
 
         public void Attack(BaseCharacterController attacker, uint targetId)
         {
+            if (attacker.IsStunned())
+            {
+                attacker.UseStun();
+                ChangeTurn(1.5f);
+                
+                return;
+            }
+
             actionFinished = true;
 
             BaseCharacterController target = IsInTeam(teamA, attacker) ? teamB[targetId] : teamA[targetId];
@@ -318,7 +329,7 @@ namespace Assets.Scripts.Modules
             if (player != null)
                 QuestionAnswered?.Invoke(player, isCorrect);
 
-            Answer characterAnswer = new(isCorrect, remainingQuestionTime);
+            Answer characterAnswer = new(currentQuestion, isCorrect, remainingQuestionTime);
 
             if (IsOnTurn(character))
             {
@@ -336,12 +347,9 @@ namespace Assets.Scripts.Modules
                 EvaluateAnswers();
         }
 
-        private void QuestionAnswerFailed()
+        private void QuestionAnswerFailed(bool isEvaded)
         {
-            if (currentTarget is PlayerController)
-                EnemyAttackFailed?.Invoke(currentTarget as PlayerController);
-            else
-                PlayerAttackFailed?.Invoke(currentTarget as EnemyController);
+            AttackFailed?.Invoke(currentTarget, isEvaded);
         }
 
         private void EvaluateAnswers()
@@ -349,20 +357,9 @@ namespace Assets.Scripts.Modules
             StopQuestionTimer();
 
             BaseCharacterController attacker = CharacterOnTurn.Value;
+            BaseCharacterController target = currentTarget;
 
-            if (CharacterOnTurn.Value is EnemyController)
-                EnemyAttack?.Invoke(attacker as EnemyController, currentTarget);
-            else
-                PlayerAttack?.Invoke(attacker as PlayerController, currentTarget);
-
-            if (!attackerAnswer.IsCorrect)
-            {
-                QuestionAnswerFailed();
-                EndQuestion();
-                return;
-            }
-
-            int damage = attacker.GetDamage(currentQuestion, attackerAnswer.RemainingTime);
+            int damage = attackerAnswer.IsCorrect ? attacker.GetDamage(currentQuestion, attackerAnswer.RemainingTime) : 0;
 
             float defense = 1f;
 
@@ -371,24 +368,41 @@ namespace Assets.Scripts.Modules
                 defense = 0.85f;
 
                 if (attackerAnswer.RemainingTime < targetAnswer.RemainingTime)
-                {    
-                    defense = currentTarget.GetDefense(currentQuestion, targetAnswer.RemainingTime);
-
-                    if (currentTarget is PlayerController)
-                        EnemyAttackBlocked?.Invoke(currentTarget as PlayerController);
-                    else
-                        PlayerAttackBlocked?.Invoke(currentTarget as EnemyController);
-                }
-
+                    defense = target.GetDefense(currentQuestion, targetAnswer.RemainingTime);
             }
 
-            int finalDamage = Mathf.FloorToInt(damage * defense);
+            damage = attacker.BeforeDamage(damage, target, attackerAnswer, targetAnswer);
+            defense = target.BeforeDefense(defense, attacker, targetAnswer, attackerAnswer);
 
-            HealthModule targetHealth = currentTarget.GetComponent<HealthModule>();
-            int targetHp = targetHealth.TakeHP(finalDamage);
+            int finalDamage = Mathf.FloorToInt(damage * defense);
+            int dmgToDeal = attacker.BeforeFinalDamage(finalDamage, damage, defense, target, attackerAnswer, targetAnswer);
+
+
+            if (defense < 1 && dmgToDeal != 0)
+            {
+                if (dmgToDeal > finalDamage)
+                    AttackBlocked?.Invoke(target, true);
+                else
+                    AttackBlocked?.Invoke(target, false);
+            }
+
+            if (dmgToDeal == 0)
+            {
+                attacker.AfterDamage(target, attackerAnswer, targetAnswer);
+                target.AfterDefense(attacker, targetAnswer, attackerAnswer);
+
+                QuestionAnswerFailed(damage != 0);
+                EndQuestion();
+                return;
+            }
+
+            int targetHp = attacker.DoAttack(target, dmgToDeal);
+
+            attacker.AfterDamage(target, attackerAnswer, targetAnswer);
+            target.AfterDefense(attacker, targetAnswer, attackerAnswer);
 
             if (targetHp <= 0)
-                Death(currentTarget);
+                Death(target);
 
             EndQuestion();
         }
@@ -442,7 +456,7 @@ namespace Assets.Scripts.Modules
 
             Dictionary<uint, BaseCharacterController> team = IsInTeam(teamA, enemy) ? teamB : teamA;
 
-            int enemyIndex = currentTurn - teamB.Count;
+            int enemyIndex = (currentTurn >= teamA.Count) ? (currentTurn - teamA.Count) : currentTurn;
             uint targetId = PickTarget(team, enemyIndex);
 
             Attack(enemy, targetId);
@@ -464,6 +478,7 @@ namespace Assets.Scripts.Modules
             else
             {
                 EnemyController enemy = character as EnemyController;
+                EnemyEliminated?.Invoke(enemy);
                 deadEnemies.Add(enemy.Id, enemy);
             }
 
@@ -474,15 +489,15 @@ namespace Assets.Scripts.Modules
 
             Dictionary<uint, BaseCharacterController> winningTeam = !IsInTeam(teamA, character) ? teamA : teamB;
 
-            EndCombat(winningTeam, playerWon);
+            EndCombat(winningTeam, team, playerWon);
         }
 
-        private void EndCombat(Dictionary<uint, BaseCharacterController> winningTeam, bool playerWon)
+        private void EndCombat(Dictionary<uint, BaseCharacterController> winningTeam, Dictionary<uint, BaseCharacterController> losingTeam, bool playerWon)
         {
             isRoundTimeRunning = false;
 
             if (playerWon)
-                CombatEnded?.Invoke(this, winningTeam.Values.ToList());
+                CombatEnded?.Invoke(this, winningTeam.Values.ToList(), losingTeam.Values.ToList());
 
             StopCoroutine(turnTimerCoroutine);
 

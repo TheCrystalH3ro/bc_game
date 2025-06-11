@@ -95,7 +95,7 @@ namespace Assets.Scripts.Models
 
         public Sprite GetSprite()
         {
-            return ClassAnimationController.Singleton.GetCharacterSprite(playerClass);
+            return ClassController.Singleton.GetCharacterSprite(playerClass);
         }
 
         public int GetHealth()

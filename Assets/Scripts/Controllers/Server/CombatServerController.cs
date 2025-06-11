@@ -33,7 +33,7 @@ namespace Assets.Scripts.Controllers.Server
 
         [SerializeField] private GameObject combatModulePrefab;
 
-        private Dictionary<NetworkConnection, CombatModule> instances = new();
+        private Dictionary<BaseCharacterController, CombatModule> instances = new();
 
         public static readonly string COMBAT_SCENE_NAME = "Combat"; 
 
@@ -74,6 +74,11 @@ namespace Assets.Scripts.Controllers.Server
 
             foreach (BaseCharacterController character in characters)
             {
+                instances.Remove(character);
+
+                character.OnAttack.RemoveListener(OnAttack);
+                character.OnStun.RemoveListener(OnStun);
+
                 PlayerController player = character as PlayerController;
 
                 if (player == null)
@@ -81,11 +86,11 @@ namespace Assets.Scripts.Controllers.Server
 
                 connections.Add(player.Owner);
 
-                instances.Remove(player.Owner);
                 player.LeaveCombatRpc();
             }
 
-            SceneModule.Singleton.LeaveInstance(connections, newScene);
+            if(connections.Count > 0)
+                SceneModule.Singleton.LeaveInstance(connections, newScene);
         }
 
         public void Initialize(List<NetworkConnection> connections, EnemyController enemy, int sceneHandle)
@@ -105,22 +110,26 @@ namespace Assets.Scripts.Controllers.Server
                 PlayerController player = PlayerController.FindByConnection(connection);
                 players.Add(player);
 
+                player.OnAttack.AddListener(OnAttack);
+                player.OnStun.AddListener(OnStun);
+
                 EnemyController enemyInstance = SetEnemy(enemy, sceneHandle, enemySlots[enemies.Count].transform.position);
                 enemies.Add(enemyInstance);
 
-                instances.Add(player.Owner, combatModule);
+                enemyInstance.OnAttack.AddListener(OnAttack);
+                enemyInstance.OnStun.AddListener(OnStun);
+
+                instances.Add(player, combatModule);
+                instances.Add(enemyInstance, combatModule);
             }
 
             combatModule.StartCombat(players, enemies);
 
-            combatModule.PlayerAttack.AddListener(OnPlayerAttack);
-            combatModule.EnemyAttack.AddListener(OnEnemyAttack);
             combatModule.CombatEnded.AddListener(OnCombatEnded);
-            combatModule.PlayerAttackFailed.AddListener(OnPlayerAttackFailed);
-            combatModule.EnemyAttackFailed.AddListener(OnEnemyAttackFailed);
-            combatModule.PlayerAttackBlocked.AddListener(OnPlayerAttackBlocked);
-            combatModule.EnemyAttackBlocked.AddListener(OnEnemyAttackBlocked);
+            combatModule.AttackFailed.AddListener(OnAttackFailed);
+            combatModule.AttackBlocked.AddListener(OnAttackBlocked);
             combatModule.PlayerEliminated.AddListener(OnPlayerDeath);
+            combatModule.EnemyEliminated.AddListener(OnEnemyDeath);
             combatModule.QuestionAnswered.AddListener(OnQuestionAnswered);
         }
 
@@ -137,11 +146,16 @@ namespace Assets.Scripts.Controllers.Server
             return enemyController;
         }
 
+        public CombatModule GetInstance(BaseCharacterController character)
+        {
+            return instances.FirstOrDefault(kvp => kvp.Key.Equals(character)).Value;
+        }
+
         [ServerRpc(RequireOwnership = false)]
-        public void Attack(uint targetId, NetworkConnection sender = null)
+        public void PlayerAttack(uint targetId, NetworkConnection sender = null)
         {
             PlayerController player = PlayerController.FindByConnection(sender);
-            CombatModule combatModule = instances[player.Owner];
+            CombatModule combatModule = instances[player];
 
             if (!combatModule.IsValidAttack(player, targetId))
                 return;
@@ -153,7 +167,7 @@ namespace Assets.Scripts.Controllers.Server
         public void AnswerQuestion(uint answerId, NetworkConnection sender = null)
         {
             PlayerController player = PlayerController.FindByConnection(sender);
-            CombatModule combatModule = instances[player.Owner];
+            CombatModule combatModule = instances[player];
 
             if (!combatModule.IsValidAnswer(player))
                 return;
@@ -175,74 +189,61 @@ namespace Assets.Scripts.Controllers.Server
         }
 
         [ObserversRpc]
-        private void PlayerAttack(uint playerId, uint targetId)
+        private void Attack(Target attacker, Target target)
         {
-            CombatController.Singleton.PlayerAttack(playerId, targetId);
+            CombatController.Singleton.OnAttack(attacker, target);
         }
 
-        private void OnPlayerAttackFailed(BaseCharacterController target)
+        private void OnAttackFailed(BaseCharacterController target, bool isEvaded)
         {
-            PlayerAttackMissed(target.GetId());
-        }
-
-        [ObserversRpc]
-        private void PlayerAttackMissed(uint targetId)
-        {
-            CombatController.Singleton.PlayerAttackMissed(targetId);
-        }
-
-        private void OnPlayerAttackBlocked(BaseCharacterController target)
-        {
-            PlayerAttackBlocked(target.GetId());
+            AttackMissed(target.ToTarget(), isEvaded);
         }
 
         [ObserversRpc]
-        private void PlayerAttackBlocked(uint targetId)
+        private void AttackMissed(Target target, bool isEvaded)
         {
-            CombatController.Singleton.PlayerAttackBlocked(targetId);
+            CombatController.Singleton.AttackMissed(target, isEvaded);
         }
 
-        private void OnPlayerAttack(PlayerController player, BaseCharacterController target)
+        private void OnAttackBlocked(BaseCharacterController target, bool isPierced)
         {
-            PlayerAttack(player.GetPlayerCharacter().GetId(), target.GetId());
-        }
-
-        private void OnEnemyAttackFailed(BaseCharacterController target)
-        {
-            EnemyAttackMissed(target.GetId());
+            AttackBlocked(target.ToTarget(), isPierced);
         }
 
         [ObserversRpc]
-        private void EnemyAttackMissed(uint targetId)
+        private void AttackBlocked(Target target, bool isPierced)
         {
-            CombatController.Singleton.EnemyAttackMissed(targetId);
+            CombatController.Singleton.AttackBlocked(target, isPierced);
         }
 
-        private void OnEnemyAttackBlocked(BaseCharacterController target)
+        private void OnStun(BaseCharacterController target)
         {
-            EnemyAttackBlocked(target.GetId());
-        }
-
-        [ObserversRpc]
-        private void EnemyAttackBlocked(uint targetId)
-        {
-            CombatController.Singleton.EnemyAttackBlocked(targetId);
-        }
-
-        private void OnEnemyAttack(EnemyController enemy, BaseCharacterController target)
-        {
-            EnemyAttack(enemy.Id, target.GetId());
+            Stunned(target.ToTarget());
         }
 
         [ObserversRpc]
-        private void EnemyAttack(uint enemyId, uint targetId)
+        private void Stunned(Target target)
         {
-            CombatController.Singleton.EnemyAttack(enemyId, targetId);
+            CombatController.Singleton.Stunned(target);
+        }
+
+        private void OnAttack(BaseCharacterController attacker, BaseCharacterController target)
+        {
+            Attack(attacker.ToTarget(), target.ToTarget());
         }
 
         public void OnPlayerDeath(PlayerController player)
         {
+            player.OnAttack.RemoveListener(OnAttack);
+            player.OnStun.RemoveListener(OnStun);
+
             StartCoroutine(PlayerDied(player));
+        }
+
+        public void OnEnemyDeath(EnemyController enemy)
+        {
+            enemy.OnAttack.RemoveListener(OnAttack);
+            enemy.OnStun.RemoveListener(OnStun);
         }
 
         private IEnumerator PlayerDied(PlayerController player)
@@ -254,15 +255,21 @@ namespace Assets.Scripts.Controllers.Server
             player.RespawnPlayer();
         }
 
-        private void OnCombatEnded(CombatModule combatModule, List<BaseCharacterController> players)
+        private void OnCombatEnded(CombatModule combatModule, List<BaseCharacterController> teamA, List<BaseCharacterController> teamB)
         {
-            if (players.Count > 0)
+            if (teamA.Count > 0)
             {
-                MoveOutOfCombat(players);
+                MoveOutOfCombat(teamA);
+            }
+
+            if (teamA.Count > 0)
+            {
+                MoveOutOfCombat(teamB);
             }
 
             combatModule.CombatEnded.RemoveListener(OnCombatEnded);
-            combatModule.EnemyAttack.RemoveListener(OnEnemyAttack);
+            combatModule.AttackFailed.RemoveListener(OnAttackFailed);
+            combatModule.AttackBlocked.RemoveListener(OnAttackBlocked);
             combatModule.PlayerEliminated.RemoveListener(OnPlayerDeath);
             combatModule.QuestionAnswered.RemoveListener(OnQuestionAnswered);
         }

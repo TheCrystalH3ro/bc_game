@@ -222,12 +222,12 @@ GameObject:
   - component: {fileID: 3263957809805876574}
   - component: {fileID: -4707288336433894192}
   - component: {fileID: 5702771929175616037}
-  - component: {fileID: 1267737902057368328}
   - component: {fileID: 3611044871304353390}
   - component: {fileID: 7502699605544101477}
   - component: {fileID: 8643215451577989272}
   - component: {fileID: 4591508915366481650}
   - component: {fileID: 8541999166470816635}
+  - component: {fileID: 7262041855272846949}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -460,9 +460,14 @@ MonoBehaviour:
   _networkObjectCache: {fileID: 7502699605544101477}
   hoverCursor: {fileID: 2800000, guid: c5533c9859e0012459630c3e790bf542, type: 3}
   selectIndicator: {fileID: 0}
-  floatTextPrefab: {fileID: 8897392211876304230, guid: df385db905f9d69489bf087ba3069038, type: 3}
   whiteFlashDuration: 0.05
   redFlashDuration: 0.1
+  OnAttack:
+    m_PersistentCalls:
+      m_Calls: []
+  OnStun:
+    m_PersistentCalls:
+      m_Calls: []
   playerName: {fileID: 4430801892695631280}
   playerStatusPrefab: {fileID: 4296549916899931298, guid: d6328fbf10221284fbefa8321a2fcd70, type: 3}
 --- !u!114 &5702771929175616037
@@ -481,22 +486,6 @@ MonoBehaviour:
   _addedNetworkObject: {fileID: 7502699605544101477}
   _networkObjectCache: {fileID: 7502699605544101477}
   moveSpeed: 5
---- !u!114 &1267737902057368328
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7362200074529973233}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b355dc762434694099963aed4c7e14f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  BASE_DAMAGE: 10
-  perfectTimeThreshold: 0.8
-  goodTimeThreshold: 0.65
-  averageTimeThreshold: 0.4
 --- !u!114 &3611044871304353390
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -661,3 +650,17 @@ MonoBehaviour:
   _interpolation: 2
   _clientAuthoritative: 0
   _sendToOwner: 0
+--- !u!114 &7262041855272846949
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7362200074529973233}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c19084c3773ec4a4bb585797cdf4c739, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  floatTextPrefab: {fileID: 8897392211876304230, guid: df385db905f9d69489bf087ba3069038, type: 3}
+  delay: 0.5

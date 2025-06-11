@@ -8,12 +8,10 @@ using Assets.Scripts.UI.Controllers;
 using Assets.Scripts.Util;
 using Cinemachine;
 using FishNet.Component.Animating;
-using FishNet.Component.Transforming;
 using FishNet.Connection;
 using FishNet.Managing.Scened;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
-using NUnit.Framework;
 using UnityEngine;
 
 namespace Assets.Scripts.Controllers
@@ -21,9 +19,6 @@ namespace Assets.Scripts.Controllers
     public class PlayerController : BaseCharacterController
     {
         public static PlayerController Singleton { get; private set; }
-
-        private Rigidbody2D rb;
-        private NetworkAnimator networkAnimator;
 
         [SerializeField] private TMPro.TextMeshPro playerName;
 
@@ -34,10 +29,6 @@ namespace Assets.Scripts.Controllers
         private readonly SyncVar<PlayerCharacter> playerCharacter = new(new SyncTypeSettings());
 
         public static event Action OnEscapePressed;
-
-        private MovementModule movementModule;
-        private AttackModule attackModule;
-
         private IParty party;
 
         protected bool IsInCombat = false;
@@ -47,18 +38,8 @@ namespace Assets.Scripts.Controllers
         public static event Action<PlayerController> PlayerSpawned;
         public static event Action<PlayerController, string> ZoneChanged;
 
-        void Awake()
-        {
-            rb = gameObject.GetComponent<Rigidbody2D>();
-            animator = gameObject.GetComponent<Animator>();
-            spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
-            networkAnimator = gameObject.GetComponent<NetworkAnimator>();
-            attackModule = gameObject.GetComponent<AttackModule>();
-        }
-
         public override void OnStartNetwork()
         {
-            movementModule = gameObject.GetComponent<MovementModule>();
             playerCharacter.OnChange += PlayerCharacterChanged;
 
             PlayerSpawned?.Invoke(this);
@@ -116,6 +97,14 @@ namespace Assets.Scripts.Controllers
             return Equals(otherPlayer);
         }
 
+        public override bool Equals(Target target)
+        {
+            if (target.IsBot)
+                return false;
+
+            return GetId() == target.Id;
+        }
+
         public bool Equals(PlayerController other)
         {
             return playerCharacter.Value.Equals(other.GetPlayerCharacter());
@@ -124,6 +113,11 @@ namespace Assets.Scripts.Controllers
         public override string ToString()
         {
             return playerCharacter.Value.GetName();
+        }
+
+        public override Target ToTarget()
+        {
+            return new(GetId(), false);
         }
 
         public override uint GetId()
@@ -162,12 +156,25 @@ namespace Assets.Scripts.Controllers
 
         private void PlayerCharacterChanged(PlayerCharacter prev, PlayerCharacter next, bool asServer)
         {
-            animator.runtimeAnimatorController = ClassAnimationController.Singleton.GetCharacterAnimatorController(next.GetPlayerClass());
+            animator.runtimeAnimatorController = ClassController.Singleton.GetCharacterAnimatorController(next.GetPlayerClass());
 
             if (playerName != null)
             {
                 playerName.text = next.GetName();
             }
+
+            if (prev != null && prev.GetPlayerClass() != next.GetPlayerClass() && attackModule != null)
+            {
+                Destroy(attackModule);
+                attackModule = null;
+            }
+
+            if (attackModule == null)
+                {
+                    Type attackModuleType = ClassController.Singleton.GetCharacterAttackModule(playerCharacter.Value.GetPlayerClass());
+                    gameObject.AddComponent(attackModuleType);
+                    attackModule = gameObject.GetComponent<AttackModule>();
+                }
 
             if (!IsOwner) return;
 
@@ -355,19 +362,9 @@ namespace Assets.Scripts.Controllers
             playerCharacter.Value.SetCurrentScene(zoneName);
         }
 
-        public override int GetDamage(FlashCard flashCard, float remainingTime)
-        {
-            return attackModule.GetDamage(flashCard, remainingTime);
-        }
-
-        public override float GetDefense(FlashCard flashCard, float remainingTime)
-        {
-            return attackModule.GetDefense(flashCard, remainingTime);
-        }
-
         public override RuntimeAnimatorController GetHitAnimator()
         {
-            return ClassAnimationController.Singleton.GetCharacterAttackAnimatorController(playerCharacter.Value.GetPlayerClass());
+            return ClassController.Singleton.GetCharacterAttackAnimatorController(playerCharacter.Value.GetPlayerClass());
         }
     }
 }

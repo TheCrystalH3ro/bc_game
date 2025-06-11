@@ -15,8 +15,6 @@ namespace Assets.Scripts.Controllers.Server
 
         public NetworkObject Prefab;
 
-        private EnemyAttackModule attackModule;
-
         public IEnemy Character { get; private set; }
 
         public uint Id { get; private set; }
@@ -48,6 +46,14 @@ namespace Assets.Scripts.Controllers.Server
             return Equals(otherEnemy);
         }
 
+        public override bool Equals(Target target)
+        {
+            if (!target.IsBot)
+                return false;
+
+            return Id == target.Id;
+        }
+
         public bool Equals(EnemyController enemy)
         {
             return this.Id == enemy.Id;
@@ -56,6 +62,11 @@ namespace Assets.Scripts.Controllers.Server
         public override string ToString()
         {
             return Character.GetName();
+        }
+
+        public override Target ToTarget()
+        {
+            return new(GetId(), true);
         }
 
         public override uint GetId()
@@ -75,27 +86,17 @@ namespace Assets.Scripts.Controllers.Server
 
         public float GetThinkingTime(FlashCard flashCard)
         {
-            return attackModule.GetThinkingTime(flashCard);
+            return GetComponent<EnemyAttackModule>().GetThinkingTime(flashCard);
         }
 
         public uint GetQuestionAnswer(FlashCard flashCard)
         {
-            return attackModule.GetQuestionAnswer(flashCard);
-        }
-
-        public override int GetDamage(FlashCard flashCard, float remainingTime)
-        {
-            return attackModule.GetDamage(flashCard, remainingTime);
-        }
-
-        public override float GetDefense(FlashCard flashCard, float remainingTime)
-        {
-            return attackModule.GetDefense(flashCard, remainingTime);
+            return GetComponent<EnemyAttackModule>().GetQuestionAnswer(flashCard);
         }
 
         public void Learn(FlashCard question, bool isCorrect, float answeredTime)
         {
-            attackModule.Learn(question, isCorrect, answeredTime);
+            GetComponent<EnemyAttackModule>().Learn(question, isCorrect, answeredTime);
         }
     }
 }

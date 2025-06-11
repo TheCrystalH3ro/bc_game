@@ -27,7 +27,6 @@ namespace Assets.Scripts.Controllers
         }
 
         [SerializeField] private GameObject hitPrefab;
-        [SerializeField] private FloatText floatTextPrefab;
 
         private Dictionary<uint, BaseCharacterController> teamA = new();
         private Dictionary<uint, BaseCharacterController> teamB = new();
@@ -156,7 +155,7 @@ namespace Assets.Scripts.Controllers
 
                     CombatUIController.Singleton.SetButtonsActive(false);
                 }
-                
+
                 return;
             }
 
@@ -217,13 +216,13 @@ namespace Assets.Scripts.Controllers
         {
             TargetSelected();
 
-            CombatServerController.Singleton.Attack(targetId);
+            CombatServerController.Singleton.PlayerAttack(targetId);
         }
 
         private void OnQuestionCreated(FlashCard flashCard)
         {
             isAnsweringQuestion = true;
-            StartTimer((int) Math.Floor(flashCard.GetTime()), OnQuestionTimerRunOut);
+            StartTimer((int)Math.Floor(flashCard.GetTime()), OnQuestionTimerRunOut);
 
             CombatUIController.Singleton.SetQuestion(flashCard.GetQuestion(), flashCard.GetAnswers());
         }
@@ -262,82 +261,60 @@ namespace Assets.Scripts.Controllers
             CombatUIController.Singleton.SetAnswerResult(selectedAnswer, isCorrect);
         }
 
-        public void PlayerAttack(uint playerId, uint enemyId)
+        public void OnAttack(Target attacker, Target enemy)
         {
-            BaseCharacterController attacker = teamA[playerId];
-            BaseCharacterController target = teamB[enemyId];
+            BaseCharacterController character = teamA.Values.FirstOrDefault(c => c.Equals(attacker));
+            BaseCharacterController target = teamA.Values.FirstOrDefault(c => c.Equals(enemy));
+
+            bool isTargetLeft = true;
+
+            if (character == null)
+                character = teamB.Values.FirstOrDefault(c => c.Equals(attacker));
+
+            if (target == null)
+            {
+                isTargetLeft = false;
+                target = teamB.Values.FirstOrDefault(c => c.Equals(enemy));
+            }
 
             if (target == null || attacker == null)
                 return;
 
-            CombatUIController.Singleton.SetCharacterAttack(attacker, target);
+            CombatUIController.Singleton.SetCharacterAttack(character, target);
 
-            RuntimeAnimatorController hitAnimator = attacker.GetHitAnimator();
+            RuntimeAnimatorController hitAnimator = character.GetHitAnimator();
             hitPrefab.GetComponent<Animator>().runtimeAnimatorController = hitAnimator;
-            hitPrefab.GetComponent<SpriteRenderer>().flipX = false;
+            hitPrefab.GetComponent<SpriteRenderer>().flipX = isTargetLeft;
 
             Instantiate(hitPrefab, target.transform);
         }
 
-        public void PlayerAttackMissed(uint targetId)
+        public void AttackMissed(Target enemy, bool isEvaded)
         {
-            BaseCharacterController target = teamB[targetId];
-
-            if (target == null)
-                return;
-
-            FloatText floatText = Instantiate(floatTextPrefab, target.transform);
-            floatText.SetText("Missed");
+            ShowFloatText(enemy, isEvaded ? "Dodge" : "Missed");
         }
 
-        public void EnemyAttackMissed(uint targetId)
+        public void AttackBlocked(Target enemy, bool isPierced)
         {
-            BaseCharacterController target = teamA[targetId];
-
-            if (target == null)
-                return;
-
-            FloatText floatText = Instantiate(floatTextPrefab, target.transform);
-            floatText.SetText("Missed");
+            ShowFloatText(enemy, isPierced ? "Pierced" : "Blocked");
         }
 
-        public void PlayerAttackBlocked(uint targetId)
+        public void Stunned(Target enemy)
         {
-            BaseCharacterController target = teamB[targetId];
-
-            if (target == null)
-                return;
-
-            FloatText floatText = Instantiate(floatTextPrefab, target.transform);
-            floatText.SetText("Blocked");
+            ShowFloatText(enemy, "Stunned");
         }
 
-        public void EnemyAttackBlocked(uint targetId)
+        public void ShowFloatText(Target target, string text)
         {
-            BaseCharacterController target = teamA[targetId];
+            BaseCharacterController character = teamA.Values.FirstOrDefault(c => c.Equals(target));
 
-            if (target == null)
+            if (character == null)
+                character = teamB.Values.FirstOrDefault(c => c.Equals(target));
+
+            if (character == null)
                 return;
 
-            FloatText floatText = Instantiate(floatTextPrefab, target.transform);
-            floatText.SetText("Blocked");
-        }
-
-        public void EnemyAttack(uint enemyId, uint playerId)
-        {
-            BaseCharacterController attacker = teamB[enemyId];
-            BaseCharacterController target = teamA[playerId];
-
-            if (attacker == null || target == null)
-                return;
-
-            CombatUIController.Singleton.SetCharacterAttack(attacker, target);
-
-            RuntimeAnimatorController hitAnimator = attacker.GetHitAnimator();
-            hitPrefab.GetComponent<Animator>().runtimeAnimatorController = hitAnimator;
-            hitPrefab.GetComponent<SpriteRenderer>().flipX = true;
-
-            Instantiate(hitPrefab, target.transform);
+            character.DisplayFloatText(text);
         }
     }
 }
