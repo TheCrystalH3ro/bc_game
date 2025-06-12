@@ -11,8 +11,6 @@ namespace Assets.Scripts.UI.Controllers
 {
     public class AuthController : MonoBehaviour
     {
-        [SerializeField] private string apiUrl;
-
         [SerializeField] private MainMenuController mainMenuController;
 
         [SerializeField] private int maxNameLength;
@@ -30,7 +28,7 @@ namespace Assets.Scripts.UI.Controllers
         void Awake()
         {
             IValidationProvider validationProvider = new AuthValidationProvider(maxNameLength, maxEmailLength, maxPasswordLength);
-            AuthModule.Initialize(apiUrl, ValidationModule.Singleton.Validate, validationProvider);
+            AuthModule.Initialize(ValidationModule.Singleton.Validate, validationProvider);
         }
 
         public void LoginClick()
@@ -48,7 +46,7 @@ namespace Assets.Scripts.UI.Controllers
             string username = loginField.text;
             string password = passwordField.text;
 
-            StartCoroutine(AuthModule.Singleton.Login(username, password, OnLoginSuccess, OnLoginFail));
+            AuthModule.Singleton.Login(username, password, OnLoginSuccess, OnLoginFail);
         }
 
         public void Register()
@@ -58,7 +56,7 @@ namespace Assets.Scripts.UI.Controllers
             string password = registerPasswordField.text;
             string passwordConfirmation = registerPasswordConfirmationField.text;
 
-            StartCoroutine(AuthModule.Singleton.Register(username, email, password, passwordConfirmation, OnRegisterSuccess, OnRegisterFail));
+            AuthModule.Singleton.Register(username, email, password, passwordConfirmation, OnRegisterSuccess, OnRegisterFail);
         }
 
         private void OnLoginSuccess(string jwtToken)
@@ -75,7 +73,7 @@ namespace Assets.Scripts.UI.Controllers
             mainMenuController.ShowMessageBox(errorMessage);
         }
 
-        private void OnRegisterSuccess()
+        private void OnRegisterSuccess(string response)
         {
             Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
 
@@ -83,8 +81,10 @@ namespace Assets.Scripts.UI.Controllers
             mainMenuController.OpenLoginMenu();
         }
 
-        private void OnRegisterFail(ApiErrors errors)
+        private void OnRegisterFail(string errorResponse)
         {
+            ApiErrors errors = new(errorResponse);
+
             string errorMessage = "";
 
             foreach (var error in errors.errors)

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Assets.Scripts.Interfaces;
+using Assets.Scripts.Requests;
 using Assets.Scripts.Responses;
 using Assets.Scripts.Util;
 using UnityEngine;
@@ -17,102 +18,59 @@ namespace Assets.Scripts.Modules
         { 
             get
             {
-                _instance ??=  new(ConfigModule.Get("API_URL"));
+                _instance ??=  new();
 
                 return _instance;
             }
         }
 
-        private readonly string apiUrl;
-
         private readonly Func<string, List<IValidationRule>, ValidationResult> _validate;
         private readonly IValidationProvider _validationProvider;
-        public AuthModule(string apiUrl, Func<string, List<IValidationRule>, ValidationResult> validate = null, IValidationProvider validationProvider = null)
+        public AuthModule(Func<string, List<IValidationRule>, ValidationResult> validate = null, IValidationProvider validationProvider = null)
         {
-            this.apiUrl = apiUrl;
-        
             _validate = validate;
             _validationProvider = validationProvider;
         }
 
-        public static AuthModule Initialize(string apiUrl, Func<string, List<IValidationRule>, ValidationResult> validate = null, IValidationProvider validationProvider = null)
+        public static AuthModule Initialize(Func<string, List<IValidationRule>, ValidationResult> validate = null, IValidationProvider validationProvider = null)
         {
-            _instance =  new(apiUrl, validate, validationProvider);
+            _instance =  new(validate, validationProvider);
 
             return _instance;
         }
 
-        public IEnumerator Login(string username, string password, Action<string> onLoginSuccess, Action<string> onLoginFail)
+        public void Login(string username, string password, Action<string> onLoginSuccess, Action<string> onLoginFail)
         {
             if (_validate != null)
             {
                 var result = ValidateLogin(username, password);
                 if (!result.IsValid) {
                     onLoginFail?.Invoke(result.ErrorMessage);
-                    yield break;
+                    return;
                 }
             }
 
-            string loginUrl = apiUrl + "/login";
+            string loginEndPoint = "login";
+            LoginRequest loginRequestBody = new(username, password);
 
-            JSONObject json = new();
-            json.AddField("username", username);
-            json.AddField("password", password);
-
-            using (UnityWebRequest request = UnityWebRequest.Put(loginUrl, json.ToString())) {
-
-                request.method = UnityWebRequest.kHttpVerbPOST;
-                request.SetRequestHeader("Content-Type", "application/json"); 
-
-                yield return request.SendWebRequest();
-
-                if (request.result != UnityWebRequest.Result.Success) {
-                    onLoginFail?.Invoke(request.error);
-                    yield break;
-                }
-
-                string jwtToken = request.downloadHandler.text;
-                onLoginSuccess?.Invoke(jwtToken);
-            }
+            RequestModule.Singleton.PostRequest(loginEndPoint, null, loginRequestBody, onLoginSuccess, onLoginFail);
         }
 
-        public IEnumerator Register(string username, string email, string password, string passwordConfirmation, Action onRegisterSuccess, Action<ApiErrors> onRegisterFail) {
+        public void Register(string username, string email, string password, string passwordConfirmation, Action<string> onRegisterSuccess, Action<string> onRegisterFail) {
 
             if (_validate != null)
             {
                 var result = ValidateRegister(username, email, password, passwordConfirmation);
                 if (!result.IsValid) {
-                    onRegisterFail?.Invoke(new(result.ErrorMessage));
-                    yield break;
+                    onRegisterFail?.Invoke(result.ErrorMessage);
+                    return;
                 }
             }
-        
-            string registrationUrl = apiUrl + "/register";
 
-            JSONObject json = new();
-            json.AddField("username", username);
-            json.AddField("email", email);
-            json.AddField("password", password);
-            json.AddField("password_confirm", passwordConfirmation);
-
-            using (UnityWebRequest request = UnityWebRequest.Put(registrationUrl, json.ToString())) {
-
-                request.method = UnityWebRequest.kHttpVerbPOST;
-                request.SetRequestHeader("Content-Type", "application/json"); 
-
-                yield return request.SendWebRequest();
-
-                if (request.result != UnityWebRequest.Result.Success) {
-                    Debug.LogError("Error registering user: " + request.error);
-                    Debug.LogError(request.downloadHandler.text);
-                    ApiErrors errors = ApiErrors.CreateFromJSON(request.downloadHandler.text);
-                    onRegisterFail?.Invoke(errors);
-                    yield break;
-                }
-
-                onRegisterSuccess?.Invoke();
-            }
-        
+            string registerEndPoint = "register";
+            RegisterRequest registerRequestBody = new(username, email, password, passwordConfirmation);
+            
+            RequestModule.Singleton.PostRequest(registerEndPoint, null, registerRequestBody, onRegisterSuccess, onRegisterFail);
         }
 
         private ValidationResult ValidateField(string fieldKey, string value, object context = null)
