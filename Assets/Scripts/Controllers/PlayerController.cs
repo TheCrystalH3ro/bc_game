@@ -236,7 +236,7 @@ namespace Assets.Scripts.Controllers
         [Server]
         public void Load(Action<PlayerCharacter> onLoadSuccess = null, Action<string> onLoadFail = null)
         {
-            StartCoroutine(GameDataModule.Singleton.LoadPlayerData(playerCharacter.Value.GetId(), playerData =>
+            GameDataModule.Singleton.LoadPlayerData(playerCharacter.Value.GetId(), playerData =>
             {
                 if (playerCharacter.Value.GetId() != playerData.id)
                     return;
@@ -253,11 +253,11 @@ namespace Assets.Scripts.Controllers
 
                 onLoadSuccess?.Invoke(playerCharacter.Value);
             },
-            error =>
+            response =>
             {
-                Debug.Log("Error while trying to save the character: " + error);
-                onLoadFail?.Invoke(error);
-            }));
+                Debug.Log("Error while trying to save the character: " + response.error);
+                onLoadFail?.Invoke(response.error);
+            });
         }
 
         [Server]
@@ -265,14 +265,14 @@ namespace Assets.Scripts.Controllers
         {
             IPlayerData saveData = new PlayerData(playerCharacter.Value, transform.position, ActiveScene);
 
-            StartCoroutine(GameDataModule.Singleton.SavePlayerData(playerCharacter.Value.GetId(), saveData, () =>
+            GameDataModule.Singleton.SavePlayerData(playerCharacter.Value.GetId(), saveData, response =>
             {
                 onSave?.Invoke();
             },
-            error =>
+            response =>
             {
-                Debug.Log("Error while trying to save the character: " + error);
-            }));
+                Debug.Log("Error while trying to save the character: " + response.error);
+            });
         }
 
         public void EnterCombatRpc()
