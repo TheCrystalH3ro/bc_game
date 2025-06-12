@@ -335,13 +335,17 @@ namespace Assets.Scripts.Modules
                 return;
 
             bool isCorrect = currentQuestion.IsCorrectAnswer(answer);
+            float answerTime = remainingQuestionTime;
 
             PlayerController player = character as PlayerController;
 
             if (player != null)
+            {
                 QuestionAnswered?.Invoke(player, isCorrect);
+                FlashCardModule.Singleton.SavePerformance(player, currentQuestion, isCorrect, answerTime);
+            }
 
-            Answer characterAnswer = new(currentQuestion, isCorrect, remainingQuestionTime);
+            Answer characterAnswer = new(currentQuestion, isCorrect, answerTime);
 
             if (IsOnTurn(character))
             {

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Assets.Scripts.Controllers;
 using Assets.Scripts.Controllers.Server;
 using Assets.Scripts.Models;
+using Assets.Scripts.Requests;
 using Assets.Scripts.Responses;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -37,7 +38,7 @@ namespace Assets.Scripts.Modules
                 flashCardUrl += "/character/" + character.GetId();
             else
                 flashCardUrl += "/enemy/" + ((int)(character as EnemyController).GetEnemyType());
-            
+
             using (UnityWebRequest request = UnityWebRequest.Get(flashCardUrl))
             {
                 request.SetRequestHeader("Authorization", apiKey);
@@ -54,6 +55,31 @@ namespace Assets.Scripts.Modules
                 FlashCard flashCard = new(flashCardResponse);
 
                 onFlashCardGeneratedSuccess?.Invoke(flashCard);
+            }
+        }
+
+        public void SavePerformance(PlayerController player, FlashCard flashCard, bool isCorrect, float time)
+        {
+            StartCoroutine(SendPerformance(player, flashCard, isCorrect, time));
+        }
+
+        private IEnumerator SendPerformance(PlayerController player, FlashCard flashCard, bool isCorrect, float time)
+        {
+            string flashCardUrl = $"{apiUrl}/question/character/{player.GetId()}";
+
+            FlashCardPerformanceRequest performanceData = new(flashCard.GetId(), isCorrect, time);
+
+            using UnityWebRequest request = UnityWebRequest.Put(flashCardUrl, performanceData.ToJson());
+
+            request.method = "PATCH";
+            request.SetRequestHeader("Authorization", apiKey);
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (request.result != UnityWebRequest.Result.Success)
+            {
+                Debug.Log(request.error);
             }
         }
     }

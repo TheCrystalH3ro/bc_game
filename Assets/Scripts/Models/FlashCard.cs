@@ -5,6 +5,7 @@ namespace Assets.Scripts.Models
 {
     public class FlashCard
     {
+        private uint id;
         private string question;
         private Dictionary<uint, string> answers;
         
@@ -30,6 +31,7 @@ namespace Assets.Scripts.Models
 
         public FlashCard(FlashCardResponse response)
         {
+            this.id = response.id;
             this.question = response.question;
             this.answers = new();
             this.correctAnswer = response.correctAnswer;
@@ -42,6 +44,11 @@ namespace Assets.Scripts.Models
         public bool Equals(FlashCard other)
         {
             return question.Equals(other.GetQuestion());
+        }
+
+        public uint GetId()
+        {
+            return id;
         }
 
         public string GetQuestion()

@@ -381,6 +381,7 @@ MonoBehaviour:
       m_Calls: []
   enemyName: Base Enemy
   enemyLevel: 1
+  type: 1
   hitAnimator: {fileID: 9100000, guid: c94d16b9ca8cf06449b4c36fba02b44b, type: 2}
   Prefab: {fileID: 0}
 --- !u!114 &6101508134944757083
