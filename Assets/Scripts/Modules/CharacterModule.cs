@@ -31,14 +31,14 @@ namespace Assets.Scripts.Modules
             this.apiUrl = apiUrl;
         }
 
-        public void GetCharacters(string authToken, Action<CharactersResponse> onGetSuccess, Action<string> onGetFail)
+        public void GetCharacters(string authToken, Action<CharactersResponse> onGetSuccess, Action<UnityWebRequest> onGetFail)
         {
             string characterEndPoint = "character";
 
             RequestModule.Singleton.GetRequest(characterEndPoint, authToken, onGetSuccess, onGetFail);
         }
 
-        public void CreateCharacter(string name, int characterClass, string authToken, Action<CharacterResponse> onCreateSuccess, Action<string> onCreateFail)
+        public void CreateCharacter(string name, int characterClass, string authToken, Action<CharacterResponse> onCreateSuccess, Action<UnityWebRequest> onCreateFail)
         {
             string createEndPoint = "character";
 
@@ -47,7 +47,7 @@ namespace Assets.Scripts.Modules
             RequestModule.Singleton.PostRequest(createEndPoint, authToken, createRequest, onCreateSuccess, onCreateFail);
         }
 
-        public void DeleteCharacter(uint id, string authToken, Action<string> onDeleteSuccess, Action<string> onDeleteFail)
+        public void DeleteCharacter(uint id, string authToken, Action<string> onDeleteSuccess, Action<UnityWebRequest> onDeleteFail)
         {
             string deleteEndPoint = $"character/{id}";
 

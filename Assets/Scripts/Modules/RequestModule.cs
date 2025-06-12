@@ -19,52 +19,52 @@ namespace Assets.Scripts.Modules
             Singleton = this;
         }
 
-        public void GetRequest<T>(string endPoint, string apiKey = null, Action<T> onSuccess = null, Action<string> onFail = null) where T : BaseResponse
+        public void GetRequest<T>(string endPoint, string apiKey = null, Action<T> onSuccess = null, Action<UnityWebRequest> onFail = null) where T : BaseResponse
         {
             StartCoroutine(MakeRequest(endPoint, RequestMethod.GET, apiKey, null, onSuccess, onFail));
         }
 
-        public void GetRequest(string endPoint, string apiKey = null, Action<string> onSuccess = null, Action<string> onFail = null)
+        public void GetRequest(string endPoint, string apiKey = null, Action<string> onSuccess = null, Action<UnityWebRequest> onFail = null)
         {
             StartCoroutine(MakeRequest(endPoint, RequestMethod.GET, apiKey, null, onSuccess, onFail));
         }
 
-        public void PostRequest<T>(string endPoint, string apiKey = null, BaseRequest body = null, Action<T> onSuccess = null, Action<string> onFail = null) where T : BaseResponse
+        public void PostRequest<T>(string endPoint, string apiKey = null, BaseRequest body = null, Action<T> onSuccess = null, Action<UnityWebRequest> onFail = null) where T : BaseResponse
         {
             StartCoroutine(MakeRequest(endPoint, RequestMethod.POST, apiKey, body, onSuccess, onFail));
         }
 
-        public void PostRequest(string endPoint, string apiKey = null, BaseRequest body = null, Action<string> onSuccess = null, Action<string> onFail = null)
+        public void PostRequest(string endPoint, string apiKey = null, BaseRequest body = null, Action<string> onSuccess = null, Action<UnityWebRequest> onFail = null)
         {
             StartCoroutine(MakeRequest(endPoint, RequestMethod.POST, apiKey, body, onSuccess, onFail));
         }
 
-        public void PutRequest<T>(string endPoint, string apiKey = null, BaseRequest body = null, Action<T> onSuccess = null, Action<string> onFail = null) where T : BaseResponse
+        public void PutRequest<T>(string endPoint, string apiKey = null, BaseRequest body = null, Action<T> onSuccess = null, Action<UnityWebRequest> onFail = null) where T : BaseResponse
         {
             StartCoroutine(MakeRequest(endPoint, RequestMethod.PUT, apiKey, body, onSuccess, onFail));
         }
 
-        public void PutRequest(string endPoint, string apiKey = null, BaseRequest body = null, Action<string> onSuccess = null, Action<string> onFail = null)
+        public void PutRequest(string endPoint, string apiKey = null, BaseRequest body = null, Action<string> onSuccess = null, Action<UnityWebRequest> onFail = null)
         {
             StartCoroutine(MakeRequest(endPoint, RequestMethod.PUT, apiKey, body, onSuccess, onFail));
         }
 
-        public void PatchRequest<T>(string endPoint, string apiKey = null, BaseRequest body = null, Action<T> onSuccess = null, Action<string> onFail = null) where T : BaseResponse
+        public void PatchRequest<T>(string endPoint, string apiKey = null, BaseRequest body = null, Action<T> onSuccess = null, Action<UnityWebRequest> onFail = null) where T : BaseResponse
         {
             StartCoroutine(MakeRequest(endPoint, RequestMethod.PATCH, apiKey, body, onSuccess, onFail));
         }
 
-        public void PatchRequest(string endPoint, string apiKey = null, BaseRequest body = null, Action<string> onSuccess = null, Action<string> onFail = null)
+        public void PatchRequest(string endPoint, string apiKey = null, BaseRequest body = null, Action<string> onSuccess = null, Action<UnityWebRequest> onFail = null)
         {
             StartCoroutine(MakeRequest(endPoint, RequestMethod.PATCH, apiKey, body, onSuccess, onFail));
         }
 
-        public void DeleteRequest<T>(string endPoint, string apiKey = null, Action<T> onSuccess = null, Action<string> onFail = null) where T : BaseResponse
+        public void DeleteRequest<T>(string endPoint, string apiKey = null, Action<T> onSuccess = null, Action<UnityWebRequest> onFail = null) where T : BaseResponse
         {
             StartCoroutine(MakeRequest(endPoint, RequestMethod.DELETE, apiKey, null, onSuccess, onFail));
         }
 
-        public void DeleteRequest(string endPoint, string apiKey = null, Action<string> onSuccess = null, Action<string> onFail = null)
+        public void DeleteRequest(string endPoint, string apiKey = null, Action<string> onSuccess = null, Action<UnityWebRequest> onFail = null)
         {
             StartCoroutine(MakeRequest(endPoint, RequestMethod.DELETE, apiKey, null, onSuccess, onFail));
         }
@@ -99,7 +99,7 @@ namespace Assets.Scripts.Modules
             return request;
         }
 
-        private IEnumerator MakeRequest<T>(string endPoint, RequestMethod method, string apiKey = null, BaseRequest body = null, Action<T> onSuccess = null, Action<string> onFail = null) where T : BaseResponse
+        private IEnumerator MakeRequest<T>(string endPoint, RequestMethod method, string apiKey = null, BaseRequest body = null, Action<T> onSuccess = null, Action<UnityWebRequest> onFail = null) where T : BaseResponse
         {
             using UnityWebRequest request = SetupRequest(endPoint, method, apiKey, body);
 
@@ -107,8 +107,7 @@ namespace Assets.Scripts.Modules
 
             if (request.result != UnityWebRequest.Result.Success)
             {
-                Debug.Log(request.error);
-                onFail?.Invoke(request.downloadHandler.text);
+                onFail?.Invoke(request);
                 yield break;
             }
 
@@ -119,7 +118,7 @@ namespace Assets.Scripts.Modules
             onSuccess?.Invoke(response);
         }
 
-        private IEnumerator MakeRequest(string endPoint, RequestMethod method, string apiKey = null, BaseRequest body = null, Action<string> onSuccess = null, Action<string> onFail = null)
+        private IEnumerator MakeRequest(string endPoint, RequestMethod method, string apiKey = null, BaseRequest body = null, Action<string> onSuccess = null, Action<UnityWebRequest> onFail = null)
         {
             using UnityWebRequest request = SetupRequest(endPoint, method, apiKey, body);
 
@@ -127,7 +126,7 @@ namespace Assets.Scripts.Modules
 
             if (request.result != UnityWebRequest.Result.Success)
             {
-                onFail?.Invoke(request.error);
+                onFail?.Invoke(request);
                 yield break;
             }
 

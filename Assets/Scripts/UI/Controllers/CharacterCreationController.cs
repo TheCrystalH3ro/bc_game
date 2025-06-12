@@ -4,6 +4,7 @@ using Assets.Scripts.Modules;
 using Assets.Scripts.Responses;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 namespace Assets.Scripts.UI.Controllers
@@ -101,9 +102,9 @@ namespace Assets.Scripts.UI.Controllers
             CloseWindow();
         }
 
-        public void OnCreateFail(string errorMessage)
+        public void OnCreateFail(UnityWebRequest request)
         {
-            Debug.LogError("Error while trying to create character: " + errorMessage);
+            Debug.LogError("Error while trying to create character: " + request.error);
             CloseWindow();
         }
     }

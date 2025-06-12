@@ -7,6 +7,7 @@ using Assets.Scripts.Models;
 using Assets.Scripts.Modules;
 using Assets.Scripts.Responses;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 
 namespace Assets.Scripts.UI.Controllers
@@ -103,9 +104,9 @@ namespace Assets.Scripts.UI.Controllers
             LoadCharacters();
         }
 
-        private void OnFetchFail(string errorMessage)
+        private void OnFetchFail(UnityWebRequest request)
         {
-            Debug.LogError("Error while trying to login: " + errorMessage);
+            Debug.LogError("Error while trying to login: " + request.error);
         }
 
         private void LoadCharacters()
@@ -164,9 +165,9 @@ namespace Assets.Scripts.UI.Controllers
             Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
         }
 
-        private void OnDeleteFail(string errorMessage)
+        private void OnDeleteFail(UnityWebRequest request)
         {
-            Debug.LogError("Error while trying to login: " + errorMessage);
+            Debug.LogError("Error while trying to login: " + request.error);
             Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
         }
 

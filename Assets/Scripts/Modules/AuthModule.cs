@@ -1,12 +1,8 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using Assets.Scripts.Interfaces;
 using Assets.Scripts.Requests;
 using Assets.Scripts.Responses;
-using Assets.Scripts.Util;
-using UnityEngine;
-using UnityEngine.Networking;
 
 namespace Assets.Scripts.Modules
 {
@@ -53,7 +49,10 @@ namespace Assets.Scripts.Modules
             string loginEndPoint = "login";
             LoginRequest loginRequestBody = new(username, password);
 
-            RequestModule.Singleton.PostRequest(loginEndPoint, null, loginRequestBody, onLoginSuccess, onLoginFail);
+            RequestModule.Singleton.PostRequest(loginEndPoint, null, loginRequestBody, onLoginSuccess, (request) =>
+            {
+                onLoginFail?.Invoke(request.error);
+            });
         }
 
         public void Register(string username, string email, string password, string passwordConfirmation, Action<string> onRegisterSuccess, Action<string> onRegisterFail) {
@@ -70,7 +69,10 @@ namespace Assets.Scripts.Modules
             string registerEndPoint = "register";
             RegisterRequest registerRequestBody = new(username, email, password, passwordConfirmation);
             
-            RequestModule.Singleton.PostRequest(registerEndPoint, null, registerRequestBody, onRegisterSuccess, onRegisterFail);
+            RequestModule.Singleton.PostRequest(registerEndPoint, null, registerRequestBody, onRegisterSuccess, response =>
+            {
+                onRegisterFail?.Invoke(response.error);
+            });
         }
 
         private ValidationResult ValidateField(string fieldKey, string value, object context = null)
