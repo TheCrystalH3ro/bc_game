@@ -59,5 +59,10 @@ namespace Assets.Scripts.UI
         {
             actionLog.SetTurnPassed(character);
         }
+
+        public void CharacterLeft(BaseCharacterController character)
+        {
+            actionLog.CharacterLeft(character);
+        }
     }
 }

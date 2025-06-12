@@ -8597,6 +8597,18 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7870329077258812203, guid: 07e03c3ed8d8aea4a878e08fba467ad4, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1703744233}
+    - target: {fileID: 7870329077258812203, guid: 07e03c3ed8d8aea4a878e08fba467ad4, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: Flee
+      objectReference: {fileID: 0}
+    - target: {fileID: 7870329077258812203, guid: 07e03c3ed8d8aea4a878e08fba467ad4, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Assets.Scripts.Controllers.CombatController, Assembly-CSharp
+      objectReference: {fileID: 0}
     - target: {fileID: 8002186626029348688, guid: 07e03c3ed8d8aea4a878e08fba467ad4, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 

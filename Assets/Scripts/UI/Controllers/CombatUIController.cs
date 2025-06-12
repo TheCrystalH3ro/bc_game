@@ -99,5 +99,10 @@ namespace Assets.Scripts.UI.Controllers
         {
             actionBar.TurnPassed(character);
         }
+
+        public void CharacterLeft(BaseCharacterController character)
+        {
+            actionBar.CharacterLeft(character);
+        }
     }
 }

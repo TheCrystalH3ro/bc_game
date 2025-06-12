@@ -61,7 +61,7 @@ namespace Assets.Scripts.Modules
         public UnityEvent<BaseCharacterController, bool> AttackBlocked;
         public UnityEvent<PlayerController, bool> QuestionAnswered;
         public UnityEvent<CombatModule, List<BaseCharacterController>, List<BaseCharacterController>> CombatEnded;
-        public UnityEvent<PlayerController> PlayerEliminated;
+        public UnityEvent<PlayerController, bool> PlayerEliminated;
         public UnityEvent<EnemyController> EnemyEliminated;
 
         public override void OnStartNetwork()
@@ -290,14 +290,24 @@ namespace Assets.Scripts.Modules
             GenerateQuestion();
         }
 
-        public void Pass(BaseCharacterController attacker)
+        public void Pass(BaseCharacterController character)
         {
-            if (!IsOnTurn(attacker))
+            if (!IsOnTurn(character))
                 return;
 
-            TurnPassed?.Invoke(attacker);
+            TurnPassed?.Invoke(character);
 
-            attacker.UseBuffs();
+            character.UseBuffs();
+            ChangeTurn(1.5f);
+        }
+
+        public void Flee(BaseCharacterController character)
+        {
+            if (!IsOnTurn(character))
+                return;
+
+            Death(character, true);
+
             ChangeTurn(1.5f);
         }
 
@@ -432,7 +442,7 @@ namespace Assets.Scripts.Modules
             target.AfterDefense(attacker, targetAnswer, attackerAnswer);
 
             if (targetHp <= 0)
-                Death(target);
+                Death(target, false);
 
             EndQuestion();
         }
@@ -498,7 +508,7 @@ namespace Assets.Scripts.Modules
             Attack(enemy, targetId);
         }
 
-        private void Death(BaseCharacterController character)
+        private void Death(BaseCharacterController character, bool hasEscaped = false)
         {
             Dictionary<uint, BaseCharacterController> team = IsInTeam(teamA, character) ? teamA : teamB;
 
@@ -508,7 +518,7 @@ namespace Assets.Scripts.Modules
 
             if (player != null)
             {
-                PlayerEliminated?.Invoke(player);
+                PlayerEliminated?.Invoke(player, hasEscaped);
                 playerWon = false;
             }
             else

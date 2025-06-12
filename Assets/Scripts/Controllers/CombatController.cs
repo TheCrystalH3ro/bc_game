@@ -231,6 +231,25 @@ namespace Assets.Scripts.Controllers
             CombatUIController.Singleton.TurnPassed(character);
         }
 
+        public void Flee()
+        {
+            HUDController.Singleton.ShowPrompt("Do you really wish to escape from the battle?", OnEscapeConfirmed);
+        }
+
+        public void OnEscapeConfirmed(bool isConfirmed)
+        {
+            if (!isConfirmed)
+                return;
+
+            CombatServerController.Singleton.Flee();
+            HUDController.Singleton.ShowLoadingScreen();
+        }
+
+        public void OnCharacterFlee(BaseCharacterController character)
+        {
+            CombatUIController.Singleton.CharacterLeft(character);
+        }
+
         private void OnQuestionCreated(FlashCard flashCard)
         {
             isAnsweringQuestion = true;

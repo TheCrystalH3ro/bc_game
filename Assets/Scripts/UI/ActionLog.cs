@@ -37,5 +37,10 @@ namespace Assets.Scripts.UI
         {
             SetText(character.ToString() + " passed his turn.");
         }
+
+        public void CharacterLeft(BaseCharacterController character)
+        {
+            SetText(character.ToString() + " has escaped from the battle.");
+        }
     }
 }

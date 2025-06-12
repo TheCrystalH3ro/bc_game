@@ -180,6 +180,21 @@ namespace Assets.Scripts.Controllers.Server
         }
 
         [ServerRpc(RequireOwnership = false)]
+        public void Flee(NetworkConnection sender = null)
+        {
+            PlayerController player = PlayerController.FindByConnection(sender);
+            CombatModule combatModule = instances[player];
+
+            combatModule.Flee(player);
+        }
+
+        [ObserversRpc]
+        private void OnCharacterEscaped(BaseCharacterController character)
+        {
+            CombatController.Singleton.OnCharacterFlee(character);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
         public void AnswerQuestion(uint answerId, NetworkConnection sender = null)
         {
             PlayerController player = PlayerController.FindByConnection(sender);
@@ -248,10 +263,13 @@ namespace Assets.Scripts.Controllers.Server
             Attack(attacker.ToTarget(), target.ToTarget());
         }
 
-        public void OnPlayerDeath(PlayerController player)
+        public void OnPlayerDeath(PlayerController player, bool hasEscaped)
         {
             player.OnAttack.RemoveListener(OnAttack);
             player.OnStun.RemoveListener(OnStun);
+
+            if (hasEscaped)
+                OnCharacterEscaped(player);
 
             StartCoroutine(PlayerDied(player));
         }
