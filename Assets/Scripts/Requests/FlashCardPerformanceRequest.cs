@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Assets.Scripts.Requests
 {
     [Serializable]
-    public class FlashCardPerformanceRequest
+    public class FlashCardPerformanceRequest : BaseRequest
     {
         public uint flashCardId;
         public bool isCorrect;
@@ -15,11 +15,6 @@ namespace Assets.Scripts.Requests
             this.flashCardId = flashCardId;
             this.isCorrect = isCorrect;
             this.time = time;
-        }
-
-        public string ToJson(bool prettyPrint = false)
-        {
-            return JsonUtility.ToJson(this, prettyPrint);
         }
     }
 }

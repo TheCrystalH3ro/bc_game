@@ -5,13 +5,14 @@ using System.Linq;
 using Assets.Scripts.Controllers;
 using Assets.Scripts.Controllers.Server;
 using Assets.Scripts.Models;
+using Assets.Scripts.Responses;
 using FishNet.Connection;
-using FishNet.Demo.AdditiveScenes;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Networking;
 
 namespace Assets.Scripts.Modules
 {
@@ -316,9 +317,9 @@ namespace Assets.Scripts.Modules
             FlashCardModule.Singleton.GetFlashCard(CharacterOnTurn.Value, OnQuestionGenerated, QuestionGenerationFail);
         }
 
-        private void OnQuestionGenerated(FlashCard question)
+        private void OnQuestionGenerated(FlashCardResponse question)
         {
-            currentQuestion = question;
+            currentQuestion = new(question);
 
             SendQuestion(CharacterOnTurn.Value);
             SendQuestion(currentTarget);
@@ -327,9 +328,9 @@ namespace Assets.Scripts.Modules
             questionTimerCoroutine = StartCoroutine(StartQuestionTimer());
         }
 
-        private void QuestionGenerationFail(string error)
+        private void QuestionGenerationFail(UnityWebRequest request)
         {
-            Debug.LogError("Question Generation Failed: " + error);
+            Debug.LogError("Question Generation Failed: " + request.error);
             EndQuestion();
         }
 

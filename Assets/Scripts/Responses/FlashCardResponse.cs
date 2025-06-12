@@ -12,7 +12,7 @@ namespace Assets.Scripts.Responses
     }
 
     [Serializable]
-    public class FlashCardResponse
+    public class FlashCardResponse : BaseResponse
     {
         public uint id;
         public string question;
@@ -29,16 +29,6 @@ namespace Assets.Scripts.Responses
             this.correctAnswer = correctAnswer;
             this.time = time;
             this.level = level;
-        }
-
-        public static FlashCardResponse CreateFromJSON(string jsonString)
-        {
-            return JsonUtility.FromJson<FlashCardResponse>(jsonString);
-        }
-
-        public string ToJson(bool prettyPrint = false)
-        {
-            return JsonUtility.ToJson(this, prettyPrint);
         }
     }
 }
