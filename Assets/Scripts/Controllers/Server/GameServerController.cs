@@ -86,7 +86,7 @@ namespace Assets.Scripts.Controllers.Server
         [ServerRpc(RequireOwnership = false)]
         public void RequestToJoinServer(string playerToken, uint characterId, NetworkConnection sender = null)
         {
-            StartCoroutine(ConnectionModule.Singleton.VerifyPlayer(sender, playerToken, characterId, OnVerificationSuccess, OnVerificationFail));
+            ConnectionModule.Singleton.VerifyPlayer(sender, playerToken, characterId, OnVerificationSuccess, OnVerificationFail);
         }
 
         private void OnVerificationSuccess(NetworkConnection client, CharacterResponse characterResponse)
@@ -107,7 +107,6 @@ namespace Assets.Scripts.Controllers.Server
                 return;
             }
 
-            Debug.LogError("Error while trying to verify character: " + request.error);
             client.Kick(KickReason.UnexpectedProblem);
         }
 

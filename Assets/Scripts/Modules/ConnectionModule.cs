@@ -51,27 +51,17 @@ namespace Assets.Scripts.Modules
             UnityEngine.Object.Destroy(InstanceFinder.ClientManager.gameObject);
         }
 
-        public IEnumerator VerifyPlayer(NetworkConnection client, string playerToken, uint characterId, Action<NetworkConnection, CharacterResponse> onVerificationSuccess, Action<NetworkConnection, UnityWebRequest> onVerificationFail)
+        public void VerifyPlayer(NetworkConnection client, string playerToken, uint characterId, Action<NetworkConnection, CharacterResponse> onVerificationSuccess, Action<NetworkConnection, UnityWebRequest> onVerificationFail)
         {
-            string verifyUrl = apiUrl + "/character/" + characterId;
+            string verifyEndpoint = $"character/{characterId}";
 
-            using (UnityWebRequest request = UnityWebRequest.Get(verifyUrl))
+            RequestModule.Singleton.GetRequest<CharacterResponse>(verifyEndpoint, playerToken, successResponse =>
             {
-
-                request.SetRequestHeader("Authorization", playerToken);
-
-                yield return request.SendWebRequest();
-
-                if (request.result != UnityWebRequest.Result.Success)
-                {
-                    onVerificationFail?.Invoke(client, request);
-                    yield break;
-                }
-
-                CharacterResponse characterResponse = CharacterResponse.CreateFromJSON(request.downloadHandler.text);
-
-                onVerificationSuccess?.Invoke(client, characterResponse);
-            }
+                onVerificationSuccess?.Invoke(client, successResponse);
+            }, errorResponse =>
+            {
+                onVerificationFail?.Invoke(client, errorResponse);
+            });
         }
 
         public void GroupRpc(List<NetworkConnection> connections, Delegate rpcMethod, params object[] args)
