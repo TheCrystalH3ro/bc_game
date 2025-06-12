@@ -376,6 +376,7 @@ namespace Assets.Scripts.Modules
             BaseCharacterController target = currentTarget;
 
             int damage = attackerAnswer.IsCorrect ? attacker.GetDamage(currentQuestion, attackerAnswer.RemainingTime) : 0;
+            damage = Mathf.FloorToInt(damage * currentQuestion.GetDamageBuff());
 
             float defense = 1f;
 

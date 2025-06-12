@@ -8,10 +8,11 @@ namespace Assets.Scripts.Models
         private uint id;
         private string question;
         private Dictionary<uint, string> answers;
-        
+
         [System.NonSerialized]
         private readonly uint correctAnswer;
-        private float time;
+        private readonly float time;
+        private readonly uint level = 0;
 
         public FlashCard()
         {
@@ -36,6 +37,7 @@ namespace Assets.Scripts.Models
             this.answers = new();
             this.correctAnswer = response.correctAnswer;
             this.time = response.time;
+            this.level = response.level;
 
             foreach (AnswerData answer in response.answers)
                 answers.Add(answer.id, answer.text);
@@ -74,6 +76,14 @@ namespace Assets.Scripts.Models
         public float GetTime()
         {
             return time;
+        }
+
+        public float GetDamageBuff()
+        {
+            if (level == 0)
+                return 1;
+
+            return 1 + 0.2f * (level - 1);
         }
     }
 }
