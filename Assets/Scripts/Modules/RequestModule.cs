@@ -107,7 +107,8 @@ namespace Assets.Scripts.Modules
 
             if (request.result != UnityWebRequest.Result.Success)
             {
-                onFail?.Invoke(request.error);
+                Debug.Log(request.error);
+                onFail?.Invoke(request.downloadHandler.text);
                 yield break;
             }
 
