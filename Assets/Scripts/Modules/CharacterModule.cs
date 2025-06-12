@@ -47,7 +47,7 @@ namespace Assets.Scripts.Modules
             RequestModule.Singleton.PostRequest(createEndPoint, authToken, createRequest, onCreateSuccess, onCreateFail);
         }
 
-        public void DeleteCharacter(uint id, string authToken, Action onDeleteSuccess, Action<string> onDeleteFail)
+        public void DeleteCharacter(uint id, string authToken, Action<string> onDeleteSuccess, Action<string> onDeleteFail)
         {
             string deleteEndPoint = $"character/{id}";
 

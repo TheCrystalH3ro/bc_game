@@ -156,7 +156,7 @@ namespace Assets.Scripts.UI.Controllers
             CharacterModule.Singleton.DeleteCharacter(selectedCharacter.GetPlayerCharacter().GetId(), jwtToken, OnDeleteSuccess, OnDeleteFail);
         }
 
-        private void OnDeleteSuccess()
+        private void OnDeleteSuccess(string response)
         {
             selectedCharacter.DeleteCharacter(GetCharacterSprite(PlayerClass.Knight));
             selectedCharacter = null;

@@ -24,7 +24,7 @@ namespace Assets.Scripts.Modules
             StartCoroutine(MakeRequest(endPoint, RequestMethod.GET, apiKey, null, onSuccess, onFail));
         }
 
-        public void GetRequest(string endPoint, string apiKey = null, Action onSuccess = null, Action<string> onFail = null)
+        public void GetRequest(string endPoint, string apiKey = null, Action<string> onSuccess = null, Action<string> onFail = null)
         {
             StartCoroutine(MakeRequest(endPoint, RequestMethod.GET, apiKey, null, onSuccess, onFail));
         }
@@ -34,7 +34,7 @@ namespace Assets.Scripts.Modules
             StartCoroutine(MakeRequest(endPoint, RequestMethod.POST, apiKey, body, onSuccess, onFail));
         }
 
-        public void PostRequest(string endPoint, string apiKey = null, BaseRequest body = null, Action onSuccess = null, Action<string> onFail = null)
+        public void PostRequest(string endPoint, string apiKey = null, BaseRequest body = null, Action<string> onSuccess = null, Action<string> onFail = null)
         {
             StartCoroutine(MakeRequest(endPoint, RequestMethod.POST, apiKey, body, onSuccess, onFail));
         }
@@ -44,7 +44,7 @@ namespace Assets.Scripts.Modules
             StartCoroutine(MakeRequest(endPoint, RequestMethod.PUT, apiKey, body, onSuccess, onFail));
         }
 
-        public void PutRequest(string endPoint, string apiKey = null, BaseRequest body = null, Action onSuccess = null, Action<string> onFail = null)
+        public void PutRequest(string endPoint, string apiKey = null, BaseRequest body = null, Action<string> onSuccess = null, Action<string> onFail = null)
         {
             StartCoroutine(MakeRequest(endPoint, RequestMethod.PUT, apiKey, body, onSuccess, onFail));
         }
@@ -54,7 +54,7 @@ namespace Assets.Scripts.Modules
             StartCoroutine(MakeRequest(endPoint, RequestMethod.PATCH, apiKey, body, onSuccess, onFail));
         }
 
-        public void PatchRequest(string endPoint, string apiKey = null, BaseRequest body = null, Action onSuccess = null, Action<string> onFail = null)
+        public void PatchRequest(string endPoint, string apiKey = null, BaseRequest body = null, Action<string> onSuccess = null, Action<string> onFail = null)
         {
             StartCoroutine(MakeRequest(endPoint, RequestMethod.PATCH, apiKey, body, onSuccess, onFail));
         }
@@ -64,7 +64,7 @@ namespace Assets.Scripts.Modules
             StartCoroutine(MakeRequest(endPoint, RequestMethod.DELETE, apiKey, null, onSuccess, onFail));
         }
 
-        public void DeleteRequest(string endPoint, string apiKey = null, Action onSuccess = null, Action<string> onFail = null)
+        public void DeleteRequest(string endPoint, string apiKey = null, Action<string> onSuccess = null, Action<string> onFail = null)
         {
             StartCoroutine(MakeRequest(endPoint, RequestMethod.DELETE, apiKey, null, onSuccess, onFail));
         }
@@ -118,7 +118,7 @@ namespace Assets.Scripts.Modules
             onSuccess?.Invoke(response);
         }
 
-        private IEnumerator MakeRequest(string endPoint, RequestMethod method, string apiKey = null, BaseRequest body = null, Action onSuccess = null, Action<string> onFail = null)
+        private IEnumerator MakeRequest(string endPoint, RequestMethod method, string apiKey = null, BaseRequest body = null, Action<string> onSuccess = null, Action<string> onFail = null)
         {
             using UnityWebRequest request = SetupRequest(endPoint, method, apiKey, body);
 
@@ -130,7 +130,7 @@ namespace Assets.Scripts.Modules
                 yield break;
             }
 
-            onSuccess?.Invoke();
+            onSuccess?.Invoke(request.downloadHandler.text);
         }
     }
 }
