@@ -40,7 +40,7 @@ namespace Assets.Scripts.Responses
     }
 
     [Serializable]
-    public class PlayerDataResponse
+    public class PlayerDataResponse : BaseResponse
     {
         public uint id;
         public ushort level;
@@ -53,16 +53,6 @@ namespace Assets.Scripts.Responses
             this.level = level;
             this.experience = experience;
             this.worldData = worldData;
-        }
-
-        public static PlayerDataResponse CreateFromJSON(string jsonString)
-        {
-            return JsonUtility.FromJson<PlayerDataResponse>(jsonString);
-        }
-
-        public string ToJson(bool prettyPrint = false)
-        {
-            return JsonUtility.ToJson(this, prettyPrint);
         }
     }
 }
