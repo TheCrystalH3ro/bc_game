@@ -92,7 +92,7 @@ namespace Assets.Scripts.UI.Controllers
 
             string jwtToken = PlayerPrefs.GetString("authToken");
 
-            StartCoroutine(CharacterModule.Singleton.CreateCharacter(name, (int) selectedClass, jwtToken, OnCreateSuccess, OnCreateFail));
+            CharacterModule.Singleton.CreateCharacter(name, (int) selectedClass, jwtToken, OnCreateSuccess, OnCreateFail);
         }
 
         public void OnCreateSuccess(CharacterResponse character)

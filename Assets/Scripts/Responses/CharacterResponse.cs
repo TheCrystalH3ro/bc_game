@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Assets.Scripts.Responses
 {
     [Serializable]
-    public class CharacterResponse
+    public class CharacterResponse : BaseResponse
     {
         public uint id;
         public string name;
@@ -13,22 +13,11 @@ namespace Assets.Scripts.Responses
         public uint playerId;
         public ushort level;
         public float experience;
-
-        public static CharacterResponse CreateFromJSON(string jsonString) {
-            return JsonUtility.FromJson<CharacterResponse>(jsonString);
-        }
-
-        public string ToJson() {
-            return JsonUtility.ToJson(this);
-        }
     }
 
     [Serializable]
-    public class CharactersResponse
+    public class CharactersResponse : BaseResponse
     {
         public CharacterResponse[] characters;
-        public static CharactersResponse CreateFromJSON(string jsonString) {
-            return JsonUtility.FromJson<CharactersResponse>(jsonString);
-        }
     }
 }

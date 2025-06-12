@@ -91,7 +91,7 @@ namespace Assets.Scripts.UI.Controllers
 
             string jwtToken = PlayerPrefs.GetString("authToken");
 
-            StartCoroutine(CharacterModule.Singleton.GetCharacters(jwtToken, OnFetchSuccess, OnFetchFail));
+            CharacterModule.Singleton.GetCharacters(jwtToken, OnFetchSuccess, OnFetchFail);
         }
 
         private void OnFetchSuccess(CharactersResponse characters)
@@ -153,7 +153,7 @@ namespace Assets.Scripts.UI.Controllers
 
             string jwtToken = PlayerPrefs.GetString("authToken");
 
-            StartCoroutine(CharacterModule.Singleton.DeleteCharacter(selectedCharacter.GetPlayerCharacter().GetId(), jwtToken, OnDeleteSuccess, OnDeleteFail));
+            CharacterModule.Singleton.DeleteCharacter(selectedCharacter.GetPlayerCharacter().GetId(), jwtToken, OnDeleteSuccess, OnDeleteFail);
         }
 
         private void OnDeleteSuccess()

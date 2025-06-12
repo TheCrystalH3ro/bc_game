@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Assets.Scripts.Requests;
 using Assets.Scripts.Responses;
 using Assets.Scripts.Util;
 using UnityEngine.Networking;
@@ -30,69 +31,27 @@ namespace Assets.Scripts.Modules
             this.apiUrl = apiUrl;
         }
 
-        public IEnumerator GetCharacters(string authToken, Action<CharactersResponse> onGetSuccess, Action<string> onGetFail)
+        public void GetCharacters(string authToken, Action<CharactersResponse> onGetSuccess, Action<string> onGetFail)
         {
-            string characterUrl = apiUrl + "/character";
+            string characterEndPoint = "character";
 
-            using (UnityWebRequest request = UnityWebRequest.Get(characterUrl)) {
-
-                request.SetRequestHeader("Authorization", authToken);
-
-                yield return request.SendWebRequest();
-
-                if (request.result != UnityWebRequest.Result.Success) {
-                    onGetFail?.Invoke(request.error);
-                    yield break;
-                }
-
-                CharactersResponse characters = CharactersResponse.CreateFromJSON(request.downloadHandler.text);
-                onGetSuccess?.Invoke(characters);
-            }
+            RequestModule.Singleton.GetRequest(characterEndPoint, authToken, onGetSuccess, onGetFail);
         }
 
-        public IEnumerator CreateCharacter(string name, int characterClass, string authToken, Action<CharacterResponse> onCreateSuccess, Action<string> onCreateFail)
+        public void CreateCharacter(string name, int characterClass, string authToken, Action<CharacterResponse> onCreateSuccess, Action<string> onCreateFail)
         {
-            string createUrl = apiUrl + "/character";
+            string createEndPoint = "character";
 
-            JSONObject json = new();
-            json.AddField("name", name);
-            json.AddField("characterClass", characterClass);
+            CharacterCreateRequest createRequest = new(name, characterClass);
 
-            using (UnityWebRequest request = UnityWebRequest.Put(createUrl, json.ToString())) {
-
-                request.method = UnityWebRequest.kHttpVerbPOST;
-                request.SetRequestHeader("Content-Type", "application/json"); 
-                request.SetRequestHeader("Authorization", authToken);
-
-                yield return request.SendWebRequest();
-
-                if (request.result != UnityWebRequest.Result.Success) {
-                    onCreateFail?.Invoke(request.error);
-                    yield break;
-                }
-
-                CharacterResponse character = CharacterResponse.CreateFromJSON(request.downloadHandler.text);
-                onCreateSuccess?.Invoke(character);
-            }
+            RequestModule.Singleton.PostRequest(createEndPoint, authToken, createRequest, onCreateSuccess, onCreateFail);
         }
 
-        public IEnumerator DeleteCharacter(uint id, string authToken, Action onDeleteSuccess, Action<string> onDeleteFail)
+        public void DeleteCharacter(uint id, string authToken, Action onDeleteSuccess, Action<string> onDeleteFail)
         {
-            string deleteUrl = apiUrl + "/character/" + id;
+            string deleteEndPoint = $"character/{id}";
 
-            using (UnityWebRequest request = UnityWebRequest.Delete(deleteUrl)) {
-
-                request.SetRequestHeader("Authorization", authToken);
-
-                yield return request.SendWebRequest();
-
-                if (request.result != UnityWebRequest.Result.Success) {
-                    onDeleteFail?.Invoke(request.error);
-                    yield break;
-                }
-
-                onDeleteSuccess?.Invoke();
-            }
+            RequestModule.Singleton.DeleteRequest(deleteEndPoint, authToken, onDeleteSuccess, onDeleteFail);
         }
     }
 }
