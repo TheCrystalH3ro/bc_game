@@ -217,6 +217,18 @@ namespace Assets.Scripts.Controllers
             TargetSelected();
 
             CombatServerController.Singleton.PlayerAttack(targetId);
+            CombatUIController.Singleton.SetButtonsActive(false);
+        }
+
+        public void PassTurn()
+        {
+            CombatServerController.Singleton.PassTurn();
+            CombatUIController.Singleton.SetButtonsActive(false);
+        }
+
+        public void OnTurnPassed(BaseCharacterController character)
+        {
+            CombatUIController.Singleton.TurnPassed(character);
         }
 
         private void OnQuestionCreated(FlashCard flashCard)

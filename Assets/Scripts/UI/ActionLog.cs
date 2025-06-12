@@ -32,5 +32,10 @@ namespace Assets.Scripts.UI
         {
             SetText("Question : " + question);
         }
+
+        public void SetTurnPassed(BaseCharacterController character)
+        {
+            SetText(character.ToString() + " passed his turn.");
+        }
     }
 }

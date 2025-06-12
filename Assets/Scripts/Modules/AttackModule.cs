@@ -157,27 +157,43 @@ namespace Assets.Scripts.Modules
             buffs.Add(buff);
         }
 
+        public void UseBuff(StatusEffect buff)
+        {
+            int index = buffs.IndexOf(buff);
+
+            buff.DecreaseDuration();
+
+            if (buff.GetDuration() == 0)
+            {
+                buffs.Remove(buff);
+                return;
+            }
+
+            buffs[index] = buff;
+        }
+
         public void UseBuff(StatusEffectType type)
         {
             if (!HasBuff(type))
                 return;
-
-            foreach (StatusEffect buff in buffs)
+                
+            for (int i = 0; i < buffs.Count; i++)
             {
+                StatusEffect buff = buffs[i];
+
                 if (buff.GetEffectType() != type)
                     continue;
 
-                int index = buffs.IndexOf(buff);
+                UseBuff(buff);    
+            }
+        }
 
-                buff.DecreaseDuration();
-
-                if (buff.GetDuration() == 0)
-                {
-                    buffs.Remove(buff);
-                    return;
-                }
-
-                buffs[index] = buff;
+        public void UseBuffs()
+        {
+            for (int i = 0; i < buffs.Count; i++)
+            {
+                StatusEffect buff = buffs[i];
+                UseBuff(buff);    
             }
         }
 

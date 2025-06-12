@@ -233,6 +233,11 @@ namespace Assets.Scripts.Controllers
             attackModule.UseBuff(buff);
         }
 
+        public void UseBuffs()
+        {
+            attackModule.UseBuffs();
+        }
+
         public void Stun()
         {
             OnStun?.Invoke(this);

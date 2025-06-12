@@ -56,6 +56,7 @@ namespace Assets.Scripts.Modules
         public static event Action CombatStarted;
         public static event Action<FlashCard> QuestionCreated;
         public static event Action<int> TimerStarted;
+        public UnityEvent<BaseCharacterController> TurnPassed;
         public UnityEvent<BaseCharacterController, bool> AttackFailed;
         public UnityEvent<BaseCharacterController, bool> AttackBlocked;
         public UnityEvent<PlayerController, bool> QuestionAnswered;
@@ -272,6 +273,7 @@ namespace Assets.Scripts.Modules
             if (attacker.IsStunned())
             {
                 attacker.UseStun();
+                attacker.UseBuffs();
                 ChangeTurn(1.5f);
 
                 return;
@@ -286,6 +288,17 @@ namespace Assets.Scripts.Modules
             StopRoundTimer();
 
             GenerateQuestion();
+        }
+
+        public void Pass(BaseCharacterController attacker)
+        {
+            if (!IsOnTurn(attacker))
+                return;
+
+            TurnPassed?.Invoke(attacker);
+
+            attacker.UseBuffs();
+            ChangeTurn(1.5f);
         }
 
         private void GenerateQuestion()
@@ -470,6 +483,12 @@ namespace Assets.Scripts.Modules
 
             if (enemy == null)
                 return;
+
+            if (enemy.IsStunned())
+            {
+                Pass(enemy);
+                return;
+            }
 
             Dictionary<uint, BaseCharacterController> team = IsInTeam(teamA, enemy) ? teamB : teamA;
 

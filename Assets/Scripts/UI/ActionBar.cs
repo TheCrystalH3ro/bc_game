@@ -54,5 +54,10 @@ namespace Assets.Scripts.UI
         {
             actionPanel.ClearAnswerResult(answerId);
         }
+
+        public void TurnPassed(BaseCharacterController character)
+        {
+            actionLog.SetTurnPassed(character);
+        }
     }
 }

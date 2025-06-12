@@ -126,6 +126,7 @@ namespace Assets.Scripts.Controllers.Server
             combatModule.StartCombat(players, enemies);
 
             combatModule.CombatEnded.AddListener(OnCombatEnded);
+            combatModule.TurnPassed.AddListener(OnTurnPassed);
             combatModule.AttackFailed.AddListener(OnAttackFailed);
             combatModule.AttackBlocked.AddListener(OnAttackBlocked);
             combatModule.PlayerEliminated.AddListener(OnPlayerDeath);
@@ -161,6 +162,21 @@ namespace Assets.Scripts.Controllers.Server
                 return;
 
             combatModule.Attack(player, targetId);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void PassTurn(NetworkConnection sender = null)
+        {
+            PlayerController player = PlayerController.FindByConnection(sender);
+            CombatModule combatModule = instances[player];
+
+            combatModule.Pass(player);
+        }
+
+        [ObserversRpc]
+        private void OnTurnPassed(BaseCharacterController character)
+        {
+            CombatController.Singleton.OnTurnPassed(character);
         }
 
         [ServerRpc(RequireOwnership = false)]

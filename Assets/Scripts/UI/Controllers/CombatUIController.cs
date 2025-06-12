@@ -94,5 +94,10 @@ namespace Assets.Scripts.UI.Controllers
         {
             actionBar.ClearAnswerResult(answerId);
         }
+
+        public void TurnPassed(BaseCharacterController character)
+        {
+            actionBar.TurnPassed(character);
+        }
     }
 }
