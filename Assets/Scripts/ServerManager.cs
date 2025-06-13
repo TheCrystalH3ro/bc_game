@@ -1,3 +1,4 @@
+using Assets.Scripts.Enums;
 using Assets.Scripts.Modules;
 using FishNet;
 using FishNet.Connection;
@@ -14,6 +15,10 @@ public class ServerManager : MonoBehaviour
         {
             InstanceFinder.NetworkManager.ServerManager.OnServerConnectionState += HandleServerStarted;
             ConnectionModule.Singleton.HostServer();
+
+            EnumSeederModule.Singleton.RegisterEnum(typeof(ItemType), "item/type");
+            EnumSeederModule.Singleton.RegisterEnum(typeof(PlayerClass), "character/type");
+            // EnumSeederModule.Singleton.RegisterEnum(typeof(EnemyType), "enemy");
         }
     }
 

@@ -15,20 +15,10 @@ namespace Assets.Scripts.Modules
         { 
             get
             {
-                if (_instance == null)
-                {
-                    _instance =  new(ConfigModule.Get("API_URL"));
-                }
+                _instance ??=  new();
 
                 return _instance;
             }
-        }
-
-        private readonly string apiUrl;
-
-        public CharacterModule(string apiUrl)
-        {
-            this.apiUrl = apiUrl;
         }
 
         public void GetCharacters(string authToken, Action<CharactersResponse> onGetSuccess, Action<UnityWebRequest> onGetFail)

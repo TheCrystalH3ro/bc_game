@@ -99,7 +99,6 @@ namespace Assets.Scripts.UI.Controllers
 
         public void ShowLoadingScreen()
         {
-            Debug.Log("Opening loading screen");
             loadingScreen.SetActive(true);
         }
 

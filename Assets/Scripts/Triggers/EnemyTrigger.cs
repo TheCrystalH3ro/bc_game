@@ -22,7 +22,9 @@ namespace Assets.Scripts.Triggers
 
             if (!InstanceFinder.NetworkManager.IsServerStarted)
             {
-                HUDController.Singleton.ShowLoadingScreen();
+                if (playerObject.Equals(PlayerController.Singleton))
+                    HUDController.Singleton.ShowLoadingScreen();
+                    
                 return;
             }
 

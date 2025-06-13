@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Assets.Scripts.Controllers;
 using Assets.Scripts.Modules;
 using Assets.Scripts.UI.Controllers;
 using FishNet;
@@ -20,7 +21,9 @@ namespace Assets.Scripts.Triggers
 
             if (!InstanceFinder.NetworkManager.IsServerOnlyStarted)
             {
-                HUDController.Singleton.ShowLoadingScreen();
+                if (playerObject.Equals(PlayerController.Singleton))
+                    HUDController.Singleton.ShowLoadingScreen();
+
                 return;
             }
 
