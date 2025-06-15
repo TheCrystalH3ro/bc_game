@@ -1,16 +1,11 @@
 using System.Linq;
 using Assets.Scripts.Controllers.Server;
-using Assets.Scripts.Enums;
 using Assets.Scripts.Models;
+using Assets.Scripts.Modules;
 using Assets.Scripts.UI.Controllers;
-using Assets.Scripts.Util;
 using FishNet;
-using FishNet.Connection;
 using FishNet.Managing.Scened;
-using FishNet.Object;
-using GameKit.Dependencies.Utilities.Types;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace Assets.Scripts.Controllers
 {
@@ -26,6 +21,7 @@ namespace Assets.Scripts.Controllers
         {
             InstanceFinder.SceneManager.OnQueueStart += LoadQueueStarted;
             InstanceFinder.SceneManager.OnQueueEnd += LoadQueueEnded;
+            InstanceFinder.ClientManager.OnClientTimeOut += OnConnectionStop;
             PlayerController.OnEscapePressed += TogglePauseMenu;
         }
 
@@ -36,6 +32,7 @@ namespace Assets.Scripts.Controllers
 
             InstanceFinder.SceneManager.OnQueueStart -= LoadQueueStarted;
             InstanceFinder.SceneManager.OnQueueEnd -= LoadQueueEnded;
+            InstanceFinder.ClientManager.OnClientTimeOut -= OnConnectionStop;
             PlayerController.OnEscapePressed -= TogglePauseMenu;
         }
 
@@ -56,7 +53,7 @@ namespace Assets.Scripts.Controllers
             KeepObjects();
 
             string jwtToken = PlayerPrefs.GetString("authToken");
-            uint characterId = (uint) PlayerPrefs.GetInt("CharacterId");
+            uint characterId = (uint)PlayerPrefs.GetInt("CharacterId");
 
             GameServerController.Singleton.RequestToJoinServer(jwtToken, characterId);
         }
@@ -93,6 +90,32 @@ namespace Assets.Scripts.Controllers
         public void InspectPlayer(int playerId, PlayerCharacter character, Sprite avatar)
         {
             HUDController.Singleton.PlayerCard.Init(playerId, character, avatar);
+        }
+
+        public void CancelConnection()
+        {
+            if (InstanceFinder.IsServerStarted)
+            {
+                GameServerController.Singleton.StopServer();
+                return;
+            }
+
+            Disconnect();
+        }
+
+        private void OnConnectionStop()
+        {
+            Disconnect();
+        }
+
+        public void Disconnect()
+        {
+            if (InstanceFinder.IsClientStarted)
+                ConnectionModule.Singleton.Disconnect();
+
+            Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+            UnityEngine.SceneManagement.SceneManager.LoadScene("CharacterSelect", UnityEngine.SceneManagement.LoadSceneMode.Single);
+            Destroy(this);
         }
     }
 }

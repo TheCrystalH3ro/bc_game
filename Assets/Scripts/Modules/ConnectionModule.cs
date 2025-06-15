@@ -35,14 +35,17 @@ namespace Assets.Scripts.Modules
 
         public void HostServer()
         {
-            Debug.Log("Starting the server");
             InstanceFinder.ServerManager.StartConnection((ushort)serverPort);
         }
 
         public void JoinServer()
         {
-            Debug.Log("Joining the server");
             InstanceFinder.ClientManager.StartConnection(serverHost, (ushort)serverPort);
+        }
+
+        public void StopServer()
+        {
+            InstanceFinder.ServerManager.StopConnection(true);
         }
 
         public void Disconnect()

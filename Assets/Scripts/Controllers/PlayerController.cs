@@ -34,6 +34,7 @@ namespace Assets.Scripts.Controllers
         protected bool IsInCombat = false;
 
         public string ActiveScene { get; set; } = SceneModule.MAIN_SCENE_NAME;
+        public Vector3 LastPosition { get; set; } = Vector3.zero;
 
         public static event Action<PlayerController> PlayerSpawned;
         public static event Action<PlayerController, string> ZoneChanged;
@@ -308,6 +309,8 @@ namespace Assets.Scripts.Controllers
         public override void EnterCombat()
         {
             IsInCombat = true;
+
+            LastPosition = gameObject.transform.position;
 
             if (gameObject.TryGetComponent<HoverPointerCursor>(out var hover))
             {

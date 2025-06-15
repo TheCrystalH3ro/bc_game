@@ -28,10 +28,7 @@ namespace Assets.Scripts.UI
         public void ReturnToCharacterSelect()
         {
             HUDController.Singleton.ShowLoadingScreen();
-            ConnectionModule.Singleton.Disconnect();
-            Destroy(GameController.Singleton);
-            Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
-            SceneManager.LoadScene("CharacterSelect", LoadSceneMode.Single);
+            GameController.Singleton.Disconnect();
         }
 
         public void Quit()

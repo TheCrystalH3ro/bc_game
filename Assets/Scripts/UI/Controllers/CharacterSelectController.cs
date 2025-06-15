@@ -29,7 +29,7 @@ namespace Assets.Scripts.UI.Controllers
 
         private CharacterSlotController selectedCharacter;
 
-        void Awake()
+        void Start()
         {
             selectedCharacter = null;
 

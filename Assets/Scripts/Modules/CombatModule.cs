@@ -18,17 +18,7 @@ namespace Assets.Scripts.Modules
 {
     public class CombatModule : NetworkBehaviour
     {
-        private static CombatModule _instance;
-
-        public static CombatModule Instance
-        {
-            get
-            {
-                _instance ??= FindFirstObjectByType<CombatModule>();
-
-                return _instance;
-            }
-        }
+        public static CombatModule Instance { get; private set; }
 
         public int ROUND_TIME = 10;
 
@@ -64,6 +54,11 @@ namespace Assets.Scripts.Modules
         public UnityEvent<CombatModule, List<BaseCharacterController>, List<BaseCharacterController>> CombatEnded;
         public UnityEvent<PlayerController, bool> PlayerEliminated;
         public UnityEvent<EnemyController> EnemyEliminated;
+
+        void Awake()
+        {
+            Instance = this;
+        }
 
         public override void OnStartNetwork()
         {

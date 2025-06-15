@@ -13,17 +13,11 @@ using FishNet.Object;
 namespace Assets.Scripts.Modules
 {
     public class PartyModule : NetworkBehaviour
-    {
-        private static PartyModule  _instance;
+    {        public static PartyModule Singleton { get; private set; }
 
-        public static PartyModule Singleton
-        { 
-            get
-            {
-                _instance ??=  FindFirstObjectByType<PartyModule>();
-
-                return _instance;
-            }
+        void Awake()
+        {
+            Singleton = this;
         }
 
         private Dictionary<int, int> partyInvites = new();

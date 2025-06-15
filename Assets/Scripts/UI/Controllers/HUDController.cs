@@ -18,11 +18,15 @@ namespace Assets.Scripts.UI.Controllers
         [SerializeField] private MessageBox messageBox;
         [SerializeField] private Prompt prompt;
         [SerializeField] private GameObject loadingScreen;
+        [SerializeField] private TMPro.TMP_Text connectingToServerText;
+
+        void Awake()
+        {
+            Singleton = this;
+        }
 
         void OnEnable()
         {
-            Singleton = FindFirstObjectByType<HUDController>();
-
             MessageBoxModule.OnNotificationReceived += OnMessageReceived;
             MessageBoxModule.OnPromptReceived += OnPromptReceived;
         }
@@ -105,6 +109,11 @@ namespace Assets.Scripts.UI.Controllers
         public void HideLoadingScreen()
         {
             loadingScreen.SetActive(false);
+        }
+
+        public void HostingServer()
+        {
+            connectingToServerText.text = "Server started";
         }
     }
 }

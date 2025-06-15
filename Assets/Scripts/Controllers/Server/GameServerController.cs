@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Assets.Scripts.Models;
 using Assets.Scripts.Modules;
 using Assets.Scripts.Responses;
+using Assets.Scripts.UI.Controllers;
 using FishNet;
 using FishNet.Connection;
 using FishNet.Managing.Server;
@@ -44,8 +45,6 @@ namespace Assets.Scripts.Controllers.Server
                 return;
             }
 
-            Debug.Log("Server initialized");
-
             SceneModule.Singleton.LoadStartScene();
 
             GameObject combatController = Instantiate(combatControllerPrefab);
@@ -53,6 +52,8 @@ namespace Assets.Scripts.Controllers.Server
 
             SceneModule.SceneChanged += OnSceneChanged;
             InstanceFinder.ServerManager.OnRemoteConnectionState += HandlePlayerConnection;
+
+            HUDController.Singleton.HostingServer();
         }
 
         private void HandlePlayerConnection(NetworkConnection client, RemoteConnectionStateArgs args)
@@ -72,7 +73,7 @@ namespace Assets.Scripts.Controllers.Server
             if (character == null) return;
 
             if (playerController.ActiveScene != SceneModule.MAIN_SCENE_NAME)
-            { 
+            {
                 playerController.Save();
             }
 
@@ -119,7 +120,7 @@ namespace Assets.Scripts.Controllers.Server
             playerCharacter.SetHealth(health);
 
             playerController.SetPlayerCharacter(playerCharacter);
-            
+
             playerController.Load(character =>
             {
                 string currentScene = playerController.ActiveScene;
@@ -162,6 +163,24 @@ namespace Assets.Scripts.Controllers.Server
         private void ReturnToCharacterSelect(NetworkConnection client)
         {
             UnityEngine.SceneManagement.SceneManager.LoadScene("CharacterSelect", LoadSceneMode.Single);
-        } 
+        }
+
+        private void SavePlayers()
+        {
+            foreach (int clientId in PlayerList.Values)
+            {
+                NetworkConnection connection = InstanceFinder.ServerManager.Clients[clientId];
+                PlayerController playerController = PlayerController.FindByConnection(connection);
+
+                playerController.Save();
+            }
+        }
+
+        public void StopServer()
+        {
+            SavePlayers();
+            ConnectionModule.Singleton.StopServer();
+            UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu", LoadSceneMode.Single);
+        }
     }
 }

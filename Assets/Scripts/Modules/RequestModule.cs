@@ -130,7 +130,9 @@ namespace Assets.Scripts.Modules
                 yield break;
             }
 
-            onSuccess?.Invoke(request.downloadHandler.text);
+            string response = request.downloadHandler != null ? request.downloadHandler.text : "";
+
+            onSuccess?.Invoke(response);
         }
     }
 }

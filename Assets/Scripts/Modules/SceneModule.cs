@@ -173,6 +173,12 @@ namespace Assets.Scripts.Modules
 
                 string activeScene = playerObject.gameObject.scene.name;
 
+                if (playerController.LastPosition != Vector3.zero)
+                {
+                    startPosition = playerController.LastPosition;
+                    playerController.LastPosition = Vector3.zero;
+                }
+
                 _playerSceneData.Add(player, new(playerObject, startPosition, sceneName, activeScene, -1));
             }
 
