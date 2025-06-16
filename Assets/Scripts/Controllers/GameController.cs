@@ -4,7 +4,7 @@ using Assets.Scripts.Models;
 using Assets.Scripts.Modules;
 using Assets.Scripts.UI.Controllers;
 using FishNet;
-using FishNet.Managing.Scened;
+using FishNet.Transporting;
 using UnityEngine;
 
 namespace Assets.Scripts.Controllers
@@ -13,15 +13,11 @@ namespace Assets.Scripts.Controllers
     {
         public static GameController Singleton { get; private set; }
 
-        [SerializeField] private Sprite knightSprite;
-        [SerializeField] private Sprite wizardSprite;
-        [SerializeField] private Sprite rogueSprite;
-
         private void RegisterEvents()
         {
             InstanceFinder.SceneManager.OnQueueStart += LoadQueueStarted;
             InstanceFinder.SceneManager.OnQueueEnd += LoadQueueEnded;
-            InstanceFinder.ClientManager.OnClientTimeOut += OnConnectionStop;
+            InstanceFinder.ClientManager.OnClientConnectionState += OnConnectionStop;
             PlayerController.OnEscapePressed += TogglePauseMenu;
         }
 
@@ -32,7 +28,7 @@ namespace Assets.Scripts.Controllers
 
             InstanceFinder.SceneManager.OnQueueStart -= LoadQueueStarted;
             InstanceFinder.SceneManager.OnQueueEnd -= LoadQueueEnded;
-            InstanceFinder.ClientManager.OnClientTimeOut -= OnConnectionStop;
+            InstanceFinder.ClientManager.OnClientConnectionState -= OnConnectionStop;
             PlayerController.OnEscapePressed -= TogglePauseMenu;
         }
 
@@ -103,8 +99,11 @@ namespace Assets.Scripts.Controllers
             Disconnect();
         }
 
-        private void OnConnectionStop()
+        private void OnConnectionStop(ClientConnectionStateArgs args)
         {
+            if (args.ConnectionState != LocalConnectionState.Stopped)
+                return;
+
             Disconnect();
         }
 
