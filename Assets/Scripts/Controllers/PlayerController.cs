@@ -264,7 +264,12 @@ namespace Assets.Scripts.Controllers
         [Server]
         public void Save(Action onSave = null)
         {
-            IPlayerData saveData = new PlayerData(playerCharacter.Value, transform.position, ActiveScene);
+            Vector3 savePosition = gameObject.transform.position;
+
+            if (gameObject.scene.name != ActiveScene)
+                savePosition = LastPosition;
+
+            IPlayerData saveData = new PlayerData(playerCharacter.Value, savePosition, ActiveScene);
 
             GameDataModule.Singleton.SavePlayerData(playerCharacter.Value.GetId(), saveData, response =>
             {
