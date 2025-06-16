@@ -15,8 +15,8 @@ namespace Assets.Scripts.Modules.Validation.Rules
 
         public ValidationResult Validate(object value)
         {
-
-            if (value.Equals(_compared_to)) {   
+            if (!value.Equals(_compared_to))
+            {
                 return ValidationResult.Failure(ValidationRuleEnum.Compare, "Values does not match.");
             }
 
