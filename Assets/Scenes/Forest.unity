@@ -1031,10 +1031,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectToSpawn: {fileID: 7502699605544101477, guid: 5434096de4523f541a3150d1194621ac, type: 3}
-  xOffset: 0
-  yOffset: 0
+  xOffset: 1.5
+  yOffset: 1.5
   zOffset: 0
   roamArea: {fileID: 1566062553}
+  respawnTime: 10
 --- !u!1001 &40148508
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5618,10 +5619,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectToSpawn: {fileID: 7502699605544101477, guid: 5434096de4523f541a3150d1194621ac, type: 3}
-  xOffset: 0
-  yOffset: 0
+  xOffset: 1.5
+  yOffset: 1.5
   zOffset: 0
   roamArea: {fileID: 1566062553}
+  respawnTime: 10
 --- !u!1001 &286037816
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7470,10 +7472,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectToSpawn: {fileID: 7502699605544101477, guid: 576bea432699fe643a291f7af8357d60, type: 3}
-  xOffset: 0
-  yOffset: 0
+  xOffset: 1.5
+  yOffset: 1.5
   zOffset: 0
   roamArea: {fileID: 893908433}
+  respawnTime: 10
 --- !u!1001 &417256771
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8503,10 +8506,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectToSpawn: {fileID: 7502699605544101477, guid: 576bea432699fe643a291f7af8357d60, type: 3}
-  xOffset: 0
-  yOffset: 0
+  xOffset: 1.5
+  yOffset: 1.5
   zOffset: 0
   roamArea: {fileID: 1997065465}
+  respawnTime: 10
 --- !u!1001 &480060176
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9130,10 +9134,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectToSpawn: {fileID: 7502699605544101477, guid: 11025d0b806fd31498901df3bd7c9004, type: 3}
-  xOffset: 0
-  yOffset: 0
+  xOffset: 1.5
+  yOffset: 1.5
   zOffset: 0
   roamArea: {fileID: 879235959}
+  respawnTime: 10
 --- !u!1001 &519046323
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10575,10 +10580,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectToSpawn: {fileID: 7502699605544101477, guid: 5434096de4523f541a3150d1194621ac, type: 3}
-  xOffset: 0
-  yOffset: 0
+  xOffset: 1.5
+  yOffset: 1.5
   zOffset: 0
   roamArea: {fileID: 1844187040}
+  respawnTime: 10
 --- !u!1001 &613484295
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12354,10 +12360,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectToSpawn: {fileID: 7502699605544101477, guid: 576bea432699fe643a291f7af8357d60, type: 3}
-  xOffset: 0
-  yOffset: 0
+  xOffset: 1.5
+  yOffset: 1.5
   zOffset: 0
   roamArea: {fileID: 1244225331}
+  respawnTime: 10
 --- !u!1001 &736405634
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -35199,10 +35206,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectToSpawn: {fileID: 7502699605544101477, guid: 576bea432699fe643a291f7af8357d60, type: 3}
-  xOffset: 0
-  yOffset: 0
+  xOffset: 1.5
+  yOffset: 1.5
   zOffset: 0
   roamArea: {fileID: 893908433}
+  respawnTime: 10
 --- !u!1001 &813450173
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -37127,10 +37135,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectToSpawn: {fileID: 7502699605544101477, guid: 11025d0b806fd31498901df3bd7c9004, type: 3}
-  xOffset: 0
-  yOffset: 0
+  xOffset: 1.5
+  yOffset: 1.5
   zOffset: 0
   roamArea: {fileID: 171532590}
+  respawnTime: 10
 --- !u!1001 &933164787
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -37890,10 +37899,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectToSpawn: {fileID: 7502699605544101477, guid: 5434096de4523f541a3150d1194621ac, type: 3}
-  xOffset: 0
-  yOffset: 0
+  xOffset: 1.5
+  yOffset: 1.5
   zOffset: 0
   roamArea: {fileID: 2126390839}
+  respawnTime: 10
 --- !u!1001 &993397603
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -39341,10 +39351,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectToSpawn: {fileID: 7502699605544101477, guid: 11025d0b806fd31498901df3bd7c9004, type: 3}
-  xOffset: 0
-  yOffset: 0
+  xOffset: 1.5
+  yOffset: 1.5
   zOffset: 0
   roamArea: {fileID: 1876505477}
+  respawnTime: 10
 --- !u!1001 &1096909442
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -40711,10 +40722,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectToSpawn: {fileID: 7502699605544101477, guid: 23740d4d706fdab478ea3535d6b6c74b, type: 3}
-  xOffset: 0
-  yOffset: 0
+  xOffset: 1.5
+  yOffset: 1.5
   zOffset: 0
   roamArea: {fileID: 353790948}
+  respawnTime: 10
 --- !u!1001 &1170312157
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -322545,10 +322557,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectToSpawn: {fileID: 7502699605544101477, guid: 11025d0b806fd31498901df3bd7c9004, type: 3}
-  xOffset: 0
-  yOffset: 0
+  xOffset: 1.5
+  yOffset: 1.5
   zOffset: 0
   roamArea: {fileID: 1940084514}
+  respawnTime: 10
 --- !u!1001 &1322217825
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -323332,10 +323345,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectToSpawn: {fileID: 7502699605544101477, guid: 11025d0b806fd31498901df3bd7c9004, type: 3}
-  xOffset: 0
-  yOffset: 0
+  xOffset: 1.5
+  yOffset: 1.5
   zOffset: 0
   roamArea: {fileID: 879235959}
+  respawnTime: 10
 --- !u!1001 &1391856703
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -323691,10 +323705,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectToSpawn: {fileID: 7502699605544101477, guid: 576bea432699fe643a291f7af8357d60, type: 3}
-  xOffset: 0
-  yOffset: 0
+  xOffset: 1.5
+  yOffset: 1.5
   zOffset: 0
   roamArea: {fileID: 198735707}
+  respawnTime: 10
 --- !u!1001 &1420690904
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -356252,10 +356267,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectToSpawn: {fileID: 7502699605544101477, guid: 576bea432699fe643a291f7af8357d60, type: 3}
-  xOffset: 0
-  yOffset: 0
+  xOffset: 1.5
+  yOffset: 1.5
   zOffset: 0
   roamArea: {fileID: 1160336945}
+  respawnTime: 10
 --- !u!1001 &1520374943
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -382383,10 +382399,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectToSpawn: {fileID: 7502699605544101477, guid: 11025d0b806fd31498901df3bd7c9004, type: 3}
-  xOffset: 0
-  yOffset: 0
+  xOffset: 1.5
+  yOffset: 1.5
   zOffset: 0
   roamArea: {fileID: 1940084514}
+  respawnTime: 10
 --- !u!1001 &1800437972
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -411316,10 +411333,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectToSpawn: {fileID: 7502699605544101477, guid: 11025d0b806fd31498901df3bd7c9004, type: 3}
-  xOffset: 0
-  yOffset: 0
+  xOffset: 1.5
+  yOffset: 1.5
   zOffset: 0
   roamArea: {fileID: 752488133}
+  respawnTime: 10
 --- !u!1001 &2052642472
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -412129,10 +412147,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectToSpawn: {fileID: 7502699605544101477, guid: 576bea432699fe643a291f7af8357d60, type: 3}
-  xOffset: 0
-  yOffset: 0
+  xOffset: 1.5
+  yOffset: 1.5
   zOffset: 0
   roamArea: {fileID: 1244225331}
+  respawnTime: 10
 --- !u!1001 &2125378997
 PrefabInstance:
   m_ObjectHideFlags: 0

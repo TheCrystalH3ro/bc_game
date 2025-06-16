@@ -123,6 +123,9 @@ namespace Assets.Scripts.Controllers.Server
                 instances.Add(enemyInstance, combatModule);
             }
 
+            enemy.Despawn();
+            Destroy(enemy.gameObject);
+
             combatModule.StartCombat(players, enemies);
 
             combatModule.CombatEnded.AddListener(OnCombatEnded);

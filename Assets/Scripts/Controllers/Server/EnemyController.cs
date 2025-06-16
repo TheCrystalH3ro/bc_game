@@ -24,6 +24,7 @@ namespace Assets.Scripts.Controllers.Server
         public static uint lastId = 0;
 
         public static event Action<EnemyController> EnemySpawned;
+        public event Action<EnemyController> EnemyDespawned;
 
         public override void OnStartNetwork()
         {
@@ -89,6 +90,11 @@ namespace Assets.Scripts.Controllers.Server
         public override RuntimeAnimatorController GetHitAnimator()
         {
             return hitAnimator;
+        }
+
+        public void Despawn()
+        {
+            EnemyDespawned.Invoke(this);
         }
 
         public float GetThinkingTime(FlashCard flashCard)
